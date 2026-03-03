@@ -1,0 +1,253 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1240" height="1754" viewBox="0 0 1240 1754" role="img" aria-label="PM2230 Advanced One-Page Report Template">
+  <defs>
+    <linearGradient id="pageBg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0b1220"/>
+      <stop offset="60%" stop-color="#111b30"/>
+      <stop offset="100%" stop-color="#0c1728"/>
+    </linearGradient>
+    <linearGradient id="sheet" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#f8fbff"/>
+      <stop offset="100%" stop-color="#eef4fa"/>
+    </linearGradient>
+    <linearGradient id="hero" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0f3c7d"/>
+      <stop offset="100%" stop-color="#0ea5e9"/>
+    </linearGradient>
+    <linearGradient id="trendFill" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#38bdf8" stop-opacity="0.45"/>
+      <stop offset="100%" stop-color="#38bdf8" stop-opacity="0.03"/>
+    </linearGradient>
+    <linearGradient id="riskLow" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#16a34a"/>
+      <stop offset="100%" stop-color="#22c55e"/>
+    </linearGradient>
+    <linearGradient id="riskMid" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#d97706"/>
+      <stop offset="100%" stop-color="#f59e0b"/>
+    </linearGradient>
+    <linearGradient id="riskHigh" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#dc2626"/>
+      <stop offset="100%" stop-color="#ef4444"/>
+    </linearGradient>
+
+    <filter id="softShadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="8" stdDeviation="12" flood-color="#020617" flood-opacity="0.25"/>
+    </filter>
+
+    <style>
+      .h1 { font: 700 44px 'Segoe UI', Arial, sans-serif; fill: #ffffff; letter-spacing: .3px; }
+      .h2 { font: 700 25px 'Segoe UI', Arial, sans-serif; fill: #0f172a; }
+      .h3 { font: 700 20px 'Segoe UI', Arial, sans-serif; fill: #1e293b; }
+      .label { font: 600 16px 'Segoe UI', Arial, sans-serif; fill: #64748b; }
+      .value { font: 700 34px 'Segoe UI', Arial, sans-serif; fill: #0f172a; }
+      .small { font: 500 14px 'Segoe UI', Arial, sans-serif; fill: #64748b; }
+      .body { font: 500 15px 'Segoe UI', Arial, sans-serif; fill: #334155; }
+      .bullet { font: 500 15px 'Segoe UI', Arial, sans-serif; fill: #1f2937; }
+      .mono { font: 600 14px Consolas, 'Courier New', monospace; fill: #1e293b; }
+      .chipText { font: 700 14px 'Segoe UI', Arial, sans-serif; fill: #0f172a; }
+      .whiteSoft { fill: #e2e8f0; }
+      .axis { stroke: #dbe6f0; stroke-width: 1.2; }
+      .grid { stroke: #dce7f2; stroke-width: 1; stroke-dasharray: 4 5; }
+    </style>
+  </defs>
+
+  <rect width="1240" height="1754" fill="url(#pageBg)"/>
+  <rect x="26" y="26" width="1188" height="1702" rx="30" fill="url(#sheet)" filter="url(#softShadow)"/>
+
+  <!-- Hero Header -->
+  <g transform="translate(58,56)">
+    <rect x="0" y="0" width="1124" height="188" rx="24" fill="url(#hero)"/>
+    <circle cx="1030" cy="42" r="50" fill="#ffffff" fill-opacity="0.12"/>
+    <circle cx="1082" cy="136" r="36" fill="#ffffff" fill-opacity="0.10"/>
+
+    <text class="h1" x="30" y="66">PM2230 Advanced Report Template</text>
+    <text class="whiteSoft" style="font:500 20px 'Segoe UI', Arial, sans-serif" x="30" y="102">
+      วิเคราะห์เชิงลึก • กราฟแนวโน้ม • จัดหมวดหมู่ความเสี่ยง • Action Plan พร้อมใช้งาน
+    </text>
+    <text class="whiteSoft" style="font:600 15px 'Segoe UI', Arial, sans-serif" x="30" y="144">
+      Period: 24 ชั่วโมงล่าสุด | Sampling: 1 วินาที | Data Quality: 97.8% valid samples
+    </text>
+    <text class="whiteSoft" style="font:600 15px 'Segoe UI', Arial, sans-serif" x="30" y="168">
+      Report Time: 03 Mar 2026 11:40:00  |  Site: Main Distribution Panel (MDP)
+    </text>
+
+    <rect x="840" y="112" width="250" height="56" rx="28" fill="#dcfce7"/>
+    <text style="font:700 15px 'Segoe UI', Arial, sans-serif; fill:#166534" x="965" y="134" text-anchor="middle">Overall Health Index</text>
+    <text style="font:800 24px 'Segoe UI', Arial, sans-serif; fill:#14532d" x="965" y="160" text-anchor="middle">91 / 100</text>
+  </g>
+
+  <!-- KPI Row -->
+  <g transform="translate(58,270)">
+    <rect x="0" y="0" width="268" height="142" rx="18" fill="#ffffff" stroke="#d6e2ee"/>
+    <rect x="286" y="0" width="268" height="142" rx="18" fill="#ffffff" stroke="#d6e2ee"/>
+    <rect x="572" y="0" width="268" height="142" rx="18" fill="#ffffff" stroke="#d6e2ee"/>
+    <rect x="858" y="0" width="266" height="142" rx="18" fill="#ffffff" stroke="#d6e2ee"/>
+
+    <text class="label" x="20" y="36">Active Power (P_Total)</text>
+    <text class="value" x="20" y="88">36.42 kW</text>
+    <text class="small" x="20" y="116">Peak 24h: 41.10 kW</text>
+
+    <text class="label" x="306" y="36">Power Factor (PF_Total)</text>
+    <text class="value" x="306" y="88">0.952</text>
+    <text class="small" x="306" y="116">Target ≥ 0.95</text>
+
+    <text class="label" x="592" y="36">THD Voltage / Current</text>
+    <text class="value" x="592" y="88">3.4% / 16.8%</text>
+    <text class="small" x="592" y="116">IEEE-519 Watch Zone</text>
+
+    <text class="label" x="878" y="36">Energy Efficiency</text>
+    <text class="value" x="878" y="88">kWh/kVAh = 0.93</text>
+    <text class="small" x="878" y="116">Reactive Ratio = 0.28</text>
+  </g>
+
+  <!-- Main Mid Section -->
+  <g transform="translate(58,432)">
+    <!-- Left big trend -->
+    <rect x="0" y="0" width="750" height="456" rx="20" fill="#ffffff" stroke="#d6e2ee"/>
+    <text class="h2" x="24" y="40">Load Trend + Stability Analysis</text>
+    <text class="small" x="24" y="64">กราฟกำลังไฟฟ้ารวม (kW) พร้อมเส้นค่าเฉลี่ย, peak window และ deviation</text>
+
+    <line class="axis" x1="34" y1="388" x2="716" y2="388"/>
+    <line class="grid" x1="34" y1="328" x2="716" y2="328"/>
+    <line class="grid" x1="34" y1="268" x2="716" y2="268"/>
+    <line class="grid" x1="34" y1="208" x2="716" y2="208"/>
+    <line class="grid" x1="34" y1="148" x2="716" y2="148"/>
+
+    <path d="M34 338 L82 330 L130 340 L178 324 L226 306 L274 314 L322 298 L370 286 L418 278 L466 260 L514 246 L562 252 L610 236 L658 224 L706 214 L706 388 L34 388 Z" fill="url(#trendFill)"/>
+    <path d="M34 338 L82 330 L130 340 L178 324 L226 306 L274 314 L322 298 L370 286 L418 278 L466 260 L514 246 L562 252 L610 236 L658 224 L706 214" fill="none" stroke="#0284c7" stroke-width="4" stroke-linecap="round"/>
+    <line x1="34" y1="292" x2="716" y2="292" stroke="#16a34a" stroke-width="2.5" stroke-dasharray="8 6"/>
+    <text class="small" x="724" y="296">Avg</text>
+
+    <rect x="24" y="404" width="702" height="34" rx="10" fill="#f8fbff" stroke="#dce7f2"/>
+    <text class="small" x="36" y="426">Min 29.4kW</text>
+    <text class="small" x="246" y="426">Avg 34.1kW</text>
+    <text class="small" x="430" y="426">Max 41.1kW</text>
+    <text class="small" x="590" y="426">StdDev 2.8kW</text>
+
+    <!-- Right score + risk matrix -->
+    <rect x="770" y="0" width="354" height="214" rx="20" fill="#ffffff" stroke="#d6e2ee"/>
+    <text class="h3" x="792" y="36">Category Scores</text>
+
+    <text class="small" x="792" y="66">Voltage Stability</text>
+    <rect x="792" y="72" width="300" height="10" rx="5" fill="#e2e8f0"/>
+    <rect x="792" y="72" width="276" height="10" rx="5" fill="#22c55e"/>
+    <text class="small" x="1098" y="82" text-anchor="end">92</text>
+
+    <text class="small" x="792" y="102">Load Balance</text>
+    <rect x="792" y="108" width="300" height="10" rx="5" fill="#e2e8f0"/>
+    <rect x="792" y="108" width="261" height="10" rx="5" fill="#0ea5e9"/>
+    <text class="small" x="1098" y="118" text-anchor="end">87</text>
+
+    <text class="small" x="792" y="138">Power Quality</text>
+    <rect x="792" y="144" width="300" height="10" rx="5" fill="#e2e8f0"/>
+    <rect x="792" y="144" width="234" height="10" rx="5" fill="#f59e0b"/>
+    <text class="small" x="1098" y="154" text-anchor="end">78</text>
+
+    <text class="small" x="792" y="174">Energy Efficiency</text>
+    <rect x="792" y="180" width="300" height="10" rx="5" fill="#e2e8f0"/>
+    <rect x="792" y="180" width="270" height="10" rx="5" fill="#16a34a"/>
+    <text class="small" x="1098" y="190" text-anchor="end">90</text>
+
+    <rect x="770" y="230" width="354" height="226" rx="20" fill="#ffffff" stroke="#d6e2ee"/>
+    <text class="h3" x="792" y="266">Risk Matrix (Priority)</text>
+
+    <rect x="792" y="286" width="300" height="28" rx="14" fill="url(#riskHigh)"/>
+    <text style="font:700 14px 'Segoe UI'; fill:#fff" x="804" y="305">H1: THDi trend rising during motor burst</text>
+
+    <rect x="792" y="324" width="300" height="28" rx="14" fill="url(#riskMid)"/>
+    <text style="font:700 14px 'Segoe UI'; fill:#fff" x="804" y="343">M1: L3 load 8-10% above L2 average</text>
+
+    <rect x="792" y="362" width="300" height="28" rx="14" fill="url(#riskMid)"/>
+    <text style="font:700 14px 'Segoe UI'; fill:#fff" x="804" y="381">M2: PF dips below 0.92 at peak windows</text>
+
+    <rect x="792" y="400" width="300" height="28" rx="14" fill="url(#riskLow)"/>
+    <text style="font:700 14px 'Segoe UI'; fill:#fff" x="804" y="419">L1: Voltage profile within nominal band</text>
+  </g>
+
+  <!-- Lower Section -->
+  <g transform="translate(58,910)">
+    <rect x="0" y="0" width="548" height="348" rx="20" fill="#ffffff" stroke="#d6e2ee"/>
+    <rect x="576" y="0" width="548" height="348" rx="20" fill="#ffffff" stroke="#d6e2ee"/>
+
+    <text class="h3" x="22" y="36">Phase Balance (Voltage/Current)</text>
+
+    <text class="body" x="22" y="82">L1 231.7V | 5.30A</text>
+    <rect x="210" y="70" width="318" height="10" rx="5" fill="#e2e8f0"/>
+    <rect x="210" y="70" width="300" height="10" rx="5" fill="#0ea5e9"/>
+    <rect x="210" y="86" width="318" height="10" rx="5" fill="#e2e8f0"/>
+    <rect x="210" y="86" width="272" height="10" rx="5" fill="#6366f1"/>
+
+    <text class="body" x="22" y="138">L2 229.9V | 4.88A</text>
+    <rect x="210" y="126" width="318" height="10" rx="5" fill="#e2e8f0"/>
+    <rect x="210" y="126" width="297" height="10" rx="5" fill="#0ea5e9"/>
+    <rect x="210" y="142" width="318" height="10" rx="5" fill="#e2e8f0"/>
+    <rect x="210" y="142" width="251" height="10" rx="5" fill="#6366f1"/>
+
+    <text class="body" x="22" y="194">L3 232.4V | 5.62A</text>
+    <rect x="210" y="182" width="318" height="10" rx="5" fill="#e2e8f0"/>
+    <rect x="210" y="182" width="306" height="10" rx="5" fill="#0ea5e9"/>
+    <rect x="210" y="198" width="318" height="10" rx="5" fill="#e2e8f0"/>
+    <rect x="210" y="198" width="286" height="10" rx="5" fill="#6366f1"/>
+
+    <text class="small" x="22" y="246">Current Imbalance: 7.9% (target &lt; 10%)</text>
+    <text class="small" x="22" y="270">Voltage Unbalance: 1.2% (target &lt; 2%)</text>
+    <text class="small" x="22" y="294">Neutral current indicates moderate asymmetry at peak load</text>
+
+    <text class="h3" x="598" y="36">Power Quality Deep-Dive</text>
+
+    <text class="body" x="598" y="82">THDv Avg: 3.4%  (Good ≤ 5%)</text>
+    <rect x="822" y="70" width="300" height="12" rx="6" fill="#e2e8f0"/>
+    <rect x="822" y="70" width="146" height="12" rx="6" fill="#22c55e"/>
+
+    <text class="body" x="598" y="128">THDi Avg: 16.8% (Watch ≤ 20%)</text>
+    <rect x="822" y="116" width="300" height="12" rx="6" fill="#e2e8f0"/>
+    <rect x="822" y="116" width="215" height="12" rx="6" fill="#f59e0b"/>
+
+    <text class="body" x="598" y="174">PF Drift Window: 0.91 - 0.97</text>
+    <rect x="822" y="162" width="300" height="12" rx="6" fill="#e2e8f0"/>
+    <rect x="822" y="162" width="244" height="12" rx="6" fill="#0ea5e9"/>
+
+    <text class="body" x="598" y="220">Frequency Stability: 49.95 - 50.04Hz</text>
+    <rect x="822" y="208" width="300" height="12" rx="6" fill="#e2e8f0"/>
+    <rect x="822" y="208" width="285" height="12" rx="6" fill="#16a34a"/>
+
+    <text class="small" x="598" y="264">Observation: Harmonic current peaks align with compressor start cycles.</text>
+    <text class="small" x="598" y="286">Recommendation: inspect VFD filters and stagger heavy-load start sequence.</text>
+  </g>
+
+  <g transform="translate(58,1280)">
+    <rect x="0" y="0" width="1124" height="392" rx="22" fill="#ffffff" stroke="#d6e2ee"/>
+    <text class="h2" x="24" y="40">Detailed Narrative Analysis &amp; Action Plan</text>
+
+    <text class="bullet" x="24" y="78">• <tspan font-weight="700">Executive Summary:</tspan> ระบบโดยรวมอยู่ระดับดี (91/100) ความเสี่ยงหลักมาจาก THDi ที่เพิ่มขึ้นในช่วงโหลดมอเตอร์สูง</text>
+    <text class="bullet" x="24" y="106">  และมีความไม่สมดุลโหลดเฟส L3 สูงกว่า baseline ราว 8-10% ซึ่งอาจเพิ่ม I²R loss ระยะยาว</text>
+
+    <text class="bullet" x="24" y="144">• <tspan font-weight="700">Root-Cause Hypothesis:</tspan> กลุ่มโหลดไม่เชิงเส้น (VFD / rectifier / switching supply) เป็นตัวผลัก THDi</text>
+    <text class="bullet" x="24" y="172">  ขณะที่แผนการกระจายโหลดปัจจุบันยังไม่สมดุลช่วง peak window</text>
+
+    <text class="bullet" x="24" y="210">• <tspan font-weight="700">Immediate Actions (0-7 days):</tspan></text>
+    <text class="bullet" x="44" y="238">1) ตั้ง Alarm threshold: PF &lt; 0.92, THDi &gt; 20%, I_unb &gt; 10%</text>
+    <text class="bullet" x="44" y="266">2) Re-balance feeder between L2 and L3 during high-demand periods</text>
+    <text class="bullet" x="44" y="294">3) Verify capacitor bank step logic against real reactive demand profile</text>
+
+    <text class="bullet" x="24" y="332">• <tspan font-weight="700">Strategic Actions (2-6 weeks):</tspan> ติดตาม trend 24/7, ทำ harmonic study แบบรายช่วงเวลา และประเมิน ROI การติดตั้ง filter</text>
+
+    <rect x="726" y="62" width="374" height="296" rx="16" fill="#f8fbff" stroke="#d6e2ee"/>
+    <text class="h3" x="744" y="96">Analysis Confidence</text>
+    <text class="small" x="744" y="126">Data Completeness</text>
+    <rect x="744" y="136" width="330" height="12" rx="6" fill="#e2e8f0"/><rect x="744" y="136" width="308" height="12" rx="6" fill="#16a34a"/>
+    <text class="small" x="1080" y="146" text-anchor="end">93%</text>
+
+    <text class="small" x="744" y="176">Model Certainty</text>
+    <rect x="744" y="186" width="330" height="12" rx="6" fill="#e2e8f0"/><rect x="744" y="186" width="284" height="12" rx="6" fill="#0ea5e9"/>
+    <text class="small" x="1080" y="196" text-anchor="end">86%</text>
+
+    <text class="small" x="744" y="226">Actionability</text>
+    <rect x="744" y="236" width="330" height="12" rx="6" fill="#e2e8f0"/><rect x="744" y="236" width="300" height="12" rx="6" fill="#22c55e"/>
+    <text class="small" x="1080" y="246" text-anchor="end">91%</text>
+
+    <text class="small" x="744" y="286">Template ready for A4 print and dashboard embedding</text>
+    <text class="mono" x="744" y="312">Template: PM2230-A4-PRO-v2</text>
+    <text class="mono" x="744" y="334">Sections: KPI, Trends, Quality, Risks, Actions</text>
+  </g>
+</svg>

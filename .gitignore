@@ -1,0 +1,28 @@
+.venv/
+.next/
+node_modules/
+__pycache__/
+*.pyc
+.DS_Store
+
+# Build outputs (generated - do not commit)
+frontend/out/
+frontend/dist/
+backend/dist/
+backend/build/
+*.spec
+
+# Environment files - Frontend and Backend
+frontend/.env
+frontend/.env.local
+frontend/.env.development
+frontend/.env.production
+backend/.env
+backend/.env.local
+
+# Keep example files for reference
+!frontend/.env.example
+!backend/.env.example
+
+*.csv
+*.json

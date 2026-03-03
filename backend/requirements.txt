@@ -1,0 +1,13 @@
+# Production dependencies
+fastapi==0.115.12
+uvicorn[standard]==0.34.0
+pydantic==2.10.6
+pymodbus==3.8.6
+pyserial==3.5
+python-dotenv==1.0.1
+
+# Development/Testing dependencies
+pytest==8.3.4
+pytest-asyncio==0.24.0
+pytest-cov==6.0.0
+httpx==0.28.1

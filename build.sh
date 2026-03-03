@@ -1,0 +1,88 @@
+#!/bin/bash
+
+echo "======================================================"
+echo "PM2230 Dashboard - Linux Build Automation Tool"
+echo "======================================================"
+echo ""
+
+# Clear potentially colliding ports
+echo "[*] Cleaning up ports 8003 and 3000..."
+sudo fuser -k 8003/tcp 3000/tcp || true
+
+# 0. Setup Environment Files
+echo "[0/4] Checking environment files..."
+if [ ! -f backend/.env ]; then
+    echo "Creating backend/.env from example..."
+    cp backend/.env.example backend/.env
+fi
+
+# Prompt for API Key if not set
+if grep -q "DASHSCOPE_API_KEY=sk-your-api-key-here" backend/.env || ! grep -q "DASHSCOPE_API_KEY=" backend/.env; then
+    echo ""
+    echo "⚠️  DashScope AI API Key not found!"
+    read -p "Please enter your DashScope API Key: " api_key
+    if [ ! -z "$api_key" ]; then
+        sed -i "s/DASHSCOPE_API_KEY=.*/DASHSCOPE_API_KEY=$api_key/" backend/.env
+        echo "✅ API Key updated in backend/.env"
+    fi
+fi
+
+if [ ! -f frontend/.env.local ]; then
+    echo "Creating frontend/.env.local from example..."
+    cp frontend/.env.example frontend/.env.local
+fi
+
+# 1. Setup Backend & Build Sidecar
+echo "[1/4] Setting up Python Backend..."
+cd backend
+if [ ! -d .venv ]; then
+    echo "Creating virtual environment..."
+    python3 -m venv .venv
+fi
+source .venv/bin/activate
+echo "Installing Python dependencies..."
+python3 -m pip install --upgrade pip
+pip install -r requirements.txt
+pip install pyinstaller
+
+echo "Bundling Python backend into executable (Sidecar)..."
+pyinstaller --noconfirm --onefile --console --name "backend-server" main.py
+cp .env dist/ 2>/dev/null || true
+cd ..
+
+# 2. Setup Frontend
+echo ""
+echo "[2/4] Setting up Frontend Dependencies..."
+cd frontend
+echo "Installing Node.js packages..."
+npm install --legacy-peer-deps
+
+# 3. Build Static Frontend
+echo ""
+echo "[3/4] Building Frontend (Next.js Export)..."
+npm run build
+
+# 4. Package Electron App
+echo ""
+echo "[4/4] Packaging Desktop Application..."
+npm run electron-dist
+cd ..
+
+# 5. Copy frontend into backend/dist for Web Mode (AFTER frontend is built!)
+echo ""
+echo "[+] Preparing Web Mode package..."
+rm -rf backend/dist/frontend_web
+cp -r frontend/out backend/dist/frontend_web
+cp start-web.bat backend/dist/ 2>/dev/null || true
+cp start-web.sh backend/dist/ 2>/dev/null || true
+chmod +x backend/dist/start-web.sh 2>/dev/null || true
+chmod +x backend/dist/backend-server 2>/dev/null || true
+
+echo ""
+echo "======================================================"
+echo "BUILD COMPLETED!"
+echo ""
+echo "📱 Electron App : frontend/dist/PM2230*.AppImage"
+echo "🌐 Web Package  : backend/dist/  ← ZIP this to share"
+echo "======================================================"
+read -p "Press [Enter] to exit..."
