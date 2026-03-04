@@ -21,16 +21,19 @@ if not exist frontend\.env.local (
     copy frontend\.env.example frontend\.env.local
 )
 
-:: Prompt for API Key if not set
-findstr /C:"DASHSCOPE_API_KEY=sk-your-api-key-here" backend\.env >nul
-if %errorlevel%==0 (
-    echo.
-    echo DashScope AI API Key not found!
-    set /p api_key="Please enter your DashScope API Key: "
-    if not "!api_key!"=="" (
-        powershell -Command "(Get-Content backend\.env) -replace 'DASHSCOPE_API_KEY=sk-your-api-key-here', 'DASHSCOPE_API_KEY=!api_key!' | Set-Content backend\.env"
-        echo API Key updated in backend\.env
-    )
+:: Always Prompt for API Key
+echo.
+echo ==============================================
+echo  DashScope AI API Key Configuration
+echo  (Leave blank to keep existing key)
+echo ==============================================
+set /p api_key="Please enter your DashScope API Key: "
+if not "!api_key!"=="" (
+    :: Extract the current key and replace it
+    powershell -Command "$content = Get-Content backend\.env; $newContent = $content -replace 'DASHSCOPE_API_KEY=.*', ('DASHSCOPE_API_KEY=' + '!api_key!'); Set-Content backend\.env $newContent"
+    echo [OK] API Key updated in backend\.env
+) else (
+    echo [INFO] Keeping existing API Key.
 )
 
 :: 1. Setup Backend
@@ -47,8 +50,7 @@ pip install -r requirements.txt
 pip install pyinstaller
 
 echo Bundling Python backend into executable (Sidecar)...
-pyinstaller --noconfirm --onefile --console --name "backend-server" main.py
-if exist .env (copy .env dist\ >nul)
+pyinstaller --noconfirm backend-server.spec
 cd ..
 
 :: 2. Setup Frontend

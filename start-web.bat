@@ -7,28 +7,6 @@ echo  PM2230 Dashboard - Web Mode Launcher
 echo ======================================================
 echo.
 
-:: Setup .env if not exists
-if not exist "%~dp0.env" (
-    echo [*] First-time setup...
-    echo DASHSCOPE_API_KEY=> "%~dp0.env"
-    echo DASHSCOPE_MODEL=qwen3.5-plus>> "%~dp0.env"
-    echo PM2230_API_PORT=8003>> "%~dp0.env"
-    echo PM2230_SIMULATE=0>> "%~dp0.env"
-    echo.
-    echo ==============================================
-    echo  ⚠️  กรุณาใส่ DashScope API Key สำหรับ AI
-    echo  (ข้ามได้ถ้าไม่ใช้ฟีเจอร์ AI Analysis)
-    echo ==============================================
-    set /p api_key="API Key (กด Enter เพื่อข้าม): "
-    if not "!api_key!"=="" (
-        echo DASHSCOPE_API_KEY=!api_key!> "%~dp0.env"
-        echo DASHSCOPE_MODEL=qwen-plus>> "%~dp0.env"
-        echo PM2230_API_PORT=8003>> "%~dp0.env"
-        echo PM2230_SIMULATE=0>> "%~dp0.env"
-        echo [OK] บันทึก API Key แล้ว
-    )
-    echo.
-)
 
 :: Clear port 8003 if in use
 for /f "tokens=5" %%a in ('netstat -aon ^| findstr :8003 2^>nul') do taskkill /f /pid %%a >nul 2>&1

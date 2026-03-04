@@ -27,11 +27,14 @@ from collections import defaultdict
 import re
 
 # Load environment variables from .env file
-# When running as a sidecar, look for .env next to the executable
 from dotenv import load_dotenv
-_env_path = os.path.join(os.path.dirname(sys.executable if getattr(sys, 'frozen', False) else __file__), '.env')
-load_dotenv(_env_path)
-load_dotenv()  # Also try current directory as fallback
+if getattr(sys, 'frozen', False):
+    # When frozen via PyInstaller, it is unpacked to _MEIPASS
+    _env_path = os.path.join(sys._MEIPASS, '.env')
+else:
+    # When running normally, it is in the current directory
+    _env_path = os.path.join(os.path.dirname(__file__), '.env')
+load_dotenv(_env_path, override=True)
 
 # Import PM2230 Client
 from pm2230_client import PM2230Client
@@ -147,9 +150,6 @@ class ConnectRequest(BaseModel):
 
 class AutoConnectRequest(BaseModel):
     """Request model for auto-connect with optional validation."""
-    validate: bool = Field(default=True, description="Whether to validate readings")
-
-
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Auto-connect PM2230 and start background polling."""

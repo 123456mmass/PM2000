@@ -1,7 +1,15 @@
+import sys
 import os
-from dotenv import load_dotenv
-load_dotenv()
-
+from dotenv import load_dotenv, dotenv_values
+if getattr(sys, 'frozen', False):
+    _env_path = os.path.join(sys._MEIPASS, '.env')
+    # Force override system environment variables with bundled ones
+    bundled_env = dotenv_values(_env_path)
+    for k, v in bundled_env.items():
+        os.environ[k] = str(v)
+else:
+    _env_path = os.path.join(os.path.dirname(__file__), '.env')
+    load_dotenv(_env_path, override=True)
 import json
 import hashlib
 import time
@@ -388,9 +396,10 @@ Always respond in Thai language with technical accuracy."""},
             "cache_key": cache_key
         }
     except httpx.HTTPStatusError as e:
-        logger.error(f"HTTP error from DashScope API: {e.response.status_code}")
+        error_text = e.response.text
+        logger.error(f"HTTP error from DashScope API: {e.response.status_code} - {error_text}")
         return {
-            "summary": f"❌ เกิดข้อผิดพลาด API: HTTP {e.response.status_code}",
+            "summary": f"❌ เกิดข้อผิดพลาด API: HTTP {e.response.status_code} - {error_text}",
             "is_cached": False,
             "cache_key": cache_key
         }
