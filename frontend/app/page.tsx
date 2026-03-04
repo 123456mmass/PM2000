@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useRef } from 'react';
 import { Page1 } from '@/components/pages/Page1';
 import { Page2 } from '@/components/pages/Page2';
 import { Page3 } from '@/components/pages/Page3';
@@ -114,6 +114,28 @@ const avg = (values: number[]) => values.reduce((sum, value) => sum + value, 0) 
 
 export default function Home() {
   const [activeTab, setActiveTab] = useState(1);
+  const headerRef = useRef<HTMLElement>(null);
+  const [headerOffset, setHeaderOffset] = useState(0);
+
+  // Natural top-anchored header scroll
+  useEffect(() => {
+    const handleScroll = () => {
+      if (!headerRef.current) return;
+      const headerHeight = headerRef.current.offsetHeight;
+      const currentScrollY = window.scrollY;
+
+      // Calculate offset: push header up as we scroll down
+      // Stay hidden once scrolled past header height
+      const newOffset = -Math.min(currentScrollY, headerHeight);
+      setHeaderOffset(newOffset);
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    // Run initially to set correct state if page is already scrolled
+    handleScroll();
+
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
   const [history, setHistory] = useState<HistoryPoint[]>([]);
   const [viewMode1, setViewMode1] = useState<'cards' | 'charts'>('cards');
   const [viewMode2, setViewMode2] = useState<'cards' | 'charts'>('cards');
@@ -136,7 +158,13 @@ export default function Home() {
   const [isLogging, setIsLogging] = useState(false);
   const [logSizeKb, setLogSizeKb] = useState(0);
 
-  const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8003/api/v1';
+  // Automatic API Base URL: 
+  // - In development (npm run dev): Use absolute URL to the host (supports mobile on same Wi-Fi)
+  // - In production (build/exe): Use relative path /api/v1 for portability
+  const isDev = process.env.NODE_ENV === 'development';
+  const API_BASE_URL = isDev
+    ? (process.env.NEXT_PUBLIC_API_URL || `http://${typeof window !== 'undefined' ? window.location.hostname : 'localhost'}:8003/api/v1`)
+    : '/api/v1';
 
   const {
     data,
@@ -484,7 +512,11 @@ export default function Home() {
   return (
     <main className="min-h-screen bg-gradient-to-br from-gray-900 to-gray-800">
       {/* Header */}
-      <header className="no-print bg-gray-800/50 backdrop-blur-sm border-b border-gray-700 sticky top-0 z-50">
+      <header
+        ref={headerRef}
+        style={{ transform: `translateY(${headerOffset}px)` }}
+        className="no-print bg-gray-800/50 backdrop-blur-md border-b border-gray-700 sticky top-0 z-50 will-change-transform"
+      >
         <div className="max-w-7xl mx-auto px-4 py-4">
           {/* Top Row: Title & Controls */}
           <div className="flex flex-col xl:flex-row xl:items-start justify-between gap-4 w-full">
@@ -539,55 +571,59 @@ export default function Home() {
                   onClick={handleToggleSimulateMode}
                   disabled={toggleLoading}
                   title="Click to toggle between Simulator Data and Real Device Data"
-                  className={`px-3 py-1.5 rounded-lg border flex items-center gap-2 text-sm font-medium transition cursor-pointer select-none
+                  className={`px-2 sm:px-3 py-1.5 rounded-lg border flex items-center gap-2 text-sm font-medium transition cursor-pointer select-none
                      ${toggleLoading ? 'opacity-50 cursor-wait' : 'hover:brightness-110'}
                      ${isSimulateMode
                       ? 'bg-purple-900/40 border-purple-500/50 text-purple-300'
                       : 'bg-emerald-900/40 border-emerald-500/50 text-emerald-300'}
                   `}
                 >
-                  <span className="whitespace-nowrap">{isSimulateMode ? '🧪 SIMULATOR' : '🔌 REAL DEVICE'}</span>
-                  <div className={`w-8 h-4 rounded-full p-0.5 transition-colors relative ${isSimulateMode ? 'bg-purple-600' : 'bg-emerald-600'}`}>
-                    <div className={`w-3 h-3 bg-white rounded-full transition-transform ${isSimulateMode ? 'translate-x-4' : 'translate-x-0'}`}></div>
+                  <span className="hidden sm:inline whitespace-nowrap">{isSimulateMode ? '🧪 SIMULATOR' : '🔌 REAL DEVICE'}</span>
+                  <span className="sm:hidden">{isSimulateMode ? '🧪' : '🔌'}</span>
+                  <div className={`w-6 h-3.5 sm:w-8 sm:h-4 rounded-full p-0.5 transition-colors relative ${isSimulateMode ? 'bg-purple-600' : 'bg-emerald-600'}`}>
+                    <div className={`w-2.5 h-2.5 sm:w-3 sm:h-3 bg-white rounded-full transition-transform ${isSimulateMode ? 'translate-x-3 sm:translate-x-4' : 'translate-x-0'}`}></div>
                   </div>
                 </button>
 
-                {!isSimulateMode && (
-                  <div className="flex items-center gap-2 pl-2 border-l border-gray-700">
-                    {isConnected ? (
-                      <div className="px-3 py-1.5 rounded-lg bg-green-500/10 border border-green-500/20 text-green-400 text-sm font-medium whitespace-nowrap">
-                        ✅ สนทนากับเครื่อง ({activePort || 'Unknown'})
+                {/* Status Indicator for both modes */}
+                <div className="flex items-center gap-1 sm:gap-2 pl-2 border-l border-gray-700">
+                  {isSimulateMode ? (
+                    <div className="px-2 sm:px-3 py-1.5 rounded-lg bg-purple-500/10 border border-purple-500/20 text-purple-400 text-[10px] sm:text-sm font-medium whitespace-nowrap">
+                      ✅ SIMULATOR MODE
+                    </div>
+                  ) : isConnected ? (
+                    <div className="px-2 sm:px-3 py-1.5 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-[10px] sm:text-sm font-medium whitespace-nowrap uppercase">
+                      ✅ CONNECTED ({activePort || 'OK'})
+                    </div>
+                  ) : (
+                    <>
+                      <div className="px-2 py-1.5 rounded-lg bg-rose-500/10 border border-rose-500/20 text-rose-400 text-[10px] sm:text-sm font-medium whitespace-nowrap animate-pulse">
+                        OFFLINE
                       </div>
-                    ) : (
-                      <>
-                        <div className="px-3 py-1.5 rounded-lg bg-rose-500/10 border border-rose-500/20 text-rose-400 text-sm font-medium whitespace-nowrap animate-pulse">
-                          🚫 ไม่มีการเชื่อมต่อ
-                        </div>
-                        <button
-                          type="button"
-                          onClick={handleScanAndConnect}
-                          disabled={isConnecting}
-                          className="px-3 py-1.5 bg-blue-600 hover:bg-blue-500 disabled:bg-gray-600 text-white border border-blue-500 rounded-lg text-sm font-medium transition flex items-center gap-2 shadow-sm whitespace-nowrap"
-                        >
-                          {isConnecting ? (
-                            <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                          ) : (
-                            '🔍 Connect'
-                          )}
-                        </button>
-                      </>
-                    )}
-                  </div>
-                )}
+                      <button
+                        type="button"
+                        onClick={handleScanAndConnect}
+                        disabled={isConnecting}
+                        className="px-2 py-1.5 bg-blue-600 hover:bg-blue-500 disabled:bg-gray-600 text-white border border-blue-500 rounded-lg text-[10px] sm:text-sm font-medium transition flex items-center gap-1 shadow-sm whitespace-nowrap"
+                      >
+                        {isConnecting ? (
+                          <div className="w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                        ) : (
+                          '🔍 CONNECT'
+                        )}
+                      </button>
+                    </>
+                  )}
+                </div>
               </div>
             </div>
           </div>
 
-          {/* Bottom Row: Tabs & Update Time */}
-          <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mt-6 w-full border-t border-gray-700/50 pt-4">
+          {/* Bottom Row: Tabs & Update Time (Unified Single Row) */}
+          <div className="flex flex-nowrap items-center gap-2 sm:gap-8 mt-4 w-full border-t border-gray-700/50 pt-3 overflow-x-auto no-scrollbar">
 
-            {/* Tabs */}
-            <div className="flex gap-2 overflow-x-auto pb-2 sm:pb-0">
+            {/* Tabs Group */}
+            <div className="flex flex-nowrap gap-1 bg-gray-900/40 p-1 rounded-xl border border-gray-700/50 shadow-inner shrink-0">
               {[
                 { id: 1, name: 'ภาพรวม', icon: '📊' },
                 { id: 2, name: 'กำลังไฟฟ้า', icon: '⚡' },
@@ -597,27 +633,34 @@ export default function Home() {
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
-                  className={`px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition ${activeTab === tab.id
-                    ? 'bg-blue-600 text-white shadow-md'
-                    : 'bg-gray-800 text-gray-300 hover:bg-gray-700 border border-gray-700/50'
+                  className={`px-2 py-1.5 sm:px-4 sm:py-1.5 rounded-lg text-xs font-semibold transition-all duration-300 flex items-center gap-2
+                    ${activeTab === tab.id
+                      ? 'bg-blue-600 text-white shadow-lg shadow-blue-900/40'
+                      : 'text-gray-400 hover:text-white hover:bg-gray-800'
                     }`}
                 >
-                  {tab.icon} {tab.name}
+                  <span className="text-base sm:text-sm">{tab.icon}</span>
+                  <span className="hidden md:block whitespace-nowrap">{tab.name}</span>
                 </button>
               ))}
             </div>
 
-            {/* Update Time & Status (No Box, Aligned under Device) */}
-            <div className="flex items-center justify-end gap-3 px-2 flex-shrink-0">
-              <div className="text-right hidden sm:block">
-                <p className="text-[10px] text-gray-400 leading-none mb-1 mt-0.5 uppercase tracking-widest">Update</p>
-                <p className="text-gray-300 text-xs font-mono leading-none">
-                  {page1 ? new Date(page1.timestamp).toLocaleString('th-TH') : '-'}
+            {/* Status & Timestamp Group (Directly following tabs on same row) */}
+            <div className="flex items-center gap-3 sm:gap-8 ml-auto shrink-0">
+              {/* Timestamp block */}
+              <div className="text-left border-l border-gray-700/50 pl-3">
+                <p className="text-[10px] text-gray-500 uppercase tracking-widest leading-none mb-1 opacity-70">Last Update</p>
+                <p className="text-gray-300 text-[9px] sm:text-xs font-mono leading-none">
+                  {/* Always show only time on ultra-small screens to save space */}
+                  <span className="sm:hidden">{page1 ? new Date(page1.timestamp).toLocaleTimeString('th-TH') : '--:--'}</span>
+                  <span className="hidden sm:inline">{page1 ? new Date(page1.timestamp).toLocaleString('th-TH') : '-'}</span>
                 </p>
               </div>
-              <div className={`px-2 py-1 ${page1?.status === 'OK' ? 'text-emerald-400' : 'text-amber-400'}`}>
-                <span className="text-sm font-bold whitespace-nowrap drop-shadow-sm">
-                  {page1?.status === 'OK' ? '● ปกติ' : '● แจ้งเตือน'}
+
+              {/* Status Indicator */}
+              <div className={`flex items-center gap-1 ${page1?.status === 'OK' ? 'text-emerald-400' : 'text-rose-500'}`}>
+                <span className="text-[10px] sm:text-sm font-bold whitespace-nowrap drop-shadow-sm uppercase">
+                  ● {page1?.status === 'OK' ? 'CONNECTED' : 'OFFLINE'}
                 </span>
               </div>
             </div>
@@ -646,7 +689,10 @@ export default function Home() {
                         )}
                       </span>
                     ) : (
-                      "วิเคราะห์แนวโน้มและข้อเสนอแนะด้านพลังงานแบบเรียลไทม์ด้วย AI (DashScope Qwen)"
+                      <>
+                        วิเคราะห์แนวโน้มและข้อเสนอแนะด้านพลังงาน
+                        <br className="sm:hidden" />แบบเรียลไทม์ด้วย AI
+                      </>
                     )}
                   </p>
                 </div>

@@ -1,4 +1,4 @@
-// File: /home/birds/Desktop/pm2230-nextjs-windows-updated-backup-20260303-054421./pm2230-nextjs-windows-updated/frontend/app/page.tsx
+// File: C:\Users\qwert\auto\PM2000\frontend\app\page.tsx
 import * as entry from '../../../../app/page.js'
 import type { ResolvingMetadata, ResolvingViewport } from 'next/dist/lib/metadata/types/metadata-interface.js'
 

@@ -1,5 +1,12 @@
 // Get base URL from environment variables
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:3001/api';
+const getApiBaseUrl = () => {
+  if (process.env.NODE_ENV === 'production') return '/api/v1';
+  if (typeof window !== 'undefined') {
+    return `http://${window.location.hostname}:8003/api/v1`;
+  }
+  return 'http://localhost:8003/api/v1';
+};
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || process.env.NEXT_PUBLIC_API_BASE_URL || getApiBaseUrl();
 
 /**
  * Generic fetch wrapper with error handling

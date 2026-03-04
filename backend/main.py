@@ -153,6 +153,24 @@ class AutoConnectRequest(BaseModel):
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Auto-connect PM2230 and start background polling."""
+    global tunnel_url, tunnel_ready
+
+    # ── Start Cloudflare Tunnel in background ──────────────────────────────
+    def _start_tunnel():
+        global tunnel_url, tunnel_ready
+        try:
+            from pycloudflared import try_cloudflare
+            logger.info("🌐 Starting Cloudflare Tunnel...")
+            result = try_cloudflare(port=DEFAULT_API_PORT, metrics_port=0)
+            tunnel_url = result.tunnel
+            tunnel_ready = True
+            logger.info(f"🌐 Tunnel ready: {tunnel_url}")
+        except Exception as e:
+            logger.warning(f"🌐 Tunnel failed to start: {e}")
+            tunnel_ready = True  # mark ready even on failure so bat doesn't hang
+
+    import threading
+    threading.Thread(target=_start_tunnel, daemon=True).start()
     global real_client, polling_task
     logger.info(
         f"Auto-connecting PM2230 (baud={DEFAULT_BAUDRATE}, "
@@ -192,6 +210,8 @@ app = FastAPI(
 real_client: Optional[PM2230Client] = None
 cached_data: Dict = {}
 polling_task: Optional[asyncio.Task] = None
+tunnel_url: Optional[str] = None
+tunnel_ready: bool = False
 
 # Logging attributes
 is_logging: bool = False
@@ -476,7 +496,7 @@ app.add_middleware(
     allow_origins=parse_allowed_origins(),
     allow_credentials=True,
     allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-    allow_headers=["Content-Type", "Authorization"],
+    allow_headers=["*"],
     expose_headers=["Content-Disposition"]
 )
 
@@ -755,6 +775,12 @@ def check_limits(data: Dict) -> Dict:
 # ============================================================================
 # API Endpoints (Versioned: /api/v1/*)
 # ============================================================================
+
+@app.get("/api/v1/tunnel-url")
+async def get_tunnel_url():
+    """Return the Cloudflare Tunnel public URL (or null if not ready yet)."""
+    return {"url": tunnel_url, "ready": tunnel_ready}
+
 
 @app.get("/api/v1/data", response_model=ParameterData)
 @rate_limit

@@ -5,8 +5,11 @@ a = Analysis(
     ['main.py'],
     pathex=[],
     binaries=[],
-    datas=[('.env', '.')],
-    hiddenimports=[],
+    datas=[
+        ('.env', '.'),
+        ('.venv/Lib/site-packages/pycloudflared', 'pycloudflared'),
+    ],
+    hiddenimports=['pycloudflared'],
     hookspath=[],
     hooksconfig={},
     runtime_hooks=[],
