@@ -10,10 +10,11 @@ const nextConfig: NextConfig = {
   // In production: use './' so Electron can load assets from file://
   // In dev: use '' (empty) so next/font and dev server work correctly
   assetPrefix: isProd ? './' : '',
-  // Allow mobile devices on local network to connect to dev server
-  experimental: {
-    allowedDevOrigins: ['*'],
-  },
+  ...(isProd ? {} : {
+    experimental: {
+      allowedDevOrigins: ['*'],
+    } as any,
+  }),
 };
 
 export default nextConfig;
