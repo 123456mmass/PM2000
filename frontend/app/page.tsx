@@ -142,7 +142,8 @@ export default function Home() {
   const [viewMode3, setViewMode3] = useState<'cards' | 'charts'>('cards');
   const [viewMode4, setViewMode4] = useState<'cards' | 'charts'>('cards');
 
-  const [aiLoading, setAiLoading] = useState(false);
+  const [aiSummaryLoading, setAiSummaryLoading] = useState(false);
+  const [aiFaultLoading, setAiFaultLoading] = useState(false);
   const [aiSummary, setAiSummary] = useState<string | null>(null);
   const [isAiExpanded, setIsAiExpanded] = useState(false);
   const [aiCountdown, setAiCountdown] = useState(0);
@@ -157,8 +158,10 @@ export default function Home() {
 
   const [isLogging, setIsLogging] = useState(false);
   const [logSizeKb, setLogSizeKb] = useState(0);
+  const [faultRecordCount, setFaultRecordCount] = useState(0);
+  const [isClearMenuOpen, setIsClearMenuOpen] = useState(false);
 
-  // Automatic API Base URL: 
+  // Automatic API Base URL:
   // - In development (npm run dev): Use absolute URL to the host (supports mobile on same Wi-Fi)
   // - In production (build/exe): Use relative path /api/v1 for portability
   const isDev = process.env.NODE_ENV === 'development';
@@ -204,6 +207,7 @@ export default function Home() {
           isLogging: data.is_logging,
           lastUpdate: data.last_update,
           logSizeKb: data.file_size_kb,
+          faultRecordCount: data.fault_record_count,
         };
       },
       fetchSystemStatus: async () => {
@@ -268,9 +272,12 @@ export default function Home() {
     // Update log status
     if (data.logStatus) {
       setIsLogging((data.logStatus as { isLogging: boolean }).isLogging);
-      const logStatusData = data.logStatus as { isLogging: boolean; logSizeKb?: number };
+      const logStatusData = data.logStatus as { isLogging: boolean; logSizeKb?: number; faultRecordCount?: number };
       if (logStatusData.logSizeKb !== undefined) {
         setLogSizeKb(logStatusData.logSizeKb);
+      }
+      if (logStatusData.faultRecordCount !== undefined) {
+        setFaultRecordCount(logStatusData.faultRecordCount);
       }
     }
 
@@ -300,7 +307,7 @@ export default function Home() {
   }, []);
 
   const fetchAiSummary = useCallback(async () => {
-    setAiLoading(true);
+    setAiSummaryLoading(true);
     setAiSummary(null);
     setAiCountdown(6);
     setIsAiProcessing(false);
@@ -329,10 +336,33 @@ export default function Home() {
       setAiSummary('❌ เกิดข้อผิดพลาดในการเชื่อมต่อ AI: ' + err);
     } finally {
       clearInterval(timer);
-      setAiLoading(false);
+      setAiSummaryLoading(false);
       setAiCountdown(0);
       setIsAiProcessing(false);
       setIsAiExpanded(true); // Auto expand when new summary arrives
+    }
+  }, [API_BASE_URL]);
+
+  const fetchAiFaultSummary = useCallback(async () => {
+    setAiFaultLoading(true);
+    setAiSummary(null);
+    setAiCountdown(0);
+    setIsAiProcessing(true); // Show directly processing for faults
+
+    try {
+      const res = await fetch(`${API_BASE_URL}/ai-fault-summary`, { method: 'POST' });
+      if (res.ok) {
+        const data = await res.json();
+        setAiSummary(data.summary);
+      } else {
+        throw new Error(`API Error: ${res.status} ${res.statusText}`);
+      }
+    } catch (err) {
+      setAiSummary('❌ เกิดข้อผิดพลาดในการเชื่อมต่อ AI (Fault): ' + err);
+    } finally {
+      setAiFaultLoading(false);
+      setIsAiProcessing(false);
+      setIsAiExpanded(true); // Auto expand
     }
   }, [API_BASE_URL]);
 
@@ -427,12 +457,44 @@ export default function Home() {
   }, [API_BASE_URL]);
 
   const handleClearLog = useCallback(async () => {
-    if (confirm('แน่ใจหรือไม่ว่าต้องการล้างข้อมูล Log ทั้งหมด?')) {
+    if (confirm('แน่ใจหรือไม่ว่าต้องการล้างข้อมูลบันทึก (Data Log) ทั้งหมด?')) {
       try {
-        await fetch(`${API_BASE_URL}/datalog/clear`, { method: 'DELETE' });
+        await fetch(`${API_BASE_URL}/datalog/clear?type=normal`, { method: 'DELETE' });
         refresh(false);
+        setIsClearMenuOpen(false);
       } catch (err) {
         console.error('Failed to clear log:', err);
+      }
+    }
+  }, [refresh, API_BASE_URL]);
+
+  const handleClearFaultLog = useCallback(async () => {
+    if (confirm('แน่ใจหรือไม่ว่าต้องการล้างประวัติการเกิด Fault ทั้งหมด?')) {
+      try {
+        await fetch(`${API_BASE_URL}/datalog/clear?type=fault`, { method: 'DELETE' });
+        setFaultRecordCount(0);
+        refresh(false);
+        setAiSummary(null);
+        setIsClearMenuOpen(false);
+      } catch (err) {
+        console.error('Failed to clear fault log:', err);
+      }
+    }
+  }, [refresh, API_BASE_URL]);
+
+  const handleClearAllLogs = useCallback(async () => {
+    if (confirm('แน่ใจหรือไม่ว่าต้องการล้างข้อมูลบันทึกทั้งหมด (รวมถึงประวัติ Fault)?')) {
+      try {
+        await Promise.all([
+          fetch(`${API_BASE_URL}/datalog/clear?type=normal`, { method: 'DELETE' }),
+          fetch(`${API_BASE_URL}/datalog/clear?type=fault`, { method: 'DELETE' })
+        ]);
+        setFaultRecordCount(0);
+        refresh(false);
+        setAiSummary(null);
+        setIsClearMenuOpen(false);
+      } catch (err) {
+        console.error('Failed to clear all logs:', err);
       }
     }
   }, [refresh, API_BASE_URL]);
@@ -556,12 +618,80 @@ export default function Home() {
                 </button>
                 <button
                   type="button"
-                  onClick={handleClearLog}
-                  className="px-2 py-1.5 text-gray-500 hover:text-rose-400 transition ml-1"
-                  title="Clear Log"
+                  onClick={async () => {
+                    try {
+                      const res = await fetch(`${API_BASE_URL}/datalog/download?t=${Date.now()}&type=fault`);
+                      if (!res.ok) {
+                        alert('❌ ยังไม่มีข้อมูลให้ดาวน์โหลด');
+                        return;
+                      }
+                      const blob = await res.blob();
+                      const url = window.URL.createObjectURL(blob);
+                      const a = document.createElement('a');
+                      a.href = url;
+                      a.download = 'PM2230_Fault_Log.csv';
+                      document.body.appendChild(a);
+                      a.click();
+                      window.URL.revokeObjectURL(url);
+                      a.remove();
+                    } catch (err) {
+                      alert('⚠️ เชื่อมต่อ API ล้มเหลว: ' + err);
+                    }
+                  }}
+                  className="px-3 py-1.5 bg-amber-600/20 hover:bg-amber-600/30 text-amber-500 border border-amber-500/30 rounded-lg text-xs transition flex items-center gap-1 font-medium whitespace-nowrap"
+                  title="Download Fault Log"
                 >
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                  <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg> Faults
                 </button>
+
+                {/* Unified Clear Log Menu */}
+                <div className="relative">
+                  <button
+                    type="button"
+                    onClick={() => setIsClearMenuOpen(!isClearMenuOpen)}
+                    className={`px-2 py-1.5 transition ml-1 rounded-lg ${isClearMenuOpen ? 'bg-rose-600/20 text-rose-400' : 'text-gray-500 hover:text-rose-400'}`}
+                    title="Log Management"
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                    </svg>
+                  </button>
+
+                  {isClearMenuOpen && (
+                    <>
+                      {/* Overlay to close menu when clicking outside */}
+                      <div className="fixed inset-0 z-10" onClick={() => setIsClearMenuOpen(false)}></div>
+
+                      <div className="absolute right-0 mt-2 w-48 bg-gray-900 border border-gray-700 rounded-xl shadow-2xl z-20 py-2 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
+                        <div className="px-3 py-1.5 text-[10px] font-bold text-gray-500 uppercase tracking-wider border-b border-gray-800 mb-1">
+                          Manage Logs
+                        </div>
+                        <button
+                          onClick={handleClearLog}
+                          className="w-full text-left px-4 py-2 text-xs text-gray-300 hover:bg-rose-600/10 hover:text-rose-400 transition-colors flex items-center gap-2"
+                        >
+                          <span className="w-1.5 h-1.5 rounded-full bg-sky-500"></span>
+                          Clear Data Log
+                        </button>
+                        <button
+                          onClick={handleClearFaultLog}
+                          className="w-full text-left px-4 py-2 text-xs text-gray-300 hover:bg-rose-600/10 hover:text-rose-400 transition-colors flex items-center gap-2"
+                        >
+                          <span className="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
+                          Clear Fault Log
+                        </button>
+                        <div className="border-t border-gray-800 my-1"></div>
+                        <button
+                          onClick={handleClearAllLogs}
+                          className="w-full text-left px-4 py-2 text-xs text-rose-400 hover:bg-rose-600 hover:text-white transition-colors flex items-center gap-2 font-medium"
+                        >
+                          <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                          Clear All Logs
+                        </button>
+                      </div>
+                    </>
+                  )}
+                </div>
               </div>
 
               {/* Operating Mode & Connection Status */}
@@ -680,9 +810,9 @@ export default function Home() {
                     ✨ AI Power Analysis <span className="text-xs bg-blue-600 text-white px-2 py-0.5 rounded-full">Beta</span>
                   </h3>
                   <p className="text-sm text-blue-200 mt-1">
-                    {aiLoading ? (
+                    {(aiSummaryLoading || aiFaultLoading) ? (
                       <span className="flex items-center gap-2">
-                        {aiCountdown > 0 ? (
+                        {aiSummaryLoading && aiCountdown > 0 ? (
                           <span className="animate-pulse">🕒 กำลังรวบรวมข้อมูล ({aiCountdown} วินาที)...</span>
                         ) : (
                           <span className="animate-bounce">🧠 AI กำลังวิเคราะห์ข้อมูล...</span>
@@ -732,21 +862,53 @@ export default function Home() {
                       </button>
                     </div>
                   )}
-                  <button
-                    type="button"
-                    onClick={fetchAiSummary}
-                    disabled={aiLoading}
-                    className="px-4 py-2 bg-blue-600 hover:bg-blue-500 disabled:bg-gray-600 disabled:cursor-not-allowed text-white font-medium rounded-lg shadow transition flex items-center gap-2 text-sm"
-                  >
-                    {aiLoading ? (
-                      <>
-                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                        {aiCountdown > 0 ? 'กำลังรวบรวมข้อมูล...' : 'AI กำลังวิเคราะห์...'}
-                      </>
-                    ) : (
-                      <>🚀 วิเคราะห์ด้วย AI</>
+                  {/* Main AI Button */}
+                  <div className="flex flex-col sm:flex-row gap-3 mt-4 sm:mt-0">
+                    <button
+                      type="button"
+                      onClick={fetchAiSummary}
+                      disabled={aiSummaryLoading || aiFaultLoading}
+                      className="px-4 py-2 bg-blue-600 hover:bg-blue-500 disabled:bg-gray-600 disabled:cursor-not-allowed text-white font-medium rounded-lg shadow transition flex items-center gap-2 text-sm max-w-fit"
+                    >
+                      {aiSummaryLoading && aiCountdown > 0 ? (
+                        <>
+                          <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                          <span>เก็บข้อมูล {aiCountdown}s...</span>
+                        </>
+                      ) : aiSummaryLoading && isAiProcessing ? (
+                        <>
+                          <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                          <span className="animate-pulse">AI กำลังวิเคราะห์...</span>
+                        </>
+                      ) : (
+                        <>
+                          🚀 วิเคราะห์ด้วย AI
+                        </>
+                      )}
+                    </button>
+
+                    {/* AI Fault Button (Conditionally Rendered) */}
+                    {faultRecordCount > 0 && (
+                      <button
+                        type="button"
+                        onClick={fetchAiFaultSummary}
+                        disabled={aiSummaryLoading || aiFaultLoading}
+                        className="px-4 py-2 bg-rose-600 hover:bg-rose-500 disabled:bg-gray-600 disabled:cursor-not-allowed text-white font-medium rounded-lg shadow transition flex items-center gap-2 text-sm max-w-fit"
+                      >
+                        {aiFaultLoading && isAiProcessing ? (
+                          <>
+                            <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                            <span className="animate-pulse">กำลังวิเคราะห์ Fault...</span>
+                          </>
+                        ) : (
+                          <>
+                            🚨 วิเคราะห์ Fault ด้วย AI
+                            <span className="ml-1 px-1.5 py-0.5 bg-rose-800 rounded-full text-[10px] font-bold">{faultRecordCount}</span>
+                          </>
+                        )}
+                      </button>
                     )}
-                  </button>
+                  </div>
                 </div>
               </div>
 
@@ -786,7 +948,7 @@ export default function Home() {
           </div>
         )}
         {activeTab === 2 && page2 && <Page2 data={page2} history={history} viewMode={viewMode2} setViewMode={setViewMode2} />}
-        {activeTab === 3 && page3 && <Page3 data={page3} history={history} viewMode={viewMode3} setViewMode={setViewMode3} />}
+        {activeTab === 3 && page3 && <Page3 data={{ ...page3, Q_L1: page2?.Q_L1, Q_L2: page2?.Q_L2, Q_L3: page2?.Q_L3, Q_Total: page2?.Q_Total }} history={history} viewMode={viewMode3} setViewMode={setViewMode3} />}
         {activeTab === 4 && page4 && <Page4 data={page4} history={history} viewMode={viewMode4} setViewMode={setViewMode4} />}
       </div>
 

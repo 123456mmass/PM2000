@@ -22,6 +22,11 @@ interface Page3Data {
   PF_L2: number;
   PF_L3: number;
   PF_Total: number;
+  // Reactive power (optional) — used to determine LAGGING / LEADING
+  Q_L1?: number;
+  Q_L2?: number;
+  Q_L3?: number;
+  Q_Total?: number;
 }
 
 interface HistoryPoint {
@@ -106,10 +111,10 @@ export function Page3({
                 <UnbalanceRow label="U_unb" value={data.U_unb || 0} />
                 <UnbalanceRow label="I_unb" value={data.I_unb} />
                 <div className="border-t border-gray-700 pt-3 mt-3">
-                  <PFRow label="PF_L1" value={data.PF_L1} />
-                  <PFRow label="PF_L2" value={data.PF_L2} />
-                  <PFRow label="PF_L3" value={data.PF_L3} />
-                  <PFRow label="PF_Total" value={data.PF_Total} />
+                  <PFRow label="PF_L1" value={data.PF_L1} qValue={data.Q_L1} />
+                  <PFRow label="PF_L2" value={data.PF_L2} qValue={data.Q_L2} />
+                  <PFRow label="PF_L3" value={data.PF_L3} qValue={data.Q_L3} />
+                  <PFRow label="PF_Total" value={data.PF_Total} qValue={data.Q_Total} />
                 </div>
               </div>
             </div>

@@ -1,209 +1,226 @@
-[00:00:01.183] Server  LOG     ✓ Ready in 833ms
-[00:00:01.185] Server  WARN    ⚠ Cross origin request detected from 192.168.1.3 to /_next/* resource. In a future major version of Next.js, you will need to explicitly configure "allowedDevOrigins" in next.config to allow this.
-Read more: https://nextjs.org/docs/app/api-reference/config/next-config-js/allowedDevOrigins
-[00:00:01.200] Browser WARN    Warning fetching page1: Failed to fetch
-[00:00:01.200] Browser WARN    Warning fetching page2: Failed to fetch
-[00:00:01.200] Browser WARN    Warning fetching page3: Failed to fetch
-[00:00:01.200] Browser WARN    Warning fetching page4: Failed to fetch
-[00:00:01.200] Browser WARN    Warning fetching logStatus: Failed to fetch
-[00:00:01.200] Browser WARN    Warning fetching systemStatus: Failed to fetch
-[00:00:01.200] Browser WARN    Warning fetching page1: Failed to fetch
-[00:00:01.200] Browser WARN    Warning fetching page2: Failed to fetch
-[00:00:01.200] Browser WARN    Warning fetching page3: Failed to fetch
-[00:00:01.200] Browser WARN    Warning fetching page4: Failed to fetch
-[00:00:01.200] Browser WARN    Warning fetching logStatus: Failed to fetch
-[00:00:01.200] Browser WARN    Warning fetching systemStatus: Failed to fetch
-[00:00:01.249] Server  LOG       Reload env: .env.local
-[00:00:02.343] Browser WARN    Warning fetching page1: Failed to fetch
-[00:00:02.344] Browser WARN    Warning fetching page2: Failed to fetch
-[00:00:02.344] Browser WARN    Warning fetching page3: Failed to fetch
-[00:00:02.344] Browser WARN    Warning fetching page4: Failed to fetch
-[00:00:02.344] Browser WARN    Warning fetching logStatus: Failed to fetch
-[00:00:02.344] Browser WARN    Warning fetching systemStatus: Failed to fetch
-[00:00:02.581] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
-[00:00:03.298] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
-[00:02:58.212] Browser WARN    Warning fetching page1: Failed to fetch
-[00:02:58.212] Browser WARN    Warning fetching page2: Failed to fetch
-[00:02:58.212] Browser WARN    Warning fetching page3: Failed to fetch
-[00:02:58.212] Browser WARN    Warning fetching page4: Failed to fetch
-[00:02:58.212] Browser WARN    Warning fetching logStatus: Failed to fetch
-[00:02:58.212] Browser WARN    Warning fetching systemStatus: Failed to fetch
-[00:04:09.514] Server  LOG     ✓ Compiled in 148ms
-[00:04:34.188] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
-[00:04:38.175] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
-[00:04:44.694] Server  LOG     ✓ Compiled in 57ms
-[00:04:53.697] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
-[00:07:35.679] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
-[00:07:42.124] Browser WARN    The width(-1) and height(-1) of chart should be greater than 0,
-       please check the style of container, or the props width(100%) and height(100%),
-       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
-       height and width.
-[00:07:42.124] Browser WARN    The width(-1) and height(-1) of chart should be greater than 0,
-       please check the style of container, or the props width(100%) and height(100%),
-       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
-       height and width.
-[00:07:42.124] Browser WARN    The width(-1) and height(-1) of chart should be greater than 0,
-       please check the style of container, or the props width(100%) and height(100%),
-       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
-       height and width.
-[00:07:42.124] Browser WARN    The width(-1) and height(-1) of chart should be greater than 0,
-       please check the style of container, or the props width(100%) and height(100%),
-       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
-       height and width.
-[00:07:46.561] Server  LOG     ✓ Compiled in 117ms
-[00:07:52.708] Browser WARN    The width(-1) and height(-1) of chart should be greater than 0,
-       please check the style of container, or the props width(100%) and height(100%),
-       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
-       height and width.
-[00:07:52.708] Browser WARN    The width(-1) and height(-1) of chart should be greater than 0,
-       please check the style of container, or the props width(100%) and height(100%),
-       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
-       height and width.
-[00:07:52.708] Browser WARN    The width(-1) and height(-1) of chart should be greater than 0,
-       please check the style of container, or the props width(100%) and height(100%),
-       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
-       height and width.
-[00:07:52.708] Browser WARN    The width(-1) and height(-1) of chart should be greater than 0,
-       please check the style of container, or the props width(100%) and height(100%),
-       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
-       height and width.
-[00:07:56.932] Browser WARN    The width(-1) and height(-1) of chart should be greater than 0,
-       please check the style of container, or the props width(100%) and height(100%),
-       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
-       height and width.
-[00:07:56.932] Browser WARN    The width(-1) and height(-1) of chart should be greater than 0,
-       please check the style of container, or the props width(100%) and height(100%),
-       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
-       height and width.
-[00:07:56.932] Browser WARN    The width(-1) and height(-1) of chart should be greater than 0,
-       please check the style of container, or the props width(100%) and height(100%),
-       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
-       height and width.
-[00:07:56.932] Browser WARN    The width(-1) and height(-1) of chart should be greater than 0,
-       please check the style of container, or the props width(100%) and height(100%),
-       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
-       height and width.
-[00:09:20.205] Server  LOG     ✓ Compiled in 66ms
-[00:09:31.567] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
-[00:11:13.495] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
-[00:12:42.035] Server  LOG     ✓ Compiled in 70ms
-[00:12:57.835] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
-[00:13:22.805] Browser WARN    Warning fetching page1: Failed to fetch
-[00:13:22.806] Browser WARN    Warning fetching page2: Failed to fetch
-[00:13:22.806] Browser WARN    Warning fetching page3: Failed to fetch
-[00:13:22.806] Browser WARN    Warning fetching page4: Failed to fetch
-[00:13:22.806] Browser WARN    Warning fetching logStatus: Failed to fetch
-[00:13:22.806] Browser WARN    Warning fetching systemStatus: Failed to fetch
-[00:13:42.148] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
-[00:16:30.126] Server  LOG     ✓ Compiled in 103ms
-[00:16:30.360] Browser ERROR   ./app/page.tsx:667:29
-Parsing ecmascript source code failed
-  665 |                     ) : (
-  666 |                       "วิเคราะห์แนวโน้มและข้อเสนอแนะด้านพลังงาน"
-> 667 |                       < br />
-      |                             ^
-  668 |                       "แบบเรียลไทม์ด้วย AI (DashScope Qwen)"
-  669 |                     )}
-  670 |                   </p>
+[00:00:01.038] Server  LOG     ✓ Ready in 745ms
+[00:00:24.165] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:00:43.749] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:06:41.241] Server  LOG     ✓ Compiled in 191ms
+[00:06:42.355] Browser ERROR   ./components/common/AlertToaster.tsx:4:1
+Export fetchAlerts doesn't exist in target module
+  2 |
+  3 | import React, { useEffect, useState } from 'react';
+> 4 | import { fetchAlerts } from '@/utils/apiClient';
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  5 |
+  6 | interface AlertItem {
+  7 |     category: string;
 
-Expression expected
+The export fetchAlerts was not found in module [project]/utils/apiClient.ts [app-client] (ecmascript).
+Did you mean to import fetchPage4?
+All exports of the module are statically known (It doesn't have dynamic exports). So it's known statically that the requested export doesn't exist.
 
 Import traces:
+  Server Component:
+    ./components/common/AlertToaster.tsx
+    ./components/common/index.ts
+    ./app/layout.tsx
+
   Client Component Browser:
+    ./components/common/AlertToaster.tsx [Client Component Browser]
+    ./components/common/index.ts [Client Component Browser]
+    ./components/pages/Page4.tsx [Client Component Browser]
     ./app/page.tsx [Client Component Browser]
     ./app/page.tsx [Server Component]
 
   Client Component SSR:
+    ./components/common/AlertToaster.tsx [Client Component SSR]
+    ./components/common/index.ts [Client Component SSR]
+    ./components/pages/Page4.tsx [Client Component SSR]
     ./app/page.tsx [Client Component SSR]
     ./app/page.tsx [Server Component]
-[00:16:40.395] Browser ERROR   ./app/page.tsx:667:29
-Parsing ecmascript source code failed
-  665 |                     ) : (
-  666 |                       "วิเคราะห์แนวโน้มและข้อเสนอแนะด้านพลังงาน"
-> 667 |                       < br />
-      |                             ^
-  668 |                       "แบบเรียลไทม์ด้วย AI (DashScope Qwen)"
-  669 |                     )}
-  670 |                   </p>
+[00:06:42.355] Browser ERROR   ./components/common/AlertToaster.tsx:4:1
+Export fetchAlerts doesn't exist in target module
+  2 |
+  3 | import React, { useEffect, useState } from 'react';
+> 4 | import { fetchAlerts } from '@/utils/apiClient';
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  5 |
+  6 | interface AlertItem {
+  7 |     category: string;
 
-Expression expected
+The export fetchAlerts was not found in module [project]/utils/apiClient.ts [app-ssr] (ecmascript).
+Did you mean to import fetchPage4?
+All exports of the module are statically known (It doesn't have dynamic exports). So it's known statically that the requested export doesn't exist.
 
 Import traces:
+  Server Component:
+    ./components/common/AlertToaster.tsx
+    ./components/common/index.ts
+    ./app/layout.tsx
+
   Client Component Browser:
+    ./components/common/AlertToaster.tsx [Client Component Browser]
+    ./components/common/index.ts [Client Component Browser]
+    ./components/pages/Page4.tsx [Client Component Browser]
     ./app/page.tsx [Client Component Browser]
     ./app/page.tsx [Server Component]
 
   Client Component SSR:
+    ./components/common/AlertToaster.tsx [Client Component SSR]
+    ./components/common/index.ts [Client Component SSR]
+    ./components/pages/Page4.tsx [Client Component SSR]
     ./app/page.tsx [Client Component SSR]
     ./app/page.tsx [Server Component]
-[00:16:40.395] Browser ERROR   ./app/page.tsx:667:29
-Parsing ecmascript source code failed
-  665 |                     ) : (
-  666 |                       "วิเคราะห์แนวโน้มและข้อเสนอแนะด้านพลังงาน"
-> 667 |                       < br />
-      |                             ^
-  668 |                       "แบบเรียลไทม์ด้วย AI (DashScope Qwen)"
-  669 |                     )}
-  670 |                   </p>
+[00:06:47.341] Browser ERROR   ./components/common/AlertToaster.tsx:4:1
+Export fetchAlerts doesn't exist in target module
+  2 |
+  3 | import React, { useEffect, useState } from 'react';
+> 4 | import { fetchAlerts } from '@/utils/apiClient';
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  5 |
+  6 | interface AlertItem {
+  7 |     category: string;
 
-Expression expected
+The export fetchAlerts was not found in module [project]/utils/apiClient.ts [app-client] (ecmascript).
+Did you mean to import fetchPage4?
+All exports of the module are statically known (It doesn't have dynamic exports). So it's known statically that the requested export doesn't exist.
 
 Import traces:
+  Server Component:
+    ./components/common/AlertToaster.tsx
+    ./app/layout.tsx
+
   Client Component Browser:
+    ./components/common/AlertToaster.tsx [Client Component Browser]
+    ./components/common/index.ts [Client Component Browser]
+    ./components/pages/Page4.tsx [Client Component Browser]
     ./app/page.tsx [Client Component Browser]
     ./app/page.tsx [Server Component]
 
   Client Component SSR:
+    ./components/common/AlertToaster.tsx [Client Component SSR]
+    ./components/common/index.ts [Client Component SSR]
+    ./components/pages/Page4.tsx [Client Component SSR]
     ./app/page.tsx [Client Component SSR]
     ./app/page.tsx [Server Component]
-[00:16:41.359] Browser ERROR   ./app/page.tsx:667:29
-Parsing ecmascript source code failed
-  665 |                     ) : (
-  666 |                       "วิเคราะห์แนวโน้มและข้อเสนอแนะด้านพลังงาน"
-> 667 |                       < br />
-      |                             ^
-  668 |                       "แบบเรียลไทม์ด้วย AI (DashScope Qwen)"
-  669 |                     )}
-  670 |                   </p>
+[00:06:47.341] Browser ERROR   ./components/common/AlertToaster.tsx:4:1
+Export fetchAlerts doesn't exist in target module
+  2 |
+  3 | import React, { useEffect, useState } from 'react';
+> 4 | import { fetchAlerts } from '@/utils/apiClient';
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  5 |
+  6 | interface AlertItem {
+  7 |     category: string;
 
-Expression expected
+The export fetchAlerts was not found in module [project]/utils/apiClient.ts [app-ssr] (ecmascript).
+Did you mean to import fetchPage4?
+All exports of the module are statically known (It doesn't have dynamic exports). So it's known statically that the requested export doesn't exist.
 
 Import traces:
+  Server Component:
+    ./components/common/AlertToaster.tsx
+    ./app/layout.tsx
+
   Client Component Browser:
+    ./components/common/AlertToaster.tsx [Client Component Browser]
+    ./components/common/index.ts [Client Component Browser]
+    ./components/pages/Page4.tsx [Client Component Browser]
     ./app/page.tsx [Client Component Browser]
     ./app/page.tsx [Server Component]
 
   Client Component SSR:
+    ./components/common/AlertToaster.tsx [Client Component SSR]
+    ./components/common/index.ts [Client Component SSR]
+    ./components/pages/Page4.tsx [Client Component SSR]
     ./app/page.tsx [Client Component SSR]
     ./app/page.tsx [Server Component]
-[00:16:45.692] Server  LOG     ✓ Compiled in 56ms
-[00:17:20.736] Server  LOG     ✓ Compiled in 34ms
-[00:18:02.762] Server  LOG     ✓ Compiled in 33ms
-[00:18:27.286] Server  LOG     ✓ Compiled in 35ms
-[00:18:33.679] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
-[00:18:37.186] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
-[00:18:54.753] Server  LOG     ✓ Compiled in 36ms
-[00:19:14.733] Server  LOG     ✓ Compiled in 37ms
-[00:19:23.296] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
-[00:21:00.259] Browser WARN    The width(-1) and height(-1) of chart should be greater than 0,
-       please check the style of container, or the props width(100%) and height(100%),
-       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
-       height and width.
-[00:21:00.259] Browser WARN    The width(-1) and height(-1) of chart should be greater than 0,
-       please check the style of container, or the props width(100%) and height(100%),
-       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
-       height and width.
-[00:21:00.259] Browser WARN    The width(-1) and height(-1) of chart should be greater than 0,
-       please check the style of container, or the props width(100%) and height(100%),
-       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
-       height and width.
-[00:21:00.259] Browser WARN    The width(-1) and height(-1) of chart should be greater than 0,
-       please check the style of container, or the props width(100%) and height(100%),
-       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
-       height and width.
-[00:21:47.143] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
-[00:22:29.847] Server  LOG     ✓ Compiled in 82ms
-[00:26:17.278] Server  LOG     ✓ Compiled in 59ms
-[00:26:17.420] Browser ERROR   ErrorBoundary caught an error: {} {"componentStack":"\n    at Home (http://192.168.1.3:3000/_next/static/chunks/_b9ea4bed._.js?id=%255Bproject%255D%252Fapp%252Fpage.tsx+%255Bapp-client%255D+%2528ecmascript%2529:38:213)\n    at ClientPageRoot (http://192.168.1.3:3000/_next/static/chunks/node_modules_next_dist_be32b49c._.js:2358:27)\n    at SegmentViewNode (http://192.168.1.3:3000/_next/static/chunks/node_modules_next_dist_f3530cac._.js:3309:28)\n    at InnerLayoutRouter (http://192.168.1.3:3000/_next/static/chunks/node_modules_next_dist_be32b49c._.js:351:34)\n    at RedirectErrorBoundary (http://192.168.1.3:3000/_next/static/chunks/node_modules_next_dist_client_17643121._.js:10149:9)\n    at RedirectBoundary (http://192.168.1.3:3000/_next/static/chunks/node_modules_next_dist_client_17643121._.js:10191:29)\n    at HTTPAccessFallbackErrorBoundary (http://192.168.1.3:3000/_next/static/chunks/node_modules_next_dist_client_17643121._.js:10577:9)\n    at HTTPAccessFallbackBoundary (http://192.168.1.3:3000/_next/static/chunks/node_modules_next_dist_client_17643121._.js:10652:39)\n    at LoadingBoundary (http://192.168.1.3:3000/_next/static/chunks/node_modules_next_dist_be32b49c._.js:433:32)\n    at ErrorBoundary (http://192.168.1.3:3000/_next/static/chunks/node_modules_next_dist_client_17643121._.js:1096:26)\n    at InnerScrollAndFocusHandler (http://192.168.1.3:3000/_next/static/chunks/node_modules_next_dist_be32b49c._.js:251:9)\n    at ScrollAndFocusHandler (http://192.168.1.3:3000/_next/static/chunks/node_modules_next_dist_be32b49c._.js:334:34)\n    at RenderFromTemplateContext (http://192.168.1.3:3000/_next/static/chunks/node_modules_next_dist_be32b49c._.js:696:44)\n    at SegmentStateProvider (http://192.168.1.3:3000/_next/static/chunks/node_modules_next_dist_f3530cac._.js:3325:33)\n    at OuterLayoutRouter (http://192.168.1.3:3000/_next/static/chunks/node_modules_next_dist_be32b49c._.js:469:30)\n    at ErrorBoundary (http://192.168.1.3:3000/_next/static/chunks/_e558aa2b._.js:98:9)\n    at body (<anonymous>)\n    at html (<anonymous>)\n    at RootLayout [Server] (<anonymous>)\n    at SegmentViewNode (http://192.168.1.3:3000/_next/static/chunks/node_modules_next_dist_f3530cac._.js:3309:28)\n    at __next_root_layout_boundary__ (http://192.168.1.3:3000/_next/static/chunks/node_modules_next_dist_f3530cac._.js:1681:64)\n    at RedirectErrorBoundary (http://192.168.1.3:3000/_next/static/chunks/node_modules_next_dist_client_17643121._.js:10149:9)\n    at RedirectBoundary (http://192.168.1.3:3000/_next/static/chunks/node_modules_next_dist_client_17643121._.js:10191:29)\n    at HTTPAccessFallbackErrorBoundary (http://192.168.1.3:3000/_next/static/chunks/node_modules_next_dist_client_17643121._.js:10577:9)\n    at HTTPAccessFallbackBoundary (http://192.168.1.3:3000/_next/static/chunks/node_modules_next_dist_client_17643121._.js:10652:39)\n    at DevRootHTTPAccessFallbackBoundary (http://192.168.1.3:3000/_next/static/chunks/node_modules_next_dist_client_17643121._.js:10721:46)\n    at AppDevOverlayErrorBoundary (http://192.168.1.3:3000/_next/static/chunks/node_modules_next_dist_f3530cac._.js:3420:9)\n    at HotReload (http://192.168.1.3:3000/_next/static/chunks/node_modules_next_dist_client_17643121._.js:11750:22)\n    at Router (http://192.168.1.3:3000/_next/static/chunks/node_modules_next_dist_client_17643121._.js:11906:23)\n    at ErrorBoundaryHandler (http://192.168.1.3:3000/_next/static/chunks/node_modules_next_dist_client_17643121._.js:1030:9)\n    at ErrorBoundary (http://192.168.1.3:3000/_next/static/chunks/node_modules_next_dist_client_17643121._.js:1096:26)\n    at RootErrorBoundary (http://192.168.1.3:3000/_next/static/chunks/node_modules_next_dist_client_17643121._.js:10403:30)\n    at AppRouter (http://192.168.1.3:3000/_next/static/chunks/node_modules_next_dist_client_17643121._.js:12225:22)\n    at ServerRoot (http://192.168.1.3:3000/_next/static/chunks/node_modules_next_dist_client_17643121._.js:12584:23)\n    at Root (http://192.168.1.3:3000/_next/static/chunks/node_modules_next_dist_client_17643121._.js:12602:17)"}
-[00:26:18.358] Browser ERROR   ErrorBoundary caught an error: {} {"componentStack":"\n    at Home (http://localhost:3000/_next/static/chunks/_b9ea4bed._.js?id=%255Bproject%255D%252Fapp%252Fpage.tsx+%255Bapp-client%255D+%2528ecmascript%2529:38:213)\n    at ClientPageRoot (http://localhost:3000/_next/static/chunks/node_modules_next_dist_be32b49c._.js:2358:27)\n    at SegmentViewNode (http://localhost:3000/_next/static/chunks/node_modules_next_dist_f3530cac._.js:3309:28)\n    at InnerLayoutRouter (http://localhost:3000/_next/static/chunks/node_modules_next_dist_be32b49c._.js:351:34)\n    at RedirectErrorBoundary (http://localhost:3000/_next/static/chunks/node_modules_next_dist_client_17643121._.js:10149:9)\n    at RedirectBoundary (http://localhost:3000/_next/static/chunks/node_modules_next_dist_client_17643121._.js:10191:29)\n    at HTTPAccessFallbackErrorBoundary (http://localhost:3000/_next/static/chunks/node_modules_next_dist_client_17643121._.js:10577:9)\n    at HTTPAccessFallbackBoundary (http://localhost:3000/_next/static/chunks/node_modules_next_dist_client_17643121._.js:10652:39)\n    at LoadingBoundary (http://localhost:3000/_next/static/chunks/node_modules_next_dist_be32b49c._.js:433:32)\n    at ErrorBoundary (http://localhost:3000/_next/static/chunks/node_modules_next_dist_client_17643121._.js:1096:26)\n    at InnerScrollAndFocusHandler (http://localhost:3000/_next/static/chunks/node_modules_next_dist_be32b49c._.js:251:9)\n    at ScrollAndFocusHandler (http://localhost:3000/_next/static/chunks/node_modules_next_dist_be32b49c._.js:334:34)\n    at RenderFromTemplateContext (http://localhost:3000/_next/static/chunks/node_modules_next_dist_be32b49c._.js:696:44)\n    at SegmentStateProvider (http://localhost:3000/_next/static/chunks/node_modules_next_dist_f3530cac._.js:3325:33)\n    at OuterLayoutRouter (http://localhost:3000/_next/static/chunks/node_modules_next_dist_be32b49c._.js:469:30)\n    at ErrorBoundary (http://localhost:3000/_next/static/chunks/_e558aa2b._.js:98:9)\n    at body (<anonymous>)\n    at html (<anonymous>)\n    at RootLayout [Server] (<anonymous>)\n    at SegmentViewNode (http://localhost:3000/_next/static/chunks/node_modules_next_dist_f3530cac._.js:3309:28)\n    at __next_root_layout_boundary__ (http://localhost:3000/_next/static/chunks/node_modules_next_dist_f3530cac._.js:1681:64)\n    at RedirectErrorBoundary (http://localhost:3000/_next/static/chunks/node_modules_next_dist_client_17643121._.js:10149:9)\n    at RedirectBoundary (http://localhost:3000/_next/static/chunks/node_modules_next_dist_client_17643121._.js:10191:29)\n    at HTTPAccessFallbackErrorBoundary (http://localhost:3000/_next/static/chunks/node_modules_next_dist_client_17643121._.js:10577:9)\n    at HTTPAccessFallbackBoundary (http://localhost:3000/_next/static/chunks/node_modules_next_dist_client_17643121._.js:10652:39)\n    at DevRootHTTPAccessFallbackBoundary (http://localhost:3000/_next/static/chunks/node_modules_next_dist_client_17643121._.js:10721:46)\n    at AppDevOverlayErrorBoundary (http://localhost:3000/_next/static/chunks/node_modules_next_dist_f3530cac._.js:3420:9)\n    at HotReload (http://localhost:3000/_next/static/chunks/node_modules_next_dist_client_17643121._.js:11750:22)\n    at Router (http://localhost:3000/_next/static/chunks/node_modules_next_dist_client_17643121._.js:11906:23)\n    at ErrorBoundaryHandler (http://localhost:3000/_next/static/chunks/node_modules_next_dist_client_17643121._.js:1030:9)\n    at ErrorBoundary (http://localhost:3000/_next/static/chunks/node_modules_next_dist_client_17643121._.js:1096:26)\n    at RootErrorBoundary (http://localhost:3000/_next/static/chunks/node_modules_next_dist_client_17643121._.js:10403:30)\n    at AppRouter (http://localhost:3000/_next/static/chunks/node_modules_next_dist_client_17643121._.js:12225:22)\n    at ServerRoot (http://localhost:3000/_next/static/chunks/node_modules_next_dist_client_17643121._.js:12584:23)\n    at Root (http://localhost:3000/_next/static/chunks/node_modules_next_dist_client_17643121._.js:12602:17)"}
-[00:26:30.975] Server  LOG     ✓ Compiled in 99ms
+[00:07:18.071] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:07:18.754] Server  LOG     ✓ Compiled in 25ms
+[00:09:10.345] Browser WARN    Warning fetching page1: Failed to fetch
+[00:09:10.345] Browser WARN    Warning fetching page2: Failed to fetch
+[00:09:10.345] Browser WARN    Warning fetching page3: Failed to fetch
+[00:09:10.345] Browser WARN    Warning fetching page4: Failed to fetch
+[00:09:10.345] Browser WARN    Warning fetching logStatus: Failed to fetch
+[00:09:10.345] Browser WARN    Warning fetching systemStatus: Failed to fetch
+[00:09:12.354] Browser WARN    Warning fetching page1: Failed to fetch
+[00:09:12.354] Browser WARN    Warning fetching page2: Failed to fetch
+[00:09:12.354] Browser WARN    Warning fetching page3: Failed to fetch
+[00:09:12.354] Browser WARN    Warning fetching page4: Failed to fetch
+[00:09:12.354] Browser WARN    Warning fetching logStatus: Failed to fetch
+[00:09:12.354] Browser WARN    Warning fetching systemStatus: Failed to fetch
+[00:09:17.604] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:13:54.657] Server  LOG     ✓ Compiled in 27ms
+[00:13:56.704] Server  LOG     ✓ Compiled in 28ms
+[00:15:26.677] Server  LOG     ✓ Compiled in 44ms
+[00:15:51.200] Server  LOG     ✓ Compiled in 48ms
+[00:16:52.938] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:21:05.172] Browser WARN    Warning fetching page1: Failed to fetch
+[00:21:05.172] Browser WARN    Warning fetching page2: Failed to fetch
+[00:21:05.172] Browser WARN    Warning fetching page3: Failed to fetch
+[00:21:05.172] Browser WARN    Warning fetching page4: Failed to fetch
+[00:21:05.172] Browser WARN    Warning fetching logStatus: Failed to fetch
+[00:21:05.172] Browser WARN    Warning fetching systemStatus: Failed to fetch
+[00:21:07.509] Browser WARN    Warning fetching page1: Failed to fetch
+[00:21:07.509] Browser WARN    Warning fetching page2: Failed to fetch
+[00:21:07.509] Browser WARN    Warning fetching page3: Failed to fetch
+[00:21:07.509] Browser WARN    Warning fetching page4: Failed to fetch
+[00:21:07.509] Browser WARN    Warning fetching logStatus: Failed to fetch
+[00:21:07.509] Browser WARN    Warning fetching systemStatus: Failed to fetch
+[00:21:09.842] Browser WARN    Warning fetching page1: Failed to fetch
+[00:21:09.842] Browser WARN    Warning fetching page2: Failed to fetch
+[00:21:09.842] Browser WARN    Warning fetching page3: Failed to fetch
+[00:21:09.842] Browser WARN    Warning fetching page4: Failed to fetch
+[00:21:09.842] Browser WARN    Warning fetching logStatus: Failed to fetch
+[00:21:09.842] Browser WARN    Warning fetching systemStatus: Failed to fetch
+[00:21:21.856] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:25:33.706] Server  LOG     ✓ Compiled in 34ms
+[00:26:29.472] Server  LOG     ✓ Compiled in 32ms
+[00:26:31.639] Server  LOG     ✓ Compiled in 30ms
+[00:26:33.661] Server  LOG     ✓ Compiled in 34ms
+[00:26:54.784] Server  LOG     ✓ Compiled in 28ms
+[00:28:32.267] Server  LOG     ✓ Compiled in 50ms
+[00:29:01.035] Browser WARN    Warning fetching page1: Failed to fetch
+[00:29:01.035] Browser WARN    Warning fetching page2: Failed to fetch
+[00:29:01.035] Browser WARN    Warning fetching page3: Failed to fetch
+[00:29:01.035] Browser WARN    Warning fetching page4: Failed to fetch
+[00:29:01.035] Browser WARN    Warning fetching logStatus: Failed to fetch
+[00:29:01.035] Browser WARN    Warning fetching systemStatus: Failed to fetch
+[00:29:03.364] Browser WARN    Warning fetching page1: Failed to fetch
+[00:29:03.364] Browser WARN    Warning fetching page2: Failed to fetch
+[00:29:03.364] Browser WARN    Warning fetching page3: Failed to fetch
+[00:29:03.364] Browser WARN    Warning fetching page4: Failed to fetch
+[00:29:03.364] Browser WARN    Warning fetching logStatus: Failed to fetch
+[00:29:03.364] Browser WARN    Warning fetching systemStatus: Failed to fetch
+[00:32:41.053] Server  LOG     ✓ Compiled in 60ms
+[00:35:14.770] Server  LOG     ✓ Compiled in 26ms
+[00:36:53.167] Server  LOG     ✓ Compiled in 40ms
+[00:36:53.264] Browser ERROR   ErrorBoundary caught an error: {} {"componentStack":"\n    at Home (http://localhost:3000/_next/static/chunks/_b9ea4bed._.js?id=%255Bproject%255D%252Fapp%252Fpage.tsx+%255Bapp-client%255D+%2528ecmascript%2529:38:213)\n    at ClientPageRoot (http://localhost:3000/_next/static/chunks/node_modules_next_dist_be32b49c._.js:2358:27)\n    at SegmentViewNode (http://localhost:3000/_next/static/chunks/node_modules_next_dist_f3530cac._.js:3309:28)\n    at InnerLayoutRouter (http://localhost:3000/_next/static/chunks/node_modules_next_dist_be32b49c._.js:351:34)\n    at RedirectErrorBoundary (http://localhost:3000/_next/static/chunks/node_modules_next_dist_client_17643121._.js:10149:9)\n    at RedirectBoundary (http://localhost:3000/_next/static/chunks/node_modules_next_dist_client_17643121._.js:10191:29)\n    at HTTPAccessFallbackErrorBoundary (http://localhost:3000/_next/static/chunks/node_modules_next_dist_client_17643121._.js:10577:9)\n    at HTTPAccessFallbackBoundary (http://localhost:3000/_next/static/chunks/node_modules_next_dist_client_17643121._.js:10652:39)\n    at LoadingBoundary (http://localhost:3000/_next/static/chunks/node_modules_next_dist_be32b49c._.js:433:32)\n    at ErrorBoundary (http://localhost:3000/_next/static/chunks/node_modules_next_dist_client_17643121._.js:1096:26)\n    at InnerScrollAndFocusHandler (http://localhost:3000/_next/static/chunks/node_modules_next_dist_be32b49c._.js:251:9)\n    at ScrollAndFocusHandler (http://localhost:3000/_next/static/chunks/node_modules_next_dist_be32b49c._.js:334:34)\n    at RenderFromTemplateContext (http://localhost:3000/_next/static/chunks/node_modules_next_dist_be32b49c._.js:696:44)\n    at SegmentStateProvider (http://localhost:3000/_next/static/chunks/node_modules_next_dist_f3530cac._.js:3325:33)\n    at OuterLayoutRouter (http://localhost:3000/_next/static/chunks/node_modules_next_dist_be32b49c._.js:469:30)\n    at ErrorBoundary (http://localhost:3000/_next/static/chunks/_2308458a._.js:98:9)\n    at body (<anonymous>)\n    at html (<anonymous>)\n    at RootLayout [Server] (<anonymous>)\n    at SegmentViewNode (http://localhost:3000/_next/static/chunks/node_modules_next_dist_f3530cac._.js:3309:28)\n    at __next_root_layout_boundary__ (http://localhost:3000/_next/static/chunks/node_modules_next_dist_f3530cac._.js:1681:64)\n    at RedirectErrorBoundary (http://localhost:3000/_next/static/chunks/node_modules_next_dist_client_17643121._.js:10149:9)\n    at RedirectBoundary (http://localhost:3000/_next/static/chunks/node_modules_next_dist_client_17643121._.js:10191:29)\n    at HTTPAccessFallbackErrorBoundary (http://localhost:3000/_next/static/chunks/node_modules_next_dist_client_17643121._.js:10577:9)\n    at HTTPAccessFallbackBoundary (http://localhost:3000/_next/static/chunks/node_modules_next_dist_client_17643121._.js:10652:39)\n    at DevRootHTTPAccessFallbackBoundary (http://localhost:3000/_next/static/chunks/node_modules_next_dist_client_17643121._.js:10721:46)\n    at AppDevOverlayErrorBoundary (http://localhost:3000/_next/static/chunks/node_modules_next_dist_f3530cac._.js:3420:9)\n    at HotReload (http://localhost:3000/_next/static/chunks/node_modules_next_dist_client_17643121._.js:11750:22)\n    at Router (http://localhost:3000/_next/static/chunks/node_modules_next_dist_client_17643121._.js:11906:23)\n    at ErrorBoundaryHandler (http://localhost:3000/_next/static/chunks/node_modules_next_dist_client_17643121._.js:1030:9)\n    at ErrorBoundary (http://localhost:3000/_next/static/chunks/node_modules_next_dist_client_17643121._.js:1096:26)\n    at RootErrorBoundary (http://localhost:3000/_next/static/chunks/node_modules_next_dist_client_17643121._.js:10403:30)\n    at AppRouter (http://localhost:3000/_next/static/chunks/node_modules_next_dist_client_17643121._.js:12225:22)\n    at ServerRoot (http://localhost:3000/_next/static/chunks/node_modules_next_dist_client_17643121._.js:12584:23)\n    at Root (http://localhost:3000/_next/static/chunks/node_modules_next_dist_client_17643121._.js:12602:17)"}
+[00:36:57.579] Server  LOG     ✓ Compiled in 40ms
+[00:36:57.674] Browser ERROR   ErrorBoundary caught an error: {} {"componentStack":"\n    at Home (http://localhost:3000/_next/static/chunks/_b9ea4bed._.js?id=%255Bproject%255D%252Fapp%252Fpage.tsx+%255Bapp-client%255D+%2528ecmascript%2529:38:213)\n    at ClientPageRoot (http://localhost:3000/_next/static/chunks/node_modules_next_dist_be32b49c._.js:2358:27)\n    at SegmentViewNode (http://localhost:3000/_next/static/chunks/node_modules_next_dist_f3530cac._.js:3309:28)\n    at InnerLayoutRouter (http://localhost:3000/_next/static/chunks/node_modules_next_dist_be32b49c._.js:351:34)\n    at RedirectErrorBoundary (http://localhost:3000/_next/static/chunks/node_modules_next_dist_client_17643121._.js:10149:9)\n    at RedirectBoundary (http://localhost:3000/_next/static/chunks/node_modules_next_dist_client_17643121._.js:10191:29)\n    at HTTPAccessFallbackErrorBoundary (http://localhost:3000/_next/static/chunks/node_modules_next_dist_client_17643121._.js:10577:9)\n    at HTTPAccessFallbackBoundary (http://localhost:3000/_next/static/chunks/node_modules_next_dist_client_17643121._.js:10652:39)\n    at LoadingBoundary (http://localhost:3000/_next/static/chunks/node_modules_next_dist_be32b49c._.js:433:32)\n    at ErrorBoundary (http://localhost:3000/_next/static/chunks/node_modules_next_dist_client_17643121._.js:1096:26)\n    at InnerScrollAndFocusHandler (http://localhost:3000/_next/static/chunks/node_modules_next_dist_be32b49c._.js:251:9)\n    at ScrollAndFocusHandler (http://localhost:3000/_next/static/chunks/node_modules_next_dist_be32b49c._.js:334:34)\n    at RenderFromTemplateContext (http://localhost:3000/_next/static/chunks/node_modules_next_dist_be32b49c._.js:696:44)\n    at SegmentStateProvider (http://localhost:3000/_next/static/chunks/node_modules_next_dist_f3530cac._.js:3325:33)\n    at OuterLayoutRouter (http://localhost:3000/_next/static/chunks/node_modules_next_dist_be32b49c._.js:469:30)\n    at ErrorBoundary (http://localhost:3000/_next/static/chunks/_2308458a._.js:98:9)\n    at body (<anonymous>)\n    at html (<anonymous>)\n    at RootLayout [Server] (<anonymous>)\n    at SegmentViewNode (http://localhost:3000/_next/static/chunks/node_modules_next_dist_f3530cac._.js:3309:28)\n    at __next_root_layout_boundary__ (http://localhost:3000/_next/static/chunks/node_modules_next_dist_f3530cac._.js:1681:64)\n    at RedirectErrorBoundary (http://localhost:3000/_next/static/chunks/node_modules_next_dist_client_17643121._.js:10149:9)\n    at RedirectBoundary (http://localhost:3000/_next/static/chunks/node_modules_next_dist_client_17643121._.js:10191:29)\n    at HTTPAccessFallbackErrorBoundary (http://localhost:3000/_next/static/chunks/node_modules_next_dist_client_17643121._.js:10577:9)\n    at HTTPAccessFallbackBoundary (http://localhost:3000/_next/static/chunks/node_modules_next_dist_client_17643121._.js:10652:39)\n    at DevRootHTTPAccessFallbackBoundary (http://localhost:3000/_next/static/chunks/node_modules_next_dist_client_17643121._.js:10721:46)\n    at AppDevOverlayErrorBoundary (http://localhost:3000/_next/static/chunks/node_modules_next_dist_f3530cac._.js:3420:9)\n    at HotReload (http://localhost:3000/_next/static/chunks/node_modules_next_dist_client_17643121._.js:11750:22)\n    at Router (http://localhost:3000/_next/static/chunks/node_modules_next_dist_client_17643121._.js:11906:23)\n    at ErrorBoundaryHandler (http://localhost:3000/_next/static/chunks/node_modules_next_dist_client_17643121._.js:1030:9)\n    at ErrorBoundary (http://localhost:3000/_next/static/chunks/node_modules_next_dist_client_17643121._.js:1096:26)\n    at RootErrorBoundary (http://localhost:3000/_next/static/chunks/node_modules_next_dist_client_17643121._.js:10403:30)\n    at AppRouter (http://localhost:3000/_next/static/chunks/node_modules_next_dist_client_17643121._.js:12225:22)\n    at ServerRoot (http://localhost:3000/_next/static/chunks/node_modules_next_dist_client_17643121._.js:12584:23)\n    at Root (http://localhost:3000/_next/static/chunks/node_modules_next_dist_client_17643121._.js:12602:17)"}
+[00:36:59.180] Server  LOG     ✓ Compiled in 32ms
+[00:36:59.296] Browser ERROR   ErrorBoundary caught an error: {} {"componentStack":"\n    at Home (http://localhost:3000/_next/static/chunks/_b9ea4bed._.js?id=%255Bproject%255D%252Fapp%252Fpage.tsx+%255Bapp-client%255D+%2528ecmascript%2529:38:213)\n    at ClientPageRoot (http://localhost:3000/_next/static/chunks/node_modules_next_dist_be32b49c._.js:2358:27)\n    at SegmentViewNode (http://localhost:3000/_next/static/chunks/node_modules_next_dist_f3530cac._.js:3309:28)\n    at InnerLayoutRouter (http://localhost:3000/_next/static/chunks/node_modules_next_dist_be32b49c._.js:351:34)\n    at RedirectErrorBoundary (http://localhost:3000/_next/static/chunks/node_modules_next_dist_client_17643121._.js:10149:9)\n    at RedirectBoundary (http://localhost:3000/_next/static/chunks/node_modules_next_dist_client_17643121._.js:10191:29)\n    at HTTPAccessFallbackErrorBoundary (http://localhost:3000/_next/static/chunks/node_modules_next_dist_client_17643121._.js:10577:9)\n    at HTTPAccessFallbackBoundary (http://localhost:3000/_next/static/chunks/node_modules_next_dist_client_17643121._.js:10652:39)\n    at LoadingBoundary (http://localhost:3000/_next/static/chunks/node_modules_next_dist_be32b49c._.js:433:32)\n    at ErrorBoundary (http://localhost:3000/_next/static/chunks/node_modules_next_dist_client_17643121._.js:1096:26)\n    at InnerScrollAndFocusHandler (http://localhost:3000/_next/static/chunks/node_modules_next_dist_be32b49c._.js:251:9)\n    at ScrollAndFocusHandler (http://localhost:3000/_next/static/chunks/node_modules_next_dist_be32b49c._.js:334:34)\n    at RenderFromTemplateContext (http://localhost:3000/_next/static/chunks/node_modules_next_dist_be32b49c._.js:696:44)\n    at SegmentStateProvider (http://localhost:3000/_next/static/chunks/node_modules_next_dist_f3530cac._.js:3325:33)\n    at OuterLayoutRouter (http://localhost:3000/_next/static/chunks/node_modules_next_dist_be32b49c._.js:469:30)\n    at ErrorBoundary (http://localhost:3000/_next/static/chunks/_2308458a._.js:98:9)\n    at body (<anonymous>)\n    at html (<anonymous>)\n    at RootLayout [Server] (<anonymous>)\n    at SegmentViewNode (http://localhost:3000/_next/static/chunks/node_modules_next_dist_f3530cac._.js:3309:28)\n    at __next_root_layout_boundary__ (http://localhost:3000/_next/static/chunks/node_modules_next_dist_f3530cac._.js:1681:64)\n    at RedirectErrorBoundary (http://localhost:3000/_next/static/chunks/node_modules_next_dist_client_17643121._.js:10149:9)\n    at RedirectBoundary (http://localhost:3000/_next/static/chunks/node_modules_next_dist_client_17643121._.js:10191:29)\n    at HTTPAccessFallbackErrorBoundary (http://localhost:3000/_next/static/chunks/node_modules_next_dist_client_17643121._.js:10577:9)\n    at HTTPAccessFallbackBoundary (http://localhost:3000/_next/static/chunks/node_modules_next_dist_client_17643121._.js:10652:39)\n    at DevRootHTTPAccessFallbackBoundary (http://localhost:3000/_next/static/chunks/node_modules_next_dist_client_17643121._.js:10721:46)\n    at AppDevOverlayErrorBoundary (http://localhost:3000/_next/static/chunks/node_modules_next_dist_f3530cac._.js:3420:9)\n    at HotReload (http://localhost:3000/_next/static/chunks/node_modules_next_dist_client_17643121._.js:11750:22)\n    at Router (http://localhost:3000/_next/static/chunks/node_modules_next_dist_client_17643121._.js:11906:23)\n    at ErrorBoundaryHandler (http://localhost:3000/_next/static/chunks/node_modules_next_dist_client_17643121._.js:1030:9)\n    at ErrorBoundary (http://localhost:3000/_next/static/chunks/node_modules_next_dist_client_17643121._.js:1096:26)\n    at RootErrorBoundary (http://localhost:3000/_next/static/chunks/node_modules_next_dist_client_17643121._.js:10403:30)\n    at AppRouter (http://localhost:3000/_next/static/chunks/node_modules_next_dist_client_17643121._.js:12225:22)\n    at ServerRoot (http://localhost:3000/_next/static/chunks/node_modules_next_dist_client_17643121._.js:12584:23)\n    at Root (http://localhost:3000/_next/static/chunks/node_modules_next_dist_client_17643121._.js:12602:17)"}
+[00:37:37.578] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:37:37.771] Browser ERROR   ErrorBoundary caught an error: {} {"componentStack":"\n    at Home (http://localhost:3000/_next/static/chunks/_b9ea4bed._.js:4936:213)\n    at ClientPageRoot (http://localhost:3000/_next/static/chunks/node_modules_next_dist_be32b49c._.js:2358:27)\n    at SegmentViewNode (http://localhost:3000/_next/static/chunks/node_modules_next_dist_f3530cac._.js:3309:28)\n    at InnerLayoutRouter (http://localhost:3000/_next/static/chunks/node_modules_next_dist_be32b49c._.js:351:34)\n    at RedirectErrorBoundary (http://localhost:3000/_next/static/chunks/node_modules_next_dist_client_17643121._.js:10149:9)\n    at RedirectBoundary (http://localhost:3000/_next/static/chunks/node_modules_next_dist_client_17643121._.js:10191:29)\n    at HTTPAccessFallbackErrorBoundary (http://localhost:3000/_next/static/chunks/node_modules_next_dist_client_17643121._.js:10577:9)\n    at HTTPAccessFallbackBoundary (http://localhost:3000/_next/static/chunks/node_modules_next_dist_client_17643121._.js:10652:39)\n    at LoadingBoundary (http://localhost:3000/_next/static/chunks/node_modules_next_dist_be32b49c._.js:433:32)\n    at ErrorBoundary (http://localhost:3000/_next/static/chunks/node_modules_next_dist_client_17643121._.js:1096:26)\n    at InnerScrollAndFocusHandler (http://localhost:3000/_next/static/chunks/node_modules_next_dist_be32b49c._.js:251:9)\n    at ScrollAndFocusHandler (http://localhost:3000/_next/static/chunks/node_modules_next_dist_be32b49c._.js:334:34)\n    at RenderFromTemplateContext (http://localhost:3000/_next/static/chunks/node_modules_next_dist_be32b49c._.js:696:44)\n    at SegmentStateProvider (http://localhost:3000/_next/static/chunks/node_modules_next_dist_f3530cac._.js:3325:33)\n    at OuterLayoutRouter (http://localhost:3000/_next/static/chunks/node_modules_next_dist_be32b49c._.js:469:30)\n    at ErrorBoundary (http://localhost:3000/_next/static/chunks/_2308458a._.js:98:9)\n    at body (<anonymous>)\n    at html (<anonymous>)\n    at RootLayout [Server] (<anonymous>)\n    at SegmentViewNode (http://localhost:3000/_next/static/chunks/node_modules_next_dist_f3530cac._.js:3309:28)\n    at __next_root_layout_boundary__ (http://localhost:3000/_next/static/chunks/node_modules_next_dist_f3530cac._.js:1681:64)\n    at RedirectErrorBoundary (http://localhost:3000/_next/static/chunks/node_modules_next_dist_client_17643121._.js:10149:9)\n    at RedirectBoundary (http://localhost:3000/_next/static/chunks/node_modules_next_dist_client_17643121._.js:10191:29)\n    at HTTPAccessFallbackErrorBoundary (http://localhost:3000/_next/static/chunks/node_modules_next_dist_client_17643121._.js:10577:9)\n    at HTTPAccessFallbackBoundary (http://localhost:3000/_next/static/chunks/node_modules_next_dist_client_17643121._.js:10652:39)\n    at DevRootHTTPAccessFallbackBoundary (http://localhost:3000/_next/static/chunks/node_modules_next_dist_client_17643121._.js:10721:46)\n    at AppDevOverlayErrorBoundary (http://localhost:3000/_next/static/chunks/node_modules_next_dist_f3530cac._.js:3420:9)\n    at HotReload (http://localhost:3000/_next/static/chunks/node_modules_next_dist_client_17643121._.js:11750:22)\n    at Router (http://localhost:3000/_next/static/chunks/node_modules_next_dist_client_17643121._.js:11906:23)\n    at ErrorBoundaryHandler (http://localhost:3000/_next/static/chunks/node_modules_next_dist_client_17643121._.js:1030:9)\n    at ErrorBoundary (http://localhost:3000/_next/static/chunks/node_modules_next_dist_client_17643121._.js:1096:26)\n    at RootErrorBoundary (http://localhost:3000/_next/static/chunks/node_modules_next_dist_client_17643121._.js:10403:30)\n    at AppRouter (http://localhost:3000/_next/static/chunks/node_modules_next_dist_client_17643121._.js:12225:22)\n    at ServerRoot (http://localhost:3000/_next/static/chunks/node_modules_next_dist_client_17643121._.js:12584:23)\n    at Root (http://localhost:3000/_next/static/chunks/node_modules_next_dist_client_17643121._.js:12602:17)"}
+[00:37:47.331] Server  LOG     ✓ Compiled in 30ms
+[00:37:52.741] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:37:52.921] Browser ERROR   ErrorBoundary caught an error: {} {"componentStack":"\n    at Home (http://localhost:3000/_next/static/chunks/_b9ea4bed._.js:4936:213)\n    at ClientPageRoot (http://localhost:3000/_next/static/chunks/node_modules_next_dist_be32b49c._.js:2358:27)\n    at SegmentViewNode (http://localhost:3000/_next/static/chunks/node_modules_next_dist_f3530cac._.js:3309:28)\n    at InnerLayoutRouter (http://localhost:3000/_next/static/chunks/node_modules_next_dist_be32b49c._.js:351:34)\n    at RedirectErrorBoundary (http://localhost:3000/_next/static/chunks/node_modules_next_dist_client_17643121._.js:10149:9)\n    at RedirectBoundary (http://localhost:3000/_next/static/chunks/node_modules_next_dist_client_17643121._.js:10191:29)\n    at HTTPAccessFallbackErrorBoundary (http://localhost:3000/_next/static/chunks/node_modules_next_dist_client_17643121._.js:10577:9)\n    at HTTPAccessFallbackBoundary (http://localhost:3000/_next/static/chunks/node_modules_next_dist_client_17643121._.js:10652:39)\n    at LoadingBoundary (http://localhost:3000/_next/static/chunks/node_modules_next_dist_be32b49c._.js:433:32)\n    at ErrorBoundary (http://localhost:3000/_next/static/chunks/node_modules_next_dist_client_17643121._.js:1096:26)\n    at InnerScrollAndFocusHandler (http://localhost:3000/_next/static/chunks/node_modules_next_dist_be32b49c._.js:251:9)\n    at ScrollAndFocusHandler (http://localhost:3000/_next/static/chunks/node_modules_next_dist_be32b49c._.js:334:34)\n    at RenderFromTemplateContext (http://localhost:3000/_next/static/chunks/node_modules_next_dist_be32b49c._.js:696:44)\n    at SegmentStateProvider (http://localhost:3000/_next/static/chunks/node_modules_next_dist_f3530cac._.js:3325:33)\n    at OuterLayoutRouter (http://localhost:3000/_next/static/chunks/node_modules_next_dist_be32b49c._.js:469:30)\n    at ErrorBoundary (http://localhost:3000/_next/static/chunks/_2308458a._.js:98:9)\n    at body (<anonymous>)\n    at html (<anonymous>)\n    at RootLayout [Server] (<anonymous>)\n    at SegmentViewNode (http://localhost:3000/_next/static/chunks/node_modules_next_dist_f3530cac._.js:3309:28)\n    at __next_root_layout_boundary__ (http://localhost:3000/_next/static/chunks/node_modules_next_dist_f3530cac._.js:1681:64)\n    at RedirectErrorBoundary (http://localhost:3000/_next/static/chunks/node_modules_next_dist_client_17643121._.js:10149:9)\n    at RedirectBoundary (http://localhost:3000/_next/static/chunks/node_modules_next_dist_client_17643121._.js:10191:29)\n    at HTTPAccessFallbackErrorBoundary (http://localhost:3000/_next/static/chunks/node_modules_next_dist_client_17643121._.js:10577:9)\n    at HTTPAccessFallbackBoundary (http://localhost:3000/_next/static/chunks/node_modules_next_dist_client_17643121._.js:10652:39)\n    at DevRootHTTPAccessFallbackBoundary (http://localhost:3000/_next/static/chunks/node_modules_next_dist_client_17643121._.js:10721:46)\n    at AppDevOverlayErrorBoundary (http://localhost:3000/_next/static/chunks/node_modules_next_dist_f3530cac._.js:3420:9)\n    at HotReload (http://localhost:3000/_next/static/chunks/node_modules_next_dist_client_17643121._.js:11750:22)\n    at Router (http://localhost:3000/_next/static/chunks/node_modules_next_dist_client_17643121._.js:11906:23)\n    at ErrorBoundaryHandler (http://localhost:3000/_next/static/chunks/node_modules_next_dist_client_17643121._.js:1030:9)\n    at ErrorBoundary (http://localhost:3000/_next/static/chunks/node_modules_next_dist_client_17643121._.js:1096:26)\n    at RootErrorBoundary (http://localhost:3000/_next/static/chunks/node_modules_next_dist_client_17643121._.js:10403:30)\n    at AppRouter (http://localhost:3000/_next/static/chunks/node_modules_next_dist_client_17643121._.js:12225:22)\n    at ServerRoot (http://localhost:3000/_next/static/chunks/node_modules_next_dist_client_17643121._.js:12584:23)\n    at Root (http://localhost:3000/_next/static/chunks/node_modules_next_dist_client_17643121._.js:12602:17)"}
+[00:38:00.541] Server  LOG     ✓ Compiled in 64ms
+[00:38:14.674] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:41:12.108] Server  LOG     ✓ Compiled in 34ms
+[00:41:14.191] Server  LOG     ✓ Compiled in 32ms
+[00:41:27.532] Browser WARN    Warning fetching page1: Failed to fetch
+[00:41:27.532] Browser WARN    Warning fetching page2: Failed to fetch
+[00:41:27.532] Browser WARN    Warning fetching page3: Failed to fetch
+[00:41:27.532] Browser WARN    Warning fetching page4: Failed to fetch
+[00:41:27.532] Browser WARN    Warning fetching logStatus: Failed to fetch
+[00:41:27.532] Browser WARN    Warning fetching systemStatus: Failed to fetch
+[00:41:29.868] Browser WARN    Warning fetching page1: Failed to fetch
+[00:41:29.868] Browser WARN    Warning fetching page2: Failed to fetch
+[00:41:29.868] Browser WARN    Warning fetching page3: Failed to fetch
+[00:41:29.868] Browser WARN    Warning fetching page4: Failed to fetch
+[00:41:29.868] Browser WARN    Warning fetching logStatus: Failed to fetch
+[00:41:29.868] Browser WARN    Warning fetching systemStatus: Failed to fetch
+[00:41:33.821] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:44:06.704] Server  LOG     ✓ Compiled in 37ms
+[00:44:21.626] Server  LOG     ✓ Compiled in 44ms
+[00:47:06.461] Server  LOG     ✓ Compiled in 35ms
+[00:47:16.826] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:49:26.459] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold

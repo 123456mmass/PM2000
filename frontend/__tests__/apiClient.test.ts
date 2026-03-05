@@ -21,7 +21,7 @@ import apiClient, {
   type Page4Data,
   type AiSummaryResponse,
   type LogStatusResponse,
-} from '../apiClient';
+} from '../utils/apiClient';
 
 // Mock global fetch
 const mockFetch = jest.fn();
@@ -237,27 +237,16 @@ describe('API Client', () => {
   });
 
   describe('fetchLogStatus', () => {
-    it('should fetch log status successfully', async () => {
-      const mockData: LogStatusResponse = {
-        isLogging: true,
-        lastUpdate: new Date().toISOString(),
-        logSize: 1024,
-        recordCount: 100,
-      };
-
-      mockFetch.mockResolvedValueOnce({
+    it('fetches log status successfully', async () => {
+      const mockStatusData = { is_logging: true, file_size_kb: 10, fault_record_count: 5 };
+      (global.fetch as jest.Mock).mockResolvedValueOnce({
         ok: true,
-        json: async () => mockData,
+        json: async () => mockStatusData,
       });
 
-      const result = await fetchLogStatus();
-
-      expect(mockFetch).toHaveBeenCalledWith(`${API_BASE_URL}/log/status`, {
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-      expect(result).toEqual(mockData);
+      const data = await fetchLogStatus();
+      expect(data).toEqual(mockStatusData);
+      expect(global.fetch).toHaveBeenCalledWith(`${API_BASE_URL}/log/status`, expect.any(Object));
     });
   });
 

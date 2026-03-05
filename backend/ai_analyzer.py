@@ -413,6 +413,111 @@ Always respond in Thai language with technical accuracy."""},
 
 @retry(stop=stop_after_attempt(3), wait=wait_exponential(multiplier=1, min=2, max=10),
        retry=retry_if_exception(should_retry), retry_error_callback=return_ai_error)
+async def generate_fault_summary(fault_records: List[Dict[str, str]]) -> Dict[str, Any]:
+    """
+    Takes the recent PM2230 fault records and sends them to the Aliyun DashScope Qwen model
+    to get a technical analysis of the faults.
+    """
+    if not fault_records:
+        return {
+            "summary": "❌ ไม่มีข้อมูล Fault ให้วิเคราะห์",
+            "is_cached": False,
+            "cache_key": ""
+        }
+        
+    # Create cache key from combining timestamps or data
+    data_str = json.dumps(fault_records, sort_keys=True)
+    cache_key = hashlib.md5(data_str.encode()).hexdigest()[:8]
+
+    # Check cache first
+    cached_result = get_from_cache(cache_key)
+    if cached_result is not None:
+        return {
+            "summary": cached_result,
+            "is_cached": True,
+            "cache_key": cache_key
+        }
+
+    logger.info(f"Cache MISS: {cache_key}... - calling AI API for fault summary")
+
+    api_key = os.getenv("DASHSCOPE_API_KEY")
+    if not api_key:
+        error_msg = "⚠️ กรุณาตั้งค่า DASHSCOPE_API_KEY ในไฟล์ .env ของ Backend ก่อนใช้งานฟังก์ชัน AI"
+        return {
+            "summary": error_msg,
+            "is_cached": False,
+            "cache_key": cache_key
+        }
+
+    model = os.getenv("DASHSCOPE_MODEL", DEFAULT_MODEL)
+
+    prompt = f"""
+คุณคือผู้เชี่ยวชาญด้านวิศวกรรมไฟฟ้าที่คอยวิเคราะห์สาเหตุการเกิด Fault จาก Power Meter (รุ่น PM2230)
+
+ด้านล่างนี้คือข้อมูลประวัติการเกิดความผิดปกติทางไฟฟ้า (Fault Records) จำนวน {len(fault_records)} รายการล่าสุด
+โปรดวิเคราะห์ข้อมูลเหล่านี้และเขียนสรุปสาเหตุ/รูปแบบของการเกิด Fault เพื่อให้วิศวกรซ่อมบำรุงเข้าใจง่าย เป็นภาษาไทย
+
+## รูปแบบที่ต้องการ:
+1. **ภาพรวมของเหตุการณ์ผิดปกติ** (เช่น เกิด Voltage Sag ถี่แค่ไหน, Phase ไหนมีปัญหาบ่อยสุด)
+2. **การประเมินสาเหตุที่เป็นไปได้** (วิเคราะห์จากตัวเลข เช่น กระแสไม่สมดุลอาจเกิดจากโหลดเกิน, แรงดันตกอาจเกิดจากการสตาร์ทมอเตอร์)
+3. **ผลกระทบที่อาจเกิดขึ้นต่ออุปกรณ์**
+4. **คำแนะนำสำหรับการแก้ไขหรือตรวจสอบเพิ่มเติม**
+
+## ข้อมูล Fault ย้อนหลัง:
+{json.dumps(fault_records, indent=2, ensure_ascii=False)}
+
+เขียนรายงานให้กระชับ เป็นมืออาชีพ เน้นวิเคราะห์เชิงลึกจากตัวเลขที่ปรากฏในข้อมูล
+"""
+
+    headers = {
+        "Authorization": f"Bearer {api_key}",
+        "Content-Type": "application/json"
+    }
+
+    payload = {
+        "model": model,
+        "messages": [
+            {"role": "system", "content": "You are a professional electrical engineer analyzing fault origin and power anomalies. Always respond in Thai with technical accuracy."},
+            {"role": "user", "content": prompt}
+        ],
+        "temperature": 0.2,
+        "max_tokens": 1500
+    }
+
+    try:
+        timeout = httpx.Timeout(connect=10.0, read=120.0, write=10.0, pool=10.0)
+        async with httpx.AsyncClient(timeout=timeout) as client:
+            response = await client.post(
+                f"{DASHSCOPE_API_BASE}/chat/completions",
+                headers=headers,
+                json=payload,
+            )
+            response.raise_for_status()
+            result = response.json()
+
+            if not result.get("choices") or len(result["choices"]) == 0:
+                raise ValueError("Invalid API response: no choices")
+
+            ai_response = result["choices"][0]["message"]["content"]
+
+            # Save to cache
+            save_to_cache(cache_key, ai_response)
+
+            return {
+                "summary": ai_response,
+                "is_cached": False,
+                "cache_key": cache_key
+            }
+    except Exception as e:
+        logger.error(f"Error generating fault summary: {e}")
+        return {
+            "summary": f"❌ เกิดข้อผิดพลาด: {type(e).__name__}: {e}",
+            "is_cached": False,
+            "cache_key": cache_key
+        }
+
+@retry(stop=stop_after_attempt(3), wait=wait_exponential(multiplier=1, min=2, max=10),
+       retry=retry_if_exception(should_retry), retry_error_callback=return_ai_error)
 async def generate_english_report(data: Dict[str, Any]) -> Dict[str, Any]:
     """
     Takes the latest PM2230 power data and generates a formal English A4 report.

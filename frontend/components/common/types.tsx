@@ -107,9 +107,10 @@ export function UnbalanceRow({ label, value }: UnbalanceRowProps) {
 interface PFRowProps {
   label: string;
   value: number;
+  qValue?: number;
 }
 
-export function PFRow({ label, value }: PFRowProps) {
+export function PFRow({ label, value, qValue }: PFRowProps) {
   let color = 'text-green-400';
   const absPf = Math.abs(value);
 
@@ -118,11 +119,30 @@ export function PFRow({ label, value }: PFRowProps) {
     else if (absPf < 0.9) color = 'text-yellow-400';
   }
 
+  // Determine LAGGING / LEADING from reactive power sign
+  // Q > 0 → inductive → LAGGING; Q < 0 → capacitive → LEADING
+  let pfType: 'LAGGING' | 'LEADING' | null = null;
+  if (qValue !== undefined && value !== 0) {
+    pfType = qValue >= 0 ? 'LAGGING' : 'LEADING';
+  }
+
   return (
     <div className="flex justify-between items-center">
       <span className="text-gray-300">{label}</span>
-      <span className={`text-xl font-bold ${color}`}>
-        {value.toFixed(3)}
+      <span className="flex items-center gap-2">
+        {pfType && (
+          <span
+            className={`text-[10px] font-bold px-1.5 py-0.5 rounded tracking-wide ${pfType === 'LAGGING'
+                ? 'bg-orange-900/50 text-orange-400 border border-orange-600/40'
+                : 'bg-cyan-900/50 text-cyan-400 border border-cyan-600/40'
+              }`}
+          >
+            {pfType}
+          </span>
+        )}
+        <span className={`text-xl font-bold ${color}`}>
+          {value.toFixed(3)}
+        </span>
       </span>
     </div>
   );

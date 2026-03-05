@@ -4,7 +4,7 @@
 
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
-import { ErrorBoundary } from '../common/ErrorBoundary';
+import { ErrorBoundary } from '../components/common/ErrorBoundary';
 
 // Test component that throws an error
 const ThrowError = ({ throwError = true }: { throwError?: boolean }) => {
@@ -16,7 +16,7 @@ const ThrowError = ({ throwError = true }: { throwError?: boolean }) => {
 
 describe('ErrorBoundary', () => {
   beforeEach(() => {
-    jest.spyOn(console, 'error').mockImplementation(() => {});
+    jest.spyOn(console, 'error').mockImplementation(() => { });
   });
 
   afterEach(() => {

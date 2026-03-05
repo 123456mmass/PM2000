@@ -143,10 +143,9 @@ export interface AiSummaryResponse {
  * Interface for Log Status response
  */
 export interface LogStatusResponse {
-  isLogging: boolean;
-  lastUpdate?: string;
-  logSize?: number;
-  recordCount?: number;
+  is_logging: boolean;
+  file_size_kb: number;
+  fault_record_count?: number;
 }
 
 /**
@@ -181,7 +180,18 @@ export async function fetchPage4(): Promise<Page4Data> {
  * Fetch AI Summary
  */
 export async function fetchAiSummary(): Promise<AiSummaryResponse> {
-  return fetchWithHandling<AiSummaryResponse>(`${API_BASE_URL}/ai/summary`);
+  return fetchWithHandling<AiSummaryResponse>(`${API_BASE_URL}/ai/summary`, {
+    method: 'POST',
+  });
+}
+
+/**
+ * Fetch AI Fault Summary
+ */
+export async function fetchAiFaultSummary(): Promise<AiSummaryResponse> {
+  return fetchWithHandling<AiSummaryResponse>(`${API_BASE_URL}/ai-fault-summary`, {
+    method: 'POST',
+  });
 }
 
 /**
@@ -218,10 +228,11 @@ export async function stopLogging(): Promise<{ success: boolean; message: string
 /**
  * Download log file
  * @param format - File format (csv, json, txt)
+ * @param logType - Type of log (normal, fault)
  * @returns Blob URL for download
  */
-export async function downloadLog(format: string = 'csv'): Promise<string> {
-  const response = await fetch(`${API_BASE_URL}/log/download?format=${format}`, {
+export async function downloadLog(format: string = 'csv', logType: string = 'normal'): Promise<string> {
+  const response = await fetch(`${API_BASE_URL}/log/download?format=${format}&type=${logType}`, {
     method: 'GET',
   });
 
@@ -239,26 +250,52 @@ export async function downloadLog(format: string = 'csv'): Promise<string> {
 /**
  * Download log file and trigger browser download
  * @param format - File format (csv, json, txt)
+ * @param logType - Type of log (normal, fault)
  * @param filename - Custom filename (optional)
  */
 export async function triggerLogDownload(
   format: string = 'csv',
+  logType: string = 'normal',
   filename?: string
 ): Promise<void> {
-  const blobUrl = await downloadLog(format);
+  const blobUrl = await downloadLog(format, logType);
 
   const link = document.createElement('a');
   link.href = blobUrl;
-  link.download = filename || `power-log-${new Date().toISOString().split('T')[0]}.${format}`;
+  link.download = filename || `power-${logType}-log-${new Date().toISOString().split('T')[0]}.${format}`;
   document.body.appendChild(link);
   link.click();
   document.body.removeChild(link);
 
   // Clean up the blob URL
+  // Clean up the blob URL
   setTimeout(() => {
     URL.revokeObjectURL(blobUrl);
   }, 100);
 }
+
+/**
+ * Interface for Alerts response
+ */
+export interface AlertItem {
+  category: string;
+  severity: string;
+  message: string;
+}
+
+export interface AlertsResponse {
+  count: number;
+  status: string;
+  alerts: AlertItem[];
+}
+
+/**
+ * Fetch current alerts
+ */
+export async function fetchAlerts(): Promise<AlertsResponse> {
+  return fetchWithHandling<AlertsResponse>(`${API_BASE_URL}/alerts`);
+}
+
 
 /**
  * API client object with all methods
@@ -274,6 +311,7 @@ const apiClient = {
   stopLogging,
   downloadLog,
   triggerLogDownload,
+  fetchAlerts,
 };
 
 export { API_BASE_URL };

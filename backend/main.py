@@ -216,6 +216,7 @@ tunnel_ready: bool = False
 # Logging attributes
 is_logging: bool = False
 log_filename: str = "pm2230_log.csv"
+fault_log_filename: str = "pm2230_fault_log.csv"
 log_headers = [
     "timestamp", "status", "V_LN1", "V_LN2", "V_LN3", "V_LN_avg", "V_LL12", "V_LL23", "V_LL31", "V_LL_avg",
     "I_L1", "I_L2", "I_L3", "I_N", "I_avg", "Freq",
@@ -356,17 +357,27 @@ def generate_simulated_data():
 
     # Time-based smooth variations
     t = time.time()
-
+    
+    # --- FAULT INJECTION LOGIC ---
+    # Cycle resets every 25 seconds. Inject fault between seconds 15-20 of that cycle.
+    in_fault = (t % 25) > 15 and (t % 25) < 20
+    
     # Base voltage around 230V, with slow sine waves + small noise
-    # Offset phases slightly to prevent lines from perfectly overlapping
     v1 = 230 + math.sin(t * 0.1) * 1.5 + random.uniform(-0.2, 0.2)
     v2 = 229 + math.sin(t * 0.1 + 2) * 1.5 + random.uniform(-0.2, 0.2)
     v3 = 231 + math.sin(t * 0.1 + 4) * 1.5 + random.uniform(-0.2, 0.2)
 
-    # Current around 10A, faster sine waves + small noise
+    # Base current around 10A, faster sine waves + small noise
     i1 = 10 + math.sin(t * 0.2) * 0.8 + random.uniform(-0.1, 0.1)
     i2 = 9.5 + math.sin(t * 0.2 + 2) * 0.8 + random.uniform(-0.1, 0.1)
     i3 = 10.2 + math.sin(t * 0.2 + 4) * 0.8 + random.uniform(-0.1, 0.1)
+
+    if in_fault:
+        # INJECT FAULT:
+        # 1. Voltage Sag on Phase 1 (Drops below 207V limit to trigger alert)
+        v1 = v1 * 0.85  # ~195V
+        # 2. Current Unbalance Spike (Phase 3 spikes, causing I_unb > 10%)
+        i3 = i3 * 1.8   # ~18A
 
     # Calculate powers realistically from smooth V and I
     p1, p2, p3 = v1*i1*0.9/1000, v2*i2*0.9/1000, v3*i3*0.9/1000
@@ -385,19 +396,26 @@ def generate_simulated_data():
     thdi2 = 25.0 + math.sin(t * 0.08 + 2) * 5.0 + random.uniform(-1.0, 1.0)
     # Simulate high unbalanced THDi on Phase 3
     thdi3 = 130.0 + math.sin(t * 0.08 + 4) * 10.0 + random.uniform(-2.0, 2.0)
+    
+    # Calculate real unbalance dynamically based on generated values
+    v_avg = (v1 + v2 + v3) / 3
+    v_unb = max(abs(v1-v_avg), abs(v2-v_avg), abs(v3-v_avg)) / v_avg * 100
+    
+    i_avg = (i1 + i2 + i3) / 3
+    i_unb = max(abs(i1-i_avg), abs(i2-i_avg), abs(i3-i_avg)) / i_avg * 100
 
     return {
         "status": "OK",
-        "V_LN1": round(v1, 2), "V_LN2": round(v2, 2), "V_LN3": round(v3, 2), "V_LN_avg": round((v1+v2+v3)/3, 2),
-        "V_LL12": round(v1*1.732, 2), "V_LL23": round(v2*1.732, 2), "V_LL31": round(v3*1.732, 2), "V_LL_avg": round(((v1+v2+v3)/3)*1.732, 2),
-        "I_L1": round(i1, 3), "I_L2": round(i2, 3), "I_L3": round(i3, 3), "I_N": round(0.5 + math.sin(t * 0.5) * 0.1, 3), "I_avg": round((i1+i2+i3)/3, 3),
+        "V_LN1": round(v1, 2), "V_LN2": round(v2, 2), "V_LN3": round(v3, 2), "V_LN_avg": round(v_avg, 2),
+        "V_LL12": round(v1*1.732, 2), "V_LL23": round(v2*1.732, 2), "V_LL31": round(v3*1.732, 2), "V_LL_avg": round(v_avg*1.732, 2),
+        "I_L1": round(i1, 3), "I_L2": round(i2, 3), "I_L3": round(i3, 3), "I_N": round(0.5 + math.sin(t * 0.5) * 0.1, 3), "I_avg": round(i_avg, 3),
         "Freq": round(50.0 + math.sin(t * 0.15) * 0.08, 2),
         "P_L1": round(p1, 3), "P_L2": round(p2, 3), "P_L3": round(p3, 3), "P_Total": round(p1+p2+p3, 3),
         "S_L1": round(s1, 3), "S_L2": round(s2, 3), "S_L3": round(s3, 3), "S_Total": round(s1+s2+s3, 3),
         "Q_L1": round(q1, 3), "Q_L2": round(q2, 3), "Q_L3": round(q3, 3), "Q_Total": round(q1+q2+q3, 3),
         "THDv_L1": round(thdv1, 2), "THDv_L2": round(thdv2, 2), "THDv_L3": round(thdv3, 2),
         "THDi_L1": round(thdi1, 2), "THDi_L2": round(thdi2, 2), "THDi_L3": round(thdi3, 2),
-        "V_unb": round(0.5 + math.sin(t * 0.05) * 0.1, 2), "U_unb": 0.5, "I_unb": round(2.0 + math.sin(t * 0.1) * 0.3, 2),
+        "V_unb": round(v_unb, 2), "U_unb": round(v_unb*0.8, 2), "I_unb": round(i_unb, 2),
         "PF_L1": 0.9, "PF_L2": 0.9, "PF_L3": 0.9, "PF_Total": 0.9,
         "kWh_Total": round(sim_energy_kwh, 2), "kVAh_Total": round(sim_energy_kvah, 2), "kvarh_Total": round(sim_energy_kvarh, 2)
     }
@@ -442,17 +460,49 @@ async def poll_modbus_data():
                     "status": "NOT_CONNECTED",
                 }
 
-            # Append to CSV if logging is active (shared by REAL and SIMULATE modes)
+            # Check for alerts to auto-trigger logging
+            has_alert = False
+            if cached_data and cached_data.get("status") != "NOT_CONNECTED" and cached_data.get("status") != "ERROR":
+                current_alerts = check_limits(cached_data)
+                has_alert = current_alerts.get("status") == "ALERT"
+
+            # 1. Normal Data Logging (Only when user starts it)
             if is_logging:
                 try:
                     with open(log_filename, mode='a', newline='') as file:
                         writer = csv.writer(file)
-                        # Extract parameters flat
                         flat_data = get_latest_data()
                         row = [flat_data.get(header, "") for header in log_headers]
                         writer.writerow(row)
                 except Exception as log_err:
-                    logger.error(f"Error writing to log file: {log_err}")
+                    logger.error(f"Error writing to Normal log file: {log_err}")
+
+            # 2. Fault Auto-Logging (Always records when a fault is detected)
+            if has_alert:
+                try:
+                    # Create fault log file with headers if it doesn't exist
+                    fault_log_exists = os.path.exists(fault_log_filename)
+                    if not fault_log_exists:
+                        with open(fault_log_filename, mode='w', newline='') as file:
+                            writer = csv.writer(file)
+                            writer.writerow(log_headers + ["Fault_Details"])
+                            
+                    with open(fault_log_filename, mode='a', newline='') as file:
+                        writer = csv.writer(file)
+                        flat_data = get_latest_data()
+                        row = [flat_data.get(header, "") for header in log_headers]
+                        
+                        # Set status explicitly to "Fault" as requested
+                        if len(row) > 1:
+                            row[1] = "Fault"
+                        
+                        # Add fault details to the end of the row
+                        fault_details = " | ".join([f"{a['category'].upper()}: {a['message']}" for a in current_alerts.get("alerts", [])])
+                        row.append(fault_details)
+                        
+                        writer.writerow(row)
+                except Exception as log_err:
+                    logger.error(f"Error writing to Fault log file: {log_err}")
 
         except Exception as e:
             last_poll_error = str(e)
@@ -920,37 +970,59 @@ async def stop_logging(request: Request):
 @app.get("/api/v1/datalog/status")
 @rate_limit
 async def logging_status(request: Request):
-    """Check if logging is active and get file size"""
-    global is_logging, log_filename
+    """Check if logging is active and get file size and fault record count"""
+    global is_logging, log_filename, fault_log_filename
     size_bytes = 0
     if os.path.exists(log_filename):
         size_bytes = os.path.getsize(log_filename)
+        
+    fault_record_count = 0
+    if os.path.exists(fault_log_filename):
+        try:
+            with open(fault_log_filename, 'r', encoding='utf-8') as f:
+                # Subtract 1 for the header row
+                fault_record_count = max(0, sum(1 for line in f) - 1)
+        except Exception as e:
+            logger.error(f"Error reading fault log line count: {e}")
 
     return {
         "is_logging": is_logging,
-        "file_size_kb": round(size_bytes / 1024, 2)
+        "file_size_kb": round(size_bytes / 1024, 2),
+        "fault_record_count": fault_record_count
     }
 
 @app.get("/api/v1/datalog/download")
 @rate_limit
-async def download_log(request: Request):
-    """Download the generated CSV file"""
-    global log_filename
-    if os.path.exists(log_filename):
-        return FileResponse(path=log_filename, filename="PM2230_Data_Log.csv", media_type='text/csv')
+async def download_log(request: Request, type: str = "normal"):
+    """Download the generated CSV file (normal or fault)"""
+    global log_filename, fault_log_filename
+    
+    target_file = fault_log_filename if type == "fault" else log_filename
+    target_name = "PM2230_Fault_Log.csv" if type == "fault" else "PM2230_Data_Log.csv"
+    
+    if os.path.exists(target_file):
+        return FileResponse(path=target_file, filename=target_name, media_type='text/csv')
     else:
         raise HTTPException(status_code=404, detail="Log file not found")
 
+
 @app.delete("/api/v1/datalog/clear")
 @rate_limit
-async def clear_log(request: Request):
-    """Clear the contents of the CSV log file"""
-    global log_filename
-    if os.path.exists(log_filename):
-        os.remove(log_filename)
-        logger.info("Log file cleared")
-    init_csv_file()
-    return {"message": "Log file cleared"}
+async def clear_log(request: Request, type: str = "normal"):
+    """Clear the contents of the CSV log file (normal or fault)"""
+    global log_filename, fault_log_filename
+    
+    if type == "fault":
+        if os.path.exists(fault_log_filename):
+            os.remove(fault_log_filename)
+            logger.info("Fault log file cleared")
+        return {"message": "Fault log file cleared"}
+    else:
+        if os.path.exists(log_filename):
+            os.remove(log_filename)
+            logger.info("Normal log file cleared")
+        init_csv_file()
+        return {"message": "Normal log file cleared"}
 
 
 @app.get("/api/v1/alerts")
@@ -1265,6 +1337,55 @@ async def get_ai_english_report(request: Request):
         "is_cached": result.get("is_cached", False),
         "cache_key": result.get("cache_key", "")
     }
+
+@app.post("/api/v1/ai-fault-summary")
+@ai_rate_limit
+async def get_ai_fault_summary(request: Request):
+    """อ่านข้อมูลจาก Fault Log (10 บรรทัดล่าสุด) แล้วส่งให้ AI วิเคราะห์สาเหตุ"""
+    global fault_log_filename
+    from ai_analyzer import generate_fault_summary
+    
+    if not os.path.exists(fault_log_filename):
+        return {
+            "summary": "❌ ไม่พบไฟล์ประวัติการเกิด Fault (ยังไม่มีข้อมูลฟอลต์ในระบบ)",
+            "is_cached": False,
+            "cache_key": ""
+        }
+        
+    try:
+        fault_records = []
+        with open(fault_log_filename, 'r', encoding='utf-8') as f:
+            lines = f.readlines()
+            if len(lines) <= 1:
+                return {
+                    "summary": "❌ ไฟล์ประวัติการเกิด Fault ว่างเปล่า",
+                    "is_cached": False,
+                    "cache_key": ""
+                }
+            
+            # Get header and last 10 lines
+            header = lines[0].strip().split(',')
+            last_records = lines[-10:] if len(lines) > 10 else lines[1:]
+            
+            for line in last_records:
+                values = line.strip().split(',')
+                # Create a dict mapping header to value
+                record = {header[i]: values[i] if i < len(values) else "" for i in range(len(header))}
+                fault_records.append(record)
+                
+        # Send the records to the AI analyzer
+        result = await generate_fault_summary(fault_records)
+        
+        if result.get("is_cached"):
+            logger.info(f"AI Fault Summary returned from cache")
+        else:
+            logger.info(f"AI Fault Summary generated fresh")
+            
+        return result
+        
+    except Exception as e:
+        logger.error(f"Error in get_ai_fault_summary: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 # ============================================================================

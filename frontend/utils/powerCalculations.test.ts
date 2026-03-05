@@ -13,7 +13,7 @@ import {
   levelClass,
   levelColor,
   calculatePowerQualityScore,
-} from '../powerCalculations';
+} from './powerCalculations';
 
 describe('powerCalculations', () => {
   describe('avg', () => {
