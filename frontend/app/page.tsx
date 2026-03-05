@@ -363,7 +363,7 @@ export default function Home() {
     }, 1000);
 
     try {
-      const res = await fetch(`${API_BASE_URL}/ai-summary`, { method: 'POST' });
+      const res = await fetch(`${API_BASE_URL}/ai-summary-parallel`, { method: 'POST' });
       if (res.ok) {
         const data = await res.json();
         setAiSummary(data.summary);
@@ -419,6 +419,7 @@ export default function Home() {
       setPredictiveResult({ error: '❌ ไม่สามารถเชื่อมต่อ AI ได้' });
     } finally {
       setPredictiveLoading(false);
+      setIsPredictiveExpanded(true); // Auto expand when result arrives
     }
   }, [API_BASE_URL]);
 
@@ -437,6 +438,7 @@ export default function Home() {
       setEnergyResult({ error: '❌ ไม่สามารถเชื่อมต่อ AI ได้' });
     } finally {
       setEnergyLoading(false);
+      setIsEnergyExpanded(true); // Auto expand when result arrives
     }
   }, [API_BASE_URL]);
 

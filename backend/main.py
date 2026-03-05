@@ -1184,16 +1184,127 @@ async def get_predictive_maintenance(request: Request):
 @app.get("/api/v1/external-predictive-maintenance")
 @rate_limit
 async def get_external_predictive_maintenance(request: Request):
-    """ทำนายการบำรุงรักษาด้วยโมเดลภายนอก"""
+    """ทำนายการบำรุงรักษาด้วยโมเดลภายนอก (Parallel Mode)"""
     try:
-        data = get_latest_data()
-        if external_pm_model is None:
-            raise HTTPException(status_code=500, detail="External Predictive Maintenance model not initialized")
+        import numpy as np
+        from predictive_maintenance_external import create_data_hash, get_from_cache, save_to_cache
         
-        result = await external_pm_model.predict_maintenance(data)
-        return result
+        data = get_latest_data()
+        
+        # Create cache key
+        data_hash = create_data_hash(data)
+        cache_key = f"pm_{data_hash[:8]}"
+        
+        # Check cache first
+        cached_result = get_from_cache(cache_key)
+        if cached_result is not None:
+            try:
+                result = json.loads(cached_result)
+                logger.info(f"Cache HIT: {cache_key}... (predictive parallel)")
+                return {**result, "is_cached": True, "cache_key": cache_key}
+            except Exception as e:
+                logger.error(f"Error parsing cached result: {e}")
+        
+        logger.info(f"Cache MISS: {cache_key}... - calling PARALLEL AI API for predictive maintenance")
+        
+        # Prepare data
+        anomalies = []
+        thdv_avg = (data.get("THDv_L1", 0) + data.get("THDv_L2", 0) + data.get("THDv_L3", 0)) / 3
+        if thdv_avg > 5:
+            anomalies.append(f"⚠️ THD Voltage สูง ({thdv_avg:.2f}%)")
+        
+        voltage_unbalance = data.get("V_unb", 0)
+        if voltage_unbalance > 3:
+            anomalies.append(f"⚠️ Voltage Unbalance ({voltage_unbalance:.2f}%)")
+        
+        power_factor = data.get("PF_Total", 1.0)
+        if power_factor < 0.85:
+            anomalies.append(f"⚠️ PF ต่ำ ({power_factor:.3f})")
+        
+        anomaly_text = "\n".join(anomalies) if anomalies else "✅ ปกติ (ไม่มี Anomaly Alert)"
+        
+        # Prepare prompt
+        prompt = f"""คุณคือผู้เชี่ยวชาญด้านวิศวกรรมไฟฟ้าที่คอยวิเคราะห์ข้อมูลจาก Power Meter (รุ่น PM2230)
+
+โปรดวิเคราะห์ข้อมูลด้านล่างและทำนายความต้องการในการบำรุงรักษา (Predictive Maintenance) โดยอ้างอิงตามมาตรฐานสากล (เช่น IEEE 519 สำหรับ Harmonics และ IEEE 1159 สำหรับ Power Quality) ให้มีโครงสร้างชัดเจนและกระชับ เป็นภาษาไทย
+
+## หัวข้อรายงาน:
+รายงานฉบับนี้วิเคราะห์จากข้อมูลค่าเฉลี่ยของ Power Meter รุ่น PM2230
+วันที่-เวลา: {data.get('timestamp', 'N/A')}
+
+---
+
+## รูปแบบที่ต้องการ:
+1. **สรุปภาพรวม** (สั้น กระชับ)
+2. **การประเมินสถานะ** (แรงดัน, Harmonic, Power Factor)
+3. **การทำนายความต้องการบำรุงรักษา** (ระบุสาเหตุที่เป็นไปได้และผลกระทบ)
+4. **คำแนะนำ** (ระบุลำดับความสำคัญ 1, 2, 3...)
+***
+
+## รายการแจ้งเตือนเบื้องต้นจากระบบ (Anomaly Detection):
+{anomaly_text}
+
+## ข้อมูลปัจจุบัน (สรุปค่าเฉลี่ย):
+- แรงดันเฉลี่ย: {data.get('V_LN_avg', 0)} V
+- กระแสเฉลี่ย: {data.get('I_avg', 0)} A
+- ความถี่: {data.get('Freq', 0)} Hz
+- Power Factor: {data.get('PF_Total', 0)}
+- THD Voltage เฉลี่ย: {thdv_avg:.2f}%
+- Voltage Unbalance: {voltage_unbalance:.2f}%
+- กำลังไฟฟ้ารวม: {data.get('P_Total', 0)} kW
+- พลังงานสะสม: {data.get('kWh_Total', 0)} kWh
+
+## เกณฑ์ประเมินและผลกระทบ (อ้างอิง IEEE):
+- **Voltage Unbalance**: ปกติ < 2%, เตือน 2-3%, อันตราย > 3% (ผลกระทบ: มอเตอร์ร้อนเกินไป, ฉนวนเสื่อมสภาพเร็วขึ้น, ประสิทธิภาพมอเตอร์ลดลง, อุปกรณ์อิเล็กทรอนิกส์เสียหาย)
+- **Harmonic Distortion (THDv/THDi)**: ปกติ THDv < 5%, เตือน 5-8%, อันตราย > 8% (ผลกระทบ: เครื่องใช้ไฟฟ้า/PLC/Drive ผิดปกติ, หม้อแปลง/สายไฟร้อนเกินไป, สูญเสียพลังงานสูงขึ้น)
+- **Power Factor**: ดี > 0.9, ปานกลาง 0.85-0.9, ต่ำ < 0.85
+
+ทำนายความต้องการในการบำรุงรักษาและให้คำแนะนำการแก้ไขเชิงเทคนิคที่ปฏิบัติได้จริง"""
+
+        messages = [
+            {
+                "role": "system",
+                "content": "You are a helpful electrical engineering assistant specializing in predictive maintenance analysis. Always respond in Thai language with technical accuracy. FORMATTING: Use Markdown syntax. DO NOT use HTML tags like <br>."
+            },
+            {"role": "user", "content": prompt}
+        ]
+        
+        # Call Parallel LLM Router
+        router = get_parallel_router()
+        parallel_result = await router.generate_parallel(
+            messages=messages,
+            task_type="predictive_analysis",
+            selection_strategy="quality"
+        )
+        
+        if parallel_result.get("success"):
+            content = parallel_result.get("content", "")
+            provider = parallel_result.get("provider", "unknown")
+            logger.info(f"Parallel LLM selected best provider: {provider} for predictive maintenance")
+            
+            result = {
+                "status": "success",
+                "maintenance_needed": "ต้องการการบำรุงรักษา" in content or "อันตราย" in content or "เตือน" in content,
+                "confidence": 0.9 if ("ต้องการการบำรุงรักษา" in content or "อันตราย" in content) else 0.7 if "เตือน" in content else 0.3,
+                "message": content,
+                "provider": provider,
+                "details": {
+                    "model": provider,
+                    "tokens_used": 0
+                },
+                "is_cached": False,
+                "cache_key": cache_key
+            }
+            
+            # Save to cache
+            save_to_cache(cache_key, json.dumps(result))
+            
+            return result
+        else:
+            raise HTTPException(status_code=500, detail="All LLM providers failed")
+            
     except Exception as e:
-        logger.error(f"Error in get_external_predictive_maintenance: {e}")
+        logger.error(f"Error in get_external_predictive_maintenance (parallel): {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.post("/api/v1/predictive-maintenance/train")
@@ -1802,9 +1913,8 @@ async def test_line_notify(request: Request):
 @app.post("/api/v1/ai-fault-summary")
 @ai_rate_limit
 async def get_ai_fault_summary(request: Request):
-    """อ่านข้อมูลจาก Fault Log (10 บรรทัดล่าสุด) แล้วส่งให้ AI วิเคราะห์สาเหตุ"""
+    """อ่านข้อมูลจาก Fault Log (10 บรรทัดล่าสุด) แล้วส่งให้ AI วิเคราะห์สาเหตุ (Parallel Mode)"""
     global fault_log_filename
-    from ai_analyzer import generate_fault_summary
     
     if not os.path.exists(fault_log_filename):
         return {
@@ -1833,19 +1943,83 @@ async def get_ai_fault_summary(request: Request):
                 # Create a dict mapping header to value
                 record = {header[i]: values[i] if i < len(values) else "" for i in range(len(header))}
                 fault_records.append(record)
-                
-        # Send the records to the AI analyzer
-        result = await generate_fault_summary(fault_records)
         
-        if result.get("is_cached"):
-            logger.info(f"AI Fault Summary returned from cache")
-        else:
-            logger.info(f"AI Fault Summary generated fresh")
+        # Create cache key
+        import hashlib
+        data_str = json.dumps(fault_records, sort_keys=True)
+        cache_key = f"ai_flt_{hashlib.md5(data_str.encode()).hexdigest()[:8]}"
+        
+        # Check cache using ai_analyzer's cache
+        from ai_analyzer import get_from_cache, save_to_cache
+        cached_result = get_from_cache(cache_key)
+        if cached_result is not None:
+            logger.info(f"Cache HIT: {cache_key}... (fault summary parallel)")
+            return {"summary": cached_result, "is_cached": True, "cache_key": cache_key}
+        
+        logger.info(f"Cache MISS: {cache_key}... - calling PARALLEL AI API for fault summary")
+        
+        # Prepare prompt (same as original)
+        prompt = f"""คุณคือผู้เชี่ยวชาญด้านวิศวกรรมไฟฟ้าที่คอยวิเคราะห์สาเหตุการเกิด Fault จาก Power Meter (รุ่น PM2230)
+
+ด้านล่างนี้คือข้อมูลประวัติการเกิดความผิดปกติทางไฟฟ้า (Fault Records) จำนวน {len(fault_records)} รายการล่าสุด
+โปรดวิเคราะห์ข้อมูลเหล่านี้และเขียนสรุปสาเหตุ/รูปแบบของการเกิด Fault โดยอ้างอิงตามมาตรฐานสากล (เช่น IEEE 1159 สำหรับ Power Quality) เพื่อให้วิศวกรซ่อมบำรุงเข้าใจง่าย เป็นภาษาไทย
+
+## หัวข้อรายงาน:
+รายงานฉบับนี้วิเคราะห์จากข้อมูลประวัติการเกิด Fault ของ Power Meter รุ่น PM2230
+วันที่-เวลา: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')} (เวลาปัจจุบันที่วิเคราะห์)
+
+---
+
+## รูปแบบที่ต้องการ:
+1. **ภาพรวมของเหตุการณ์ผิดปกติ** (เช่น เกิด Voltage Sag ถี่แค่ไหน, Phase ไหนมีปัญหาบ่อยสุด)
+2. **การประเมินสาเหตุที่เป็นไปได้** (วิเคราะห์จากตัวเลข เช่น กระแสไม่สมดุลอาจเกิดจากโหลดเกิน, แรงดันตกอาจเกิดจากการสตาร์ทมอเตอร์)
+3. **ผลกระทบที่อาจเกิดขึ้นต่ออุปกรณ์**
+4. **คำแนะนำสำหรับการแก้ไขหรือตรวจสอบเพิ่มเติม**
+***
+
+## ข้อกำหนดในการวิเคราะห์ Fault:
+- วิเคราะห์หาสาเหตุที่เป็นไปได้จากข้อมูลตัวเลข (เช่น แรงดันต่ำพร้อมกระแสสูงอาจหมายถึงการ Overload หรือ Starting)
+- ระบุผลกระทบต่ออุปกรณ์ตามประเภทปัญหา:
+  - **Voltage Unbalance**: มอเตอร์ร้อนเกินไป, ฉนวนเสื่อมสภาพเร็วขึ้น, ประสิทธิภาพมอเตอร์ลดลง, อุปกรณ์อิเล็กทรอนิกส์เสียหาย
+  - **Voltage Sag/Dip**: เซนเซอร์/PLC/อุปกรณ์อิเล็กทรอนิกส์รีเซ็ต, มอเตอร์หยุดทำงานชั่วคราว, สูญเสียผลผลิตในกระบวนการผลิต
+  - **Current Unbalance**: สายนิวทรัลมีความร้อนสูงเสี่ยงต่อการไหม้, อุปกรณ์ป้องกัน/Breaker ทำงานผิดปกติ, มอเตอร์เสียหายเร็วขึ้น
+  - **Overload/Overcurrent**: สายไฟร้อนเกินไป, หม้อแปลงโอเวอร์โหลด, Breaker ทริป
+- ตอบกลับเป็นภาษาไทยที่อ่านง่าย ใช้ markdown format (##, **, -, 1.)
+- เน้นข้อความสำคัญด้วย **ตัวหนา**
+- ไม่ต้องใช้ HTML tags เช่น <br>
+
+## ข้อมูล Fault Records:
+{json.dumps(fault_records, ensure_ascii=False, indent=2)}
+
+วิเคราะห์สาเหตุและรูปแบบของการเกิด Fault จากข้อมูลด้านบน"""
+
+        messages = [
+            {"role": "system", "content": "You are an expert electrical engineer specializing in power quality analysis and fault diagnosis. Always respond in Thai language. FORMATTING: Use Markdown syntax. DO NOT use HTML tags like <br>."},
+            {"role": "user", "content": prompt}
+        ]
+        
+        # Call Parallel LLM Router
+        router = get_parallel_router()
+        parallel_result = await router.generate_parallel(
+            messages=messages,
+            task_type="fault_analysis",
+            selection_strategy="quality"
+        )
+        
+        if parallel_result.get("success"):
+            content = parallel_result.get("content", "")
+            provider = parallel_result.get("provider", "unknown")
+            logger.info(f"Parallel LLM selected best provider: {provider} for fault summary")
             
-        return result
+            # Save to cache
+            save_to_cache(cache_key, content)
+            
+            return {"summary": content, "is_cached": False, "cache_key": cache_key, "provider": provider}
+        else:
+            return {"summary": "❌ ไม่สามารถเชื่อมต่อ AI ได้", "is_cached": False, "cache_key": cache_key}
         
     except Exception as e:
-        logger.error(f"Error in get_ai_fault_summary: {e}")
+        logger.error(f"Error in get_ai_fault_summary (parallel): {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
 
