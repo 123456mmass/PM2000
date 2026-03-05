@@ -122,7 +122,7 @@ def clear_all_cache() -> int:
 DASHSCOPE_API_BASE = os.getenv("DASHSCOPE_API_BASE", "https://coding-intl.dashscope.aliyuncs.com/v1")
 DASHSCOPE_API_KEY = os.getenv("DASHSCOPE_API_KEY")
 DEFAULT_MODEL = os.getenv("DASHSCOPE_MODEL", "qwen3.5-plus")
-FALLBACK_MODEL = os.getenv("DASHSCOPE_FALLBACK_MODEL", "qwen-max")
+FALLBACK_MODEL = os.getenv("DASHSCOPE_FALLBACK_MODEL", "qwen-turbo")
 
 # Mistral AI Agents Endpoint
 MISTRAL_API_KEY = os.getenv("MISTRAL_API_KEY")
@@ -333,6 +333,11 @@ async def _call_dashscope_api(payload: Dict[str, Any], use_fallback: bool = Fals
             headers=headers,
             json=current_payload,
         )
+        
+        # Debug: Log error response
+        if response.status_code != 200:
+            logger.error(f"DashScope API Error: {response.status_code} - {response.text}")
+        
         response.raise_for_status()
         result = response.json()
 
