@@ -47,6 +47,7 @@ load_dotenv(_env_path, override=True)
 # Import PM2230 Client
 from pm2230_client import PM2230Client
 from ai_analyzer import generate_power_summary, generate_english_report
+from llm_parallel import get_parallel_router
 
 from contextlib import asynccontextmanager
 
@@ -1269,16 +1270,116 @@ async def get_energy_efficiency(request: Request):
 @app.get("/api/v1/energy-efficiency-ai")
 @rate_limit
 async def get_energy_efficiency_ai(request: Request):
-    """วิเคราะห์ประสิทธิภาพพลังงานด้วย AI"""
+    """วิเคราะห์ประสิทธิภาพพลังงานด้วย AI (Parallel Mode)"""
     try:
-        data = get_latest_data()
-        if em_model is None:
-            raise HTTPException(status_code=500, detail="Energy Management model not initialized")
+        import hashlib
+        import time
+        import json
+        import numpy as np
         
-        result = await em_model.analyze_efficiency_with_ai(data)
-        return result
+        data = get_latest_data()
+        
+        # Create cache key
+        data_copy = {k: v for k, v in data.items() if k != 'timestamp'}
+        data_hash = hashlib.md5(json.dumps(data_copy, sort_keys=True, default=str).encode()).hexdigest()
+        cache_key = f"em_{data_hash[:8]}"
+        
+        # Check cache first (using energy_management's cache functions)
+        from energy_management import get_from_cache, save_to_cache
+        cached_result = get_from_cache(cache_key)
+        if cached_result is not None:
+            try:
+                result = json.loads(cached_result)
+                logger.info(f"Cache HIT: {cache_key}... (parallel endpoint)")
+                return {**result, "is_cached": True, "cache_key": cache_key}
+            except Exception as e:
+                logger.error(f"Error parsing cached result: {e}")
+        
+        logger.info(f"Cache MISS: {cache_key}... - calling PARALLEL AI API for efficiency analysis")
+        
+        # Calculate values for prompt
+        pf_total = data.get("PF_Total", 0)
+        thdv_avg = np.mean([data.get("THDv_L1", 0), data.get("THDv_L2", 0), data.get("THDv_L3", 0)])
+        thdi_avg = np.mean([data.get("THDi_L1", 0), data.get("THDi_L2", 0), data.get("THDi_L3", 0)])
+        v_unb = data.get("V_unb", 0)
+        i_unb = data.get("I_unb", 0)
+        
+        # Prepare prompt
+        prompt = f"""คุณคือผู้เชี่ยวชาญด้านวิศวกรรมไฟฟ้าที่คอยวิเคราะห์ประสิทธิภาพพลังงานจาก Power Meter (รุ่น PM2230)
+
+โปรดวิเคราะห์ข้อมูลด้านล่างและให้คำแนะนำในการประหยัดพลังงาน โดยอ้างอิงตามมาตรฐานสากล (เช่น IEEE 519 สำหรับ Harmonics และ IEEE 1159 สำหรับ Power Quality) ให้มีโครงสร้างชัดเจนและกระชับ เป็นภาษาไทย
+
+## หัวข้อรายงาน:
+รายงานฉบับนี้วิเคราะห์ประสิทธิภาพพลังงานจากข้อมูลค่าเฉลี่ยของ Power Meter รุ่น PM2230
+วันที่-เวลา: {data.get('timestamp', 'N/A')}
+
+---
+
+## รูปแบบที่ต้องการ:
+1. **สรุปภาพรวมประสิทธิภาพพลังงาน** (สั้น กระชับ)
+2. **การประเมินสถานะปัจจุบัน** (แรงดัน, Harmonic, Power Factor, Unbalance)
+3. **การวิเคราะห์ศักยภาพการประหยัดพลังงาน** (ระบุสาเหตุและผลกระทบ)
+4. **คำแนะนำเชิงเทคนิค** (ระบุลำดับความสำคัญ 1, 2, 3...)
+***
+
+## ข้อมูลปัจจุบัน (สรุปค่าเฉลี่ย):
+- แรงดันเฉลี่ย: {data.get('V_LN_avg', 0)} V
+- กระแสเฉลี่ย: {data.get('I_avg', 0)} A
+- ความถี่: {data.get('Freq', 0)} Hz
+- Power Factor: {pf_total}
+- THD Voltage เฉลี่ย: {thdv_avg:.2f}%
+- THD Current เฉลี่ย: {thdi_avg:.2f}%
+- Voltage Unbalance: {v_unb:.2f}%
+- Current Unbalance: {i_unb:.2f}%
+- กำลังไฟฟ้ารวม: {data.get('P_Total', 0)} kW
+- พลังงานสะสม: {data.get('kWh_Total', 0)} kWh
+
+## เกณฑ์ประเมินและผลกระทบ (อ้างอิง IEEE):
+- **Voltage Unbalance**: ปกติ < 2%, เตือน 2-3%, อันตราย > 3% (ผลกระทบ: มอเตอร์ร้อนเกินไป, ฉนวนเสื่อมสภาพเร็วขึ้น, ประสิทธิภาพมอเตอร์ลดลง, อุปกรณ์อิเล็กทรอนิกส์เสียหาย)
+- **Harmonic Distortion (THDv/THDi)**: ปกติ THDv < 5%, เตือน 5-8%, อันตราย > 8% (ผลกระทบ: เครื่องใช้ไฟฟ้า/PLC/Drive ผิดปกติ, หม้อแปลง/สายไฟร้อนเกินไป, สูญเสียพลังงานสูงขึ้น)
+- **Power Factor**: ดี > 0.9, ปานกลาง 0.85-0.9, ต่ำ < 0.85 (ผลกระทบ: กระแสสูงขึ้น, สูญเสียพลังงาน, ค่าไฟฟ้าสูงขึ้น)
+- **Current Unbalance**: ปกติ < 2%, เตือน 2-3%, อันตราย > 3% (ผลกระทบ: สายนิวทรัลมีความร้อนสูงเสี่ยงต่อการไหม้, อุปกรณ์ป้องกัน/Breaker ทำงานผิดปกติ)
+
+วิเคราะห์ประสิทธิภาพพลังงานและให้คำแนะนำการประหยัดพลังงานเชิงเทคนิคที่ปฏิบัติได้จริง"""
+
+        messages = [
+            {
+                "role": "system",
+                "content": "You are a helpful electrical engineering assistant specializing in energy efficiency analysis. Always respond in Thai language with technical accuracy. FORMATTING: Use Markdown syntax. DO NOT use HTML tags like <br>."
+            },
+            {"role": "user", "content": prompt}
+        ]
+        
+        # Call Parallel LLM Router
+        router = get_parallel_router()
+        parallel_result = await router.generate_parallel(
+            messages=messages,
+            task_type="energy_analysis",
+            selection_strategy="quality"
+        )
+        
+        if parallel_result.get("success"):
+            content = parallel_result.get("content", "")
+            provider = parallel_result.get("provider", "unknown")
+            logger.info(f"Parallel LLM selected best provider: {provider} for energy analysis")
+            
+            result = {
+                "status": "success",
+                "analysis": content,
+                "provider": provider,
+                "is_cached": False,
+                "cache_key": cache_key
+            }
+            
+            # Save to cache
+            save_to_cache(cache_key, json.dumps(result))
+            
+            return result
+        else:
+            raise HTTPException(status_code=500, detail="All LLM providers failed")
+            
     except Exception as e:
-        logger.error(f"Error in get_energy_efficiency_ai: {e}")
+        logger.error(f"Error in get_energy_efficiency_ai (parallel): {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.get("/api/v1/energy-tips")
