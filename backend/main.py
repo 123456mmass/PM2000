@@ -15,7 +15,13 @@ import os
 import sys
 import asyncio
 import copy
-from fault_engine import diagnose_faults
+from fault_engine import diagnose_faults, calculate_unbalance
+
+# Create alias for backward compatibility
+check_limits = diagnose_faults
+from predictive_maintenance import PredictiveMaintenance
+from predictive_maintenance_external import ExternalPredictiveMaintenance
+from energy_management import EnergyManagement
 import csv
 import glob
 import platform
@@ -196,7 +202,19 @@ class AutoConnectRequest(BaseModel):
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Auto-connect PM2230 and start background polling."""
-    global tunnel_url, tunnel_ready
+    global tunnel_url, tunnel_ready, pm_model, external_pm_model, em_model
+
+    # Initialize Predictive Maintenance model
+    pm_model = PredictiveMaintenance()
+    logger.info("🤖 Predictive Maintenance model initialized")
+
+    # Initialize External Predictive Maintenance model
+    external_pm_model = ExternalPredictiveMaintenance()
+    logger.info("🌐 External Predictive Maintenance model initialized")
+
+    # Initialize Energy Management model
+    em_model = EnergyManagement()
+    logger.info("⚡ Energy Management model initialized")
 
     # ── Start Cloudflare Tunnel in background ──────────────────────────────
     def _start_tunnel():
@@ -232,14 +250,19 @@ async def lifespan(app: FastAPI):
 
     polling_task = asyncio.create_task(poll_modbus_data())
 
-    yield  # Application runs here
-
-    # Shutdown events
-    if polling_task:
-        polling_task.cancel()
-    if real_client:
-        real_client.disconnect()
-    logger.info("Application shutdown complete")
+    try:
+        yield  # Application runs here
+    finally:
+        # Shutdown events
+        if polling_task:
+            polling_task.cancel()
+        if real_client:
+            real_client.disconnect()
+        if external_pm_model:
+            await external_pm_model.close()
+        if em_model:
+            await em_model.close()
+        logger.info("Application shutdown complete")
 
 
 app = FastAPI(
@@ -255,6 +278,11 @@ cached_data: Dict = {}
 polling_task: Optional[asyncio.Task] = None
 tunnel_url: Optional[str] = None
 tunnel_ready: bool = False
+pm_model: Optional[PredictiveMaintenance] = None
+external_pm_model: Optional[ExternalPredictiveMaintenance] = None
+em_model: Optional[EnergyManagement] = None
+current_alerts: Dict = {"status": "OK", "alerts": []}
+alerts_lock = asyncio.Lock()
 
 # Logging attributes
 is_logging: bool = False
@@ -396,6 +424,12 @@ def init_csv_file():
         with open(log_filename, mode='w', newline='') as file:
             writer = csv.writer(file)
             writer.writerow(log_headers)
+
+def calculate_unbalance(v1: float, v2: float, v3: float) -> float:
+    avg = (v1 + v2 + v3) / 3
+    if avg == 0: return 0.0
+    max_diff = max(abs(v1 - avg), abs(v2 - avg), abs(v3 - avg))
+    return (max_diff / avg) * 100
 
 def generate_simulated_data():
     """Generate realistic fluctuating data for PM2230 using smooth sine waves."""
@@ -552,20 +586,33 @@ async def poll_modbus_data():
 
             # Check for alerts to auto-trigger logging
             has_alert = False
+            _alerts = {}
             if cached_data and cached_data.get("status") != "NOT_CONNECTED" and cached_data.get("status") != "ERROR":
-                current_alerts = check_limits(cached_data)
-                has_alert = current_alerts.get("status") == "ALERT"
+                _alerts = check_limits(cached_data)
+                has_alert = _alerts.get("status") == "ALERT"
+            
+            async with alerts_lock:
+                current_alerts = copy.deepcopy(_alerts) if _alerts else {"status": "OK", "alerts": []}
 
             # 1. Normal Data Logging (Only when user starts it)
             if is_logging:
                 try:
-                    with open(log_filename, mode='a', newline='') as file:
+                    with open(log_filename, mode='a', newline='', encoding='utf-8') as file:
                         writer = csv.writer(file)
                         flat_data = get_latest_data()
                         row = [flat_data.get(header, "") for header in log_headers]
                         writer.writerow(row)
                 except Exception as log_err:
                     logger.error(f"Error writing to Normal log file: {log_err}")
+                    try:
+                        with open(log_filename + ".backup", mode='a', newline='', encoding='utf-8') as file:
+                            writer = csv.writer(file)
+                            flat_data = get_latest_data()
+                            row = [flat_data.get(header, "") for header in log_headers]
+                            writer.writerow(row)
+                        logger.info(f"Data logged to backup file: {log_filename}.backup")
+                    except Exception as backup_err:
+                        logger.error(f"Error writing to backup log file: {backup_err}")
 
             # 2. Fault Auto-Logging (Always records when a fault is detected)
             if has_alert:
@@ -573,11 +620,11 @@ async def poll_modbus_data():
                     # Create fault log file with headers if it doesn't exist
                     fault_log_exists = os.path.exists(fault_log_filename)
                     if not fault_log_exists:
-                        with open(fault_log_filename, mode='w', newline='') as file:
+                        with open(fault_log_filename, mode='w', newline='', encoding='utf-8') as file:
                             writer = csv.writer(file)
                             writer.writerow(log_headers + ["Fault_Details"])
                             
-                    with open(fault_log_filename, mode='a', newline='') as file:
+                    with open(fault_log_filename, mode='a', newline='', encoding='utf-8') as file:
                         writer = csv.writer(file)
                         flat_data = get_latest_data()
                         row = [flat_data.get(header, "") for header in log_headers]
@@ -587,7 +634,7 @@ async def poll_modbus_data():
                             row[1] = "Fault"
                         
                         # Add fault details to the end of the row
-                        fault_details = " | ".join([f"{a['category'].upper()}: {a['message']} ({a.get('detail', '')})" for a in current_alerts.get("alerts", [])])
+                        fault_details = " | ".join([f"{a['category'].upper()}: {a['message']} ({a.get('detail', '')})" for a in _alerts.get("alerts", [])])
                         row.append(fault_details)
                         
                         writer.writerow(row)
@@ -595,13 +642,13 @@ async def poll_modbus_data():
                         # Send LINE Notification (Smart Logic: Immediate if new fault types, else use cooldown)
                         global last_line_notify_time, last_sent_fault_categories
                         now = time.time()
-                        current_fault_categories = set(a['category'] for a in current_alerts.get("alerts", []))
+                        current_fault_categories = set(a['category'] for a in _alerts.get("alerts", []))
                         
                         is_new_fault_pattern = current_fault_categories != last_sent_fault_categories
                         is_cooldown_expired = now - last_line_notify_time > LINE_NOTIFY_COOLDOWN
                         
                         if is_new_fault_pattern or is_cooldown_expired:
-                            alert_msgs = [f"⚠️ {a['category'].upper()}: {a['message']}\n💡 {a.get('detail', '')}" for a in current_alerts.get("alerts", [])]
+                            alert_msgs = [f"⚠️ {a['category'].upper()}: {a['message']}\n💡 {a.get('detail', '')}" for a in _alerts.get("alerts", [])]
                             full_msg = "\n🚨 [FAULT DETECTED] PM2000\n" + "\n".join(alert_msgs)
                             full_msg += f"\n⏰ เวลา: {datetime.now().strftime('%H:%M:%S')}"
                             
@@ -612,6 +659,24 @@ async def poll_modbus_data():
                             
                 except Exception as log_err:
                     logger.error(f"Error writing to Fault log file: {log_err}")
+                    try:
+                        with open(fault_log_filename + ".backup", mode='a', newline='', encoding='utf-8') as file:
+                            writer = csv.writer(file)
+                            flat_data = get_latest_data()
+                            row = [flat_data.get(header, "") for header in log_headers]
+                            
+                            # Set status explicitly to "Fault" as requested
+                            if len(row) > 1:
+                                row[1] = "Fault"
+                            
+                            # Add fault details to the end of the row
+                            fault_details = " | ".join([f"{a['category'].upper()}: {a['message']} ({a.get('detail', '')})" for a in _alerts.get("alerts", [])])
+                            row.append(fault_details)
+                            
+                            writer.writerow(row)
+                        logger.info(f"Fault data logged to backup file: {fault_log_filename}.backup")
+                    except Exception as backup_err:
+                        logger.error(f"Error writing to backup fault log file: {backup_err}")
 
         except Exception as e:
             last_poll_error = str(e)
@@ -789,6 +854,7 @@ class DashboardPage4(BaseModel):
     kWh_Total: float
     kVAh_Total: float
     kvarh_Total: float
+    PF_Total: float
 
 
 # ============================================================================
@@ -1001,7 +1067,8 @@ async def get_page4(request: Request):
             'status': data['status'],
             'kWh_Total': data.get('kWh_Total', 0),
             'kVAh_Total': data.get('kVAh_Total', 0),
-            'kvarh_Total': data.get('kvarh_Total', 0)
+            'kvarh_Total': data.get('kvarh_Total', 0),
+            'PF_Total': data.get('PF_Total', 0)
         }
     except Exception as e:
         logger.error(f"Error in get_page4: {e}")
@@ -1092,10 +1159,155 @@ async def clear_log(request: Request, type: str = "normal"):
 async def get_alerts(request: Request):
     """ตรวจสอบค่าเกินกำหนด"""
     try:
-        data = get_latest_data()
-        return check_limits(data)
+        async with alerts_lock:
+            return copy.deepcopy(current_alerts) if current_alerts else {"status": "OK", "alerts": []}
     except Exception as e:
         logger.error(f"Error in get_alerts: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/v1/predictive-maintenance")
+@rate_limit
+async def get_predictive_maintenance(request: Request):
+    """ทำนายการบำรุงรักษาด้วย AI"""
+    try:
+        data = get_latest_data()
+        if pm_model is None:
+            raise HTTPException(status_code=500, detail="Predictive Maintenance model not initialized")
+        
+        result = pm_model.predict_maintenance(data)
+        return result
+    except Exception as e:
+        logger.error(f"Error in get_predictive_maintenance: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/v1/external-predictive-maintenance")
+@rate_limit
+async def get_external_predictive_maintenance(request: Request):
+    """ทำนายการบำรุงรักษาด้วยโมเดลภายนอก"""
+    try:
+        data = get_latest_data()
+        if external_pm_model is None:
+            raise HTTPException(status_code=500, detail="External Predictive Maintenance model not initialized")
+        
+        result = await external_pm_model.predict_maintenance(data)
+        return result
+    except Exception as e:
+        logger.error(f"Error in get_external_predictive_maintenance: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/api/v1/predictive-maintenance/train")
+@rate_limit
+async def train_predictive_maintenance(request: Request):
+    """ฝึกฝนโมเดล Predictive Maintenance ด้วยข้อมูลประวัติ"""
+    try:
+        if pm_model is None:
+            raise HTTPException(status_code=500, detail="Predictive Maintenance model not initialized")
+        
+        # Read historical data from CSV
+        historical_data = []
+        if os.path.exists(log_filename):
+            with open(log_filename, mode='r', encoding='utf-8') as file:
+                reader = csv.DictReader(file)
+                for row in reader:
+                    try:
+                        data = {
+                            "V_LN_avg": float(row.get("V_LN_avg", 0)),
+                            "I_avg": float(row.get("I_avg", 0)),
+                            "Freq": float(row.get("Freq", 0)),
+                            "PF_Total": float(row.get("PF_Total", 0)),
+                            "THDv_L1": float(row.get("THDv_L1", 0)),
+                            "THDv_L2": float(row.get("THDv_L2", 0)),
+                            "THDv_L3": float(row.get("THDv_L3", 0)),
+                            "THDi_L1": float(row.get("THDi_L1", 0)),
+                            "THDi_L2": float(row.get("THDi_L2", 0)),
+                            "THDi_L3": float(row.get("THDi_L3", 0))
+                        }
+                        historical_data.append(data)
+                    except Exception as e:
+                        logger.warning(f"Error parsing row: {e}")
+                        continue
+        
+        if not historical_data:
+            raise HTTPException(status_code=400, detail="No historical data available for training")
+        
+        result = pm_model.train_model(historical_data)
+        return result
+    except Exception as e:
+        logger.error(f"Error in train_predictive_maintenance: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/v1/energy-cost")
+@rate_limit
+async def get_energy_cost(request: Request):
+    """คำนวณค่าใช้จ่ายพลังงาน"""
+    try:
+        data = get_latest_data()
+        if em_model is None:
+            raise HTTPException(status_code=500, detail="Energy Management model not initialized")
+        
+        result = em_model.calculate_energy_cost(data)
+        return result
+    except Exception as e:
+        logger.error(f"Error in get_energy_cost: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/v1/energy-efficiency")
+@rate_limit
+async def get_energy_efficiency(request: Request):
+    """วิเคราะห์ประสิทธิภาพพลังงาน"""
+    try:
+        data = get_latest_data()
+        if em_model is None:
+            raise HTTPException(status_code=500, detail="Energy Management model not initialized")
+        
+        result = em_model.analyze_efficiency(data)
+        return result
+    except Exception as e:
+        logger.error(f"Error in get_energy_efficiency: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/v1/energy-efficiency-ai")
+@rate_limit
+async def get_energy_efficiency_ai(request: Request):
+    """วิเคราะห์ประสิทธิภาพพลังงานด้วย AI"""
+    try:
+        data = get_latest_data()
+        if em_model is None:
+            raise HTTPException(status_code=500, detail="Energy Management model not initialized")
+        
+        result = await em_model.analyze_efficiency_with_ai(data)
+        return result
+    except Exception as e:
+        logger.error(f"Error in get_energy_efficiency_ai: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/v1/energy-tips")
+@rate_limit
+async def get_energy_tips(request: Request):
+    """ข้อแนะนำการประหยัดพลังงาน"""
+    try:
+        if em_model is None:
+            raise HTTPException(status_code=500, detail="Energy Management model not initialized")
+        
+        result = em_model.get_energy_savings_tips()
+        return result
+    except Exception as e:
+        logger.error(f"Error in get_energy_tips: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/api/v1/energy-config")
+@rate_limit
+async def update_energy_config(request: Request):
+    """อัปเดตการตั้งค่าพลังงาน"""
+    try:
+        if em_model is None:
+            raise HTTPException(status_code=500, detail="Energy Management model not initialized")
+        
+        body = await request.json()
+        result = em_model.update_config(body)
+        return result
+    except Exception as e:
+        logger.error(f"Error in update_energy_config: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
 
@@ -1397,6 +1609,63 @@ async def clear_ai_summary_cache():
     from ai_analyzer import clear_all_cache
     count = clear_all_cache()
     return {"message": "Cache cleared successfully", "entries_removed": count}
+
+
+@app.post("/api/v1/ai-summary-parallel")
+@ai_rate_limit
+async def get_ai_summary_parallel(request: Request):
+    """
+    ส่งข้อมูลให้ AI หลายตัววิเคราะห์พร้อมกัน (Parallel Mode)
+    เลือกผลลัพธ์ที่ดีที่สุดอัตโนมัติ
+    
+    Query params:
+        - strategy: "quality" (default), "fastest", หรือ "ensemble"
+    """
+    from ai_analyzer import generate_power_summary_parallel
+    
+    # Get strategy from query param
+    query_params = dict(request.query_params)
+    strategy = query_params.get("strategy", "quality")
+    valid_strategies = ["quality", "fastest", "ensemble"]
+    
+    if strategy not in valid_strategies:
+        strategy = "quality"
+    
+    # Aggregate data
+    aggregated_data = await get_aggregated_data(samples=6, interval=1.0)
+    
+    # Call parallel generation
+    result = await generate_power_summary_parallel(
+        aggregated_data,
+        selection_strategy=strategy
+    )
+    
+    # Build response with metadata
+    response = {
+        "summary": result.get("summary", ""),
+        "is_cached": result.get("is_cached", False),
+        "cache_key": result.get("cache_key", ""),
+        "is_aggregated": True,
+        "samples": 6,
+        "parallel_mode": result.get("parallel_mode", False),
+        "selected_provider": result.get("provider", "unknown"),
+    }
+    
+    # Add optional metadata
+    if result.get("quality_score"):
+        response["quality_score"] = result["quality_score"]
+    if result.get("latency"):
+        response["latency_seconds"] = result["latency"]
+    if result.get("all_providers"):
+        response["providers_compared"] = len(result["all_providers"])
+        response["all_results"] = result["all_providers"]
+    
+    logger.info(
+        f"Parallel AI Summary: {result.get('provider')} selected "
+        f"(strategy={strategy}, score={result.get('quality_score', 0):.1f})"
+    )
+    
+    return response
 
 @app.post("/api/v1/ai-report/english")
 @ai_rate_limit

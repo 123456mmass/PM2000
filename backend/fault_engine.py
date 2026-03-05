@@ -42,7 +42,7 @@ def diagnose_faults(data: Dict) -> Dict:
             "message": f"Phase Loss Detected: {phase_str} disconnected",
             "detail": "Possible fuse blown or primary side failure."
         })
-
+    
     # 3. Voltage Unbalance (ANSI)
     if v_avg > 100:
         v_unb = calculate_unbalance(v1, v2, v3)
@@ -53,7 +53,7 @@ def diagnose_faults(data: Dict) -> Dict:
                 "message": f"Critical Voltage Unbalance: {v_unb:.1f}%",
                 "detail": "High risk of motor overheating/failure."
             })
-
+    
     # 4. Overvoltage / Overload / Sag (Logic Correlation)
     if v_avg > 250: # Standard is typically 230V + 10% = 253V
         alerts.append({
@@ -77,7 +77,7 @@ def diagnose_faults(data: Dict) -> Dict:
                 "message": f"Voltage Sag: {v_avg:.1f}V",
                 "detail": "Supply side voltage drop detected."
             })
-
+    
     # 5. Harmonics (THD)
     thd_v1 = float(data.get("THDv_L1", 0) or 0)
     thd_v2 = float(data.get("THDv_L2", 0) or 0)
@@ -91,7 +91,7 @@ def diagnose_faults(data: Dict) -> Dict:
             "message": f"High Harmonics Distortion: {max_thd:.1f}%",
             "detail": "May cause electronic equipment malfunction."
         })
-
+    
     # 6. Basic Limits (Fallback/Simple checks)
     if freq > 0 and (freq < 49.0 or freq > 51.0):
         alerts.append({
@@ -100,7 +100,26 @@ def diagnose_faults(data: Dict) -> Dict:
             "message": f"Frequency Anomaly: {freq:.2f} Hz",
             "detail": "Grid instability detected."
         })
-
+    
+    # 7. Short Circuit Detection
+    if i_avg > 100: # Assuming 100A is a critical threshold for short circuit
+        alerts.append({
+            "category": "short_circuit",
+            "severity": "critical",
+            "message": f"Short Circuit Detected: {i_avg:.1f}A",
+            "detail": "Immediate action required to prevent damage."
+        })
+    
+    # 8. Ground Fault Detection
+    i_n = float(data.get("I_N", 0) or 0)
+    if i_n > 5: # Assuming 5A is a critical threshold for ground fault
+        alerts.append({
+            "category": "ground_fault",
+            "severity": "critical",
+            "message": f"Ground Fault Detected: {i_n:.1f}A",
+            "detail": "Immediate action required to prevent damage."
+        })
+    
     return {
         "count": len(alerts),
         "status": "ALERT" if alerts else "OK",

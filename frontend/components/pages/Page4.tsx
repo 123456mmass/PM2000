@@ -11,6 +11,7 @@ interface Page4Data {
   kWh_Total: number;
   kVAh_Total: number;
   kvarh_Total: number;
+  PF_Total: number;
 }
 
 interface HistoryPoint {
@@ -99,7 +100,7 @@ export function Page4({
           <div className="bg-gray-800 rounded-xl p-6 border border-gray-700 mt-6">
             <h3 className="text-gray-400 text-sm font-medium mb-4">📊 สรุปพลังงาน</h3>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <EnergyStat label="Power Factor" value={data.kWh_Total / (data.kVAh_Total || 1)} unit="" />
+              <EnergyStat label="Power Factor" value={data.PF_Total} unit="" />
               <EnergyStat label="Reactive Ratio" value={data.kvarh_Total / (data.kWh_Total || 1)} unit="" />
             </div>
           </div>

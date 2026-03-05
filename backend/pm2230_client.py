@@ -149,13 +149,14 @@ class PM2230Scanner:
             self.connected = False
             logger.info("🔌 Disconnected")
     
-    def read_register(self, address: int, quantity: int = 1) -> Optional[List[int]]:
+    def read_register(self, address: int, quantity: int = 1, retries: int = 3) -> Optional[List[int]]:
         """
         อ่าน Register
         
         Args:
             address: Register address
             quantity: Number of registers to read
+            retries: Number of retries if read fails
             
         Returns:
             List of register values or None if error
@@ -164,23 +165,33 @@ class PM2230Scanner:
             logger.error("Not connected!")
             return None
         
-        try:
-            result = self.client.read_holding_registers(
-                address=address, count=quantity, slave=self.slave_id
-            )
-            
-            if result.isError():
-                logger.error(f"Error reading address {address}: {result}")
+        for attempt in range(retries):
+            try:
+                result = self.client.read_holding_registers(
+                    address=address, count=quantity, slave=self.slave_id
+                )
+                
+                if result.isError():
+                    logger.error(f"Error reading address {address}: {result}")
+                    if attempt < retries - 1:
+                        logger.info(f"Retrying {attempt + 1}/{retries}...")
+                        continue
+                    return None
+                
+                return result.registers
+                
+            except ModbusException as e:
+                logger.error(f"Modbus error at {address}: {e}")
+                if attempt < retries - 1:
+                    logger.info(f"Retrying {attempt + 1}/{retries}...")
+                    continue
                 return None
-            
-            return result.registers
-            
-        except ModbusException as e:
-            logger.error(f"Modbus error at {address}: {e}")
-            return None
-        except Exception as e:
-            logger.error(f"Unexpected error at {address}: {e}")
-            return None
+            except Exception as e:
+                logger.error(f"Unexpected error at {address}: {e}")
+                if attempt < retries - 1:
+                    logger.info(f"Retrying {attempt + 1}/{retries}...")
+                    continue
+                return None
     
     def convert_value(self, raw_value: int, scale: float, unit: str) -> float:
         """
@@ -273,14 +284,20 @@ class PM2230Scanner:
         
         # 1. อ่าน Block หลัก (Volt, Current, Power, Energy, Unbalance, PF บางส่วน)
         # Register 2999 - 3250
-        try:
-            r1 = self.client.read_holding_registers(address=2999, count=125, slave=self.slave_id)
-            r2 = self.client.read_holding_registers(address=3190, count=60, slave=self.slave_id)
-            r3 = self.client.read_holding_registers(address=21299, count=40, slave=self.slave_id)
-        except Exception as e:
-            logger.error(f"Bulk read Exception: {e}")
-            data['status'] = 'ERROR'
-            return data
+        retries = 3
+        for attempt in range(retries):
+            try:
+                r1 = self.client.read_holding_registers(address=2999, count=125, slave=self.slave_id)
+                r2 = self.client.read_holding_registers(address=3190, count=60, slave=self.slave_id)
+                r3 = self.client.read_holding_registers(address=21299, count=40, slave=self.slave_id)
+                break
+            except Exception as e:
+                logger.error(f"Bulk read Exception: {e}")
+                if attempt < retries - 1:
+                    logger.info(f"Retrying bulk read {attempt + 1}/{retries}...")
+                    continue
+                data['status'] = 'ERROR'
+                return data
 
         # Helper function to extract registers from the bulk blocks
         def get_registers(address: int, quantity: int) -> Optional[List[int]]:

@@ -52,9 +52,11 @@ interface Page3Data {
 
 interface Page4Data {
   timestamp: string;
+  status: string;
   kWh_Total: number;
   kVAh_Total: number;
   kvarh_Total: number;
+  PF_Total: number;
 }
 
 interface HistoryPoint {

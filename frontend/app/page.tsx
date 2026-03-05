@@ -78,6 +78,7 @@ interface Page4Data {
   kWh_Total: number;
   kVAh_Total: number;
   kvarh_Total: number;
+  PF_Total: number;
 }
 
 interface HistoryPoint {
@@ -152,6 +153,14 @@ export default function Home() {
   const [isAiProcessing, setIsAiProcessing] = useState(false);
   const [isPrintingAiReport, setIsPrintingAiReport] = useState(false);
   const [pdfLoading, setPdfLoading] = useState(false);
+  
+  // Predictive Maintenance & Energy Management states
+  const [predictiveLoading, setPredictiveLoading] = useState(false);
+  const [predictiveResult, setPredictiveResult] = useState<any>(null);
+  const [isPredictiveExpanded, setIsPredictiveExpanded] = useState(false);
+  const [energyLoading, setEnergyLoading] = useState(false);
+  const [energyResult, setEnergyResult] = useState<any>(null);
+  const [isEnergyExpanded, setIsEnergyExpanded] = useState(false);
   const [isSimulateMode, setIsSimulateMode] = useState(false);
   const [isConnected, setIsConnected] = useState(false);
   const [activePort, setActivePort] = useState<string | null>(null);
@@ -395,6 +404,42 @@ export default function Home() {
     }
   }, [API_BASE_URL]);
 
+  // Predictive Maintenance
+  const fetchPredictiveMaintenance = useCallback(async () => {
+    setPredictiveLoading(true);
+    try {
+      const res = await fetch(`${API_BASE_URL}/external-predictive-maintenance`);
+      if (res.ok) {
+        const data = await res.json();
+        setPredictiveResult(data);
+      } else {
+        throw new Error(`API Error: ${res.status}`);
+      }
+    } catch (err) {
+      setPredictiveResult({ error: '❌ ไม่สามารถเชื่อมต่อ AI ได้' });
+    } finally {
+      setPredictiveLoading(false);
+    }
+  }, [API_BASE_URL]);
+
+  // Energy Management AI
+  const fetchEnergyEfficiencyAI = useCallback(async () => {
+    setEnergyLoading(true);
+    try {
+      const res = await fetch(`${API_BASE_URL}/energy-efficiency-ai`);
+      if (res.ok) {
+        const data = await res.json();
+        setEnergyResult(data);
+      } else {
+        throw new Error(`API Error: ${res.status}`);
+      }
+    } catch (err) {
+      setEnergyResult({ error: '❌ ไม่สามารถเชื่อมต่อ AI ได้' });
+    } finally {
+      setEnergyLoading(false);
+    }
+  }, [API_BASE_URL]);
+
   useEffect(() => {
     const handleAfterPrint = () => {
       setIsPrintingAiReport(false);
@@ -444,6 +489,48 @@ export default function Home() {
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
   }, [aiSummary]);
+
+  // Predictive Maintenance handlers
+  const handleExportPredictiveTxt = useCallback(() => {
+    if (!predictiveResult?.message) return;
+    const content = `Predictive Maintenance Report\n\nStatus: ${predictiveResult.maintenance_needed ? 'Maintenance Required' : 'Normal'}\nConfidence: ${(predictiveResult.confidence * 100).toFixed(1)}%\n\n${predictiveResult.message}`;
+    const blob = new Blob([content], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `PM2230_Predictive_${new Date().toISOString().split('T')[0]}.txt`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }, [predictiveResult]);
+
+  const handleClearPredictive = useCallback(() => {
+    if (!confirm('คุณแน่ใจหรือไม่ว่าต้องการล้างผลลัพธ์นี้?')) return;
+    setPredictiveResult(null);
+    setIsPredictiveExpanded(false);
+  }, []);
+
+  // Energy Management handlers
+  const handleExportEnergyTxt = useCallback(() => {
+    if (!energyResult?.analysis) return;
+    const content = `Energy Management Report\n\n${energyResult.analysis}`;
+    const blob = new Blob([content], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `PM2230_Energy_${new Date().toISOString().split('T')[0]}.txt`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }, [energyResult]);
+
+  const handleClearEnergy = useCallback(() => {
+    if (!confirm('คุณแน่ใจหรือไม่ว่าต้องการล้างผลลัพธ์นี้?')) return;
+    setEnergyResult(null);
+    setIsEnergyExpanded(false);
+  }, []);
 
   const handleStartLogging = useCallback(async (e?: React.MouseEvent) => {
     if (e) e.preventDefault();
@@ -984,6 +1071,96 @@ export default function Home() {
               )}
             </div>
 
+            {/* Predictive Maintenance Panel */}
+            <div className="bg-gradient-to-r from-emerald-900/40 to-teal-900/40 p-5 rounded-xl border border-emerald-700/50 shadow-lg">
+              <div className="flex items-center justify-between flex-wrap gap-4">
+                <div>
+                  <h3 className="text-lg font-bold text-white flex items-center gap-2">
+                    🔮 Predictive Maintenance <span className="text-xs bg-emerald-600 text-white px-2 py-0.5 rounded-full">AI</span>
+                  </h3>
+                  <p className="text-sm text-emerald-200 mt-1">
+                    ทำนายความต้องการบำรุงรักษาล่วงหน้าด้วย AI
+                  </p>
+                </div>
+                <div className="flex flex-wrap gap-2 justify-end">
+                  {predictiveResult && !predictiveResult.error && (
+                    <div className="flex gap-2">
+                      <button
+                        type="button"
+                        onClick={handleClearPredictive}
+                        title="ล้างผลลัพธ์"
+                        className="px-3 py-2 bg-rose-900/40 hover:bg-rose-900/60 text-rose-400 border border-rose-500/30 rounded-lg text-sm transition"
+                      >
+                        🗑️
+                      </button>
+                      <button
+                        type="button"
+                        onClick={handleExportPredictiveTxt}
+                        title="ดาวน์โหลดเป็นไฟล์ Text"
+                        className="px-3 py-2 bg-emerald-900/40 hover:bg-emerald-900/60 text-emerald-400 border border-emerald-500/30 rounded-lg text-sm transition flex items-center gap-2"
+                      >
+                        📄 TXT
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setIsPredictiveExpanded(!isPredictiveExpanded)}
+                        className="px-3 py-2 bg-gray-800 hover:bg-gray-700 text-gray-300 border border-gray-600 rounded-lg text-sm transition font-medium"
+                      >
+                        {isPredictiveExpanded ? '🔼 ซ่อน' : '🔽 แสดง'}
+                      </button>
+                    </div>
+                  )}
+                  <button
+                    type="button"
+                    onClick={fetchPredictiveMaintenance}
+                    disabled={predictiveLoading}
+                    className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 disabled:bg-gray-600 disabled:cursor-not-allowed text-white font-medium rounded-lg shadow transition flex items-center gap-2 text-sm"
+                  >
+                    {predictiveLoading ? (
+                      <>
+                        <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                        <span>กำลังวิเคราะห์...</span>
+                      </>
+                    ) : (
+                      <>
+                        🔮 ทำนายการบำรุงรักษา
+                      </>
+                    )}
+                  </button>
+                </div>
+              </div>
+
+              {predictiveResult && isPredictiveExpanded && (
+                <div className="mt-4 p-4 bg-gray-900/60 border border-emerald-700/30 rounded-lg">
+                  {predictiveResult.error ? (
+                    <p className="text-rose-400">{predictiveResult.error}</p>
+                  ) : (
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-2">
+                        <span className="text-gray-400">สถานะ:</span>
+                        <span className={`font-medium ${predictiveResult.maintenance_needed ? 'text-rose-400' : 'text-emerald-400'}`}>
+                          {predictiveResult.maintenance_needed ? '⚠️ ต้องการบำรุงรักษา' : '✅ ปกติ'}
+                        </span>
+                      </div>
+                      {predictiveResult.confidence > 0 && (
+                        <div className="flex items-center gap-2">
+                          <span className="text-gray-400">ความมั่นใจ:</span>
+                          <span className="text-blue-400">{(predictiveResult.confidence * 100).toFixed(1)}%</span>
+                        </div>
+                      )}
+                      {predictiveResult.message && (
+                        <div className="mt-2 prose prose-invert prose-sm max-w-none">
+                          <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                            {predictiveResult.message}
+                          </ReactMarkdown>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+
             <div className={isPrintingAiReport ? 'no-print' : ''}>
               <Page1 data={page1} history={history} viewMode={viewMode1} setViewMode={setViewMode1} />
             </div>
@@ -1010,7 +1187,96 @@ export default function Home() {
         )}
         {activeTab === 2 && page2 && <Page2 data={page2} history={history} viewMode={viewMode2} setViewMode={setViewMode2} />}
         {activeTab === 3 && page3 && <Page3 data={{ ...page3, Q_L1: page2?.Q_L1, Q_L2: page2?.Q_L2, Q_L3: page2?.Q_L3, Q_Total: page2?.Q_Total }} history={history} viewMode={viewMode3} setViewMode={setViewMode3} />}
-        {activeTab === 4 && page4 && <Page4 data={page4} history={history} viewMode={viewMode4} setViewMode={setViewMode4} />}
+        {activeTab === 4 && page4 && (
+              <div className="space-y-6">
+                {/* Energy Management AI Panel */}
+                <div className="bg-gradient-to-r from-amber-900/40 to-orange-900/40 p-5 rounded-xl border border-amber-700/50 shadow-lg">
+                  <div className="flex items-center justify-between flex-wrap gap-4">
+                    <div>
+                      <h3 className="text-lg font-bold text-white flex items-center gap-2">
+                        ⚡ Energy Management <span className="text-xs bg-amber-600 text-white px-2 py-0.5 rounded-full">AI</span>
+                      </h3>
+                      <p className="text-sm text-amber-200 mt-1">
+                        วิเคราะห์ประสิทธิภาพพลังงานและแนะนำวิธีประหยัดไฟ
+                      </p>
+                    </div>
+                    <div className="flex flex-wrap gap-2 justify-end">
+                      {energyResult && !energyResult.error && (
+                        <div className="flex gap-2">
+                          <button
+                            type="button"
+                            onClick={handleClearEnergy}
+                            title="ล้างผลลัพธ์"
+                            className="px-3 py-2 bg-rose-900/40 hover:bg-rose-900/60 text-rose-400 border border-rose-500/30 rounded-lg text-sm transition"
+                          >
+                            🗑️
+                          </button>
+                          <button
+                            type="button"
+                            onClick={handleExportEnergyTxt}
+                            title="ดาวน์โหลดเป็นไฟล์ Text"
+                            className="px-3 py-2 bg-emerald-900/40 hover:bg-emerald-900/60 text-emerald-400 border border-emerald-500/30 rounded-lg text-sm transition flex items-center gap-2"
+                          >
+                            📄 TXT
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => setIsEnergyExpanded(!isEnergyExpanded)}
+                            className="px-3 py-2 bg-gray-800 hover:bg-gray-700 text-gray-300 border border-gray-600 rounded-lg text-sm transition font-medium"
+                          >
+                            {isEnergyExpanded ? '🔼 ซ่อน' : '🔽 แสดง'}
+                          </button>
+                        </div>
+                      )}
+                      <button
+                        type="button"
+                        onClick={fetchEnergyEfficiencyAI}
+                        disabled={energyLoading}
+                        className="px-4 py-2 bg-amber-600 hover:bg-amber-500 disabled:bg-gray-600 disabled:cursor-not-allowed text-white font-medium rounded-lg shadow transition flex items-center gap-2 text-sm"
+                      >
+                        {energyLoading ? (
+                          <>
+                            <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                            <span>กำลังวิเคราะห์...</span>
+                          </>
+                        ) : (
+                          <>
+                            ⚡ วิเคราะห์ประสิทธิภาพพลังงาน
+                          </>
+                        )}
+                      </button>
+                    </div>
+                  </div>
+
+                  {energyResult && isEnergyExpanded && (
+                    <div className="mt-4 p-4 bg-gray-900/60 border border-amber-700/30 rounded-lg">
+                      {energyResult.error ? (
+                        <p className="text-rose-400">{energyResult.error}</p>
+                      ) : energyResult.status === 'success' ? (
+                        <div className="space-y-4">
+                          {energyResult.analysis && (
+                            <div className="prose prose-invert prose-sm max-w-none">
+                              <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                                {energyResult.analysis}
+                              </ReactMarkdown>
+                            </div>
+                          )}
+                          {energyResult.is_cached && (
+                            <p className="text-xs text-gray-500">
+                              * ผลลัพธ์จาก Cache (key: {energyResult.cache_key})
+                            </p>
+                          )}
+                        </div>
+                      ) : (
+                        <p className="text-gray-400">ไม่สามารถวิเคราะห์ได้</p>
+                      )}
+                    </div>
+                  )}
+                </div>
+
+                <Page4 data={page4} history={history} viewMode={viewMode4} setViewMode={setViewMode4} />
+              </div>
+            )}
       </div>
 
       {/* Footer */}
