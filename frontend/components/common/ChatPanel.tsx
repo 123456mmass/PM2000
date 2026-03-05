@@ -57,7 +57,7 @@ export const ChatPanel = () => {
 
     // Listen for external events to open chat with context
     useEffect(() => {
-        const handleOpenChat = (event: CustomEvent) => {
+        const handleOpenChat = async (event: CustomEvent) => {
             const { context, source } = event.detail || {};
             
             // Open chat
@@ -69,7 +69,20 @@ export const ChatPanel = () => {
                     role: 'user', 
                     content: `[จากผลวิเคราะห์${source || 'AI'}]\n${context}\n\nขอสอบถามเพิ่มเติมเกี่ยวกับผลวิเคราะห์นี้ครับ`
                 };
-                setMessages(prev => [...prev, contextMsg]);
+                const newMessages = [...messages, contextMsg];
+                setMessages(newMessages);
+                
+                // Auto send to AI
+                setIsLoading(true);
+                try {
+                    const response = await apiClient.postChat(newMessages);
+                    setMessages(prev => [...prev, { role: 'assistant', content: response.response }]);
+                } catch (err) {
+                    console.error('Chat error:', err);
+                    setMessages(prev => [...prev, { role: 'assistant', content: 'ขออภัยครับ เกิดข้อผิดพลาดในการเชื่อมต่อระบบวิเคราะห์ AI' }]);
+                } finally {
+                    setIsLoading(false);
+                }
             }
         };
 
@@ -78,7 +91,7 @@ export const ChatPanel = () => {
         
         // @ts-ignore
         return () => window.removeEventListener('open-chat-with-context', handleOpenChat);
-    }, []);
+    }, [messages]);
 
     const handleSend = async () => {
         if (!input.trim() || isLoading) return;
