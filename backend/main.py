@@ -2059,7 +2059,8 @@ async def ai_chat(request: Request):
         return {"response": response_text}
         
     except Exception as e:
-        logger.error(f"Error in ai_chat: {e}")
+        logger.error(f"Error in ai_chat: {e}", exc_info=True)
+        logger.error(f"Request body: {body}")
         raise HTTPException(status_code=500, detail=str(e))
 
 
