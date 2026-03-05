@@ -1,8 +1,10 @@
 // Get base URL from environment variables
 const getApiBaseUrl = () => {
+  // Always use relative path in production (works with any domain including tunnels)
   if (process.env.NODE_ENV === 'production') return '/api/v1';
   if (typeof window !== 'undefined') {
-    return `http://${window.location.hostname}:8003/api/v1`;
+    // Use current hostname:port (works with tunnels and local network)
+    return `${window.location.origin}/api/v1`;
   }
   return 'http://localhost:8003/api/v1';
 };
