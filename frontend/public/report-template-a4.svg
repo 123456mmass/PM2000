@@ -189,7 +189,7 @@
     <rect x="210" y="198" width="318" height="10" rx="5" fill="#e2e8f0"/>
     <rect x="210" y="198" width="286" height="10" rx="5" fill="#6366f1"/>
 
-    <text class="small" x="22" y="246">Current Imbalance: 7.9% (target &lt; 10%)</text>
+    <text class="small" x="22" y="246">Current Unbalance: 7.9% (target &lt; 10%)</text>
     <text class="small" x="22" y="270">Voltage Unbalance: 1.2% (target &lt; 2%)</text>
     <text class="small" x="22" y="294">Neutral current indicates moderate asymmetry at peak load</text>
 

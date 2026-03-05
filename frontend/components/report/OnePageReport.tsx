@@ -364,7 +364,7 @@ export function OnePageReport({
   const voltageAvg = data1.V_LN_avg || avg([data1.V_LN1, data1.V_LN2, data1.V_LN3]);
   const currents = [data1.I_L1, data1.I_L2, data1.I_L3];
   const currentMean = avg(currents);
-  const currentImbalance = currentMean > 0 ? ((Math.max(...currents) - Math.min(...currents)) / currentMean) * 100 : 0;
+  const currentUnbalance = currentMean > 0 ? ((Math.max(...currents) - Math.min(...currents)) / currentMean) * 100 : 0;
   const thdvAvg = avg([data3.THDv_L1, data3.THDv_L2, data3.THDv_L3]);
   const thdiAvg = avg([data3.THDi_L1, data3.THDi_L2, data3.THDi_L3]);
   const absPf = Math.abs(data3.PF_Total);
@@ -385,7 +385,7 @@ export function OnePageReport({
 
   const loadScore = Math.round(
     avg([
-      levelScore(evaluateUpper(currentImbalance, 10, 20)),
+      levelScore(evaluateUpper(currentUnbalance, 10, 20)),
       levelScore(evaluateLower(absPf, 0.9, 0.8)),
       levelScore(evaluateLower(activeShare, 0.85, 0.7)),
     ])
@@ -421,7 +421,7 @@ export function OnePageReport({
       label: 'สมดุลโหลด',
       score: loadScore,
       level: scoreToLevel(loadScore),
-      description: `PF ${formatValue(absPf, 3)}, Current Imbalance ${formatValue(currentImbalance)}%, P/S ${formatValue(activeShare, 3)}`,
+      description: `PF ${formatValue(absPf, 3)}, Current Unbalance ${formatValue(currentUnbalance)}%, P/S ${formatValue(activeShare, 3)}`,
     },
     {
       key: 'quality',

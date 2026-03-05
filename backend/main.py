@@ -15,6 +15,7 @@ import os
 import sys
 import asyncio
 import copy
+from fault_engine import diagnose_faults
 import csv
 import glob
 import platform
@@ -277,6 +278,14 @@ DEFAULT_PORT: Optional[str] = os.getenv("PM2230_PORT", "").strip() or None
 # port for the HTTP API (configurable via environment)
 DEFAULT_API_PORT: int = int(os.getenv("PM2230_API_PORT", "8003"))
 SIMULATE_MODE: bool = os.getenv("PM2230_SIMULATE", "0") == "1"
+simulator_state = {
+    "voltage_sag": False,
+    "voltage_swell": False,
+    "phase_loss": False,
+    "overload": False,
+    "unbalance_high": False,
+    "harmonics_high": False
+}
 last_poll_error: Optional[str] = None
 
 
@@ -377,6 +386,10 @@ def auto_connect(
             return client, attempts
     return None, attempts
 
+# CSV logging headers and filenames
+log_filename: str = "pm2230_log.csv"
+fault_log_filename: str = "pm2230_fault_log.csv"
+
 def init_csv_file():
     """Create CSV file with headers if it doesn't exist."""
     if not os.path.exists(log_filename):
@@ -386,7 +399,7 @@ def init_csv_file():
 
 def generate_simulated_data():
     """Generate realistic fluctuating data for PM2230 using smooth sine waves."""
-    global sim_energy_kwh, sim_energy_kvah, sim_energy_kvarh
+    global sim_energy_kwh, sim_energy_kvah, sim_energy_kvarh, simulator_state
     if 'sim_energy_kwh' not in globals():
         sim_energy_kwh = 1000.0
         sim_energy_kvah = 1200.0
@@ -400,10 +413,6 @@ def generate_simulated_data():
     # Time-based smooth variations
     t = time.time()
     
-    # --- FAULT INJECTION LOGIC ---
-    # Cycle resets every 25 seconds. Inject fault between seconds 15-20 of that cycle.
-    in_fault = (t % 25) > 15 and (t % 25) < 20
-    
     # Base voltage around 230V, with slow sine waves + small noise
     v1 = 230 + math.sin(t * 0.1) * 1.5 + random.uniform(-0.2, 0.2)
     v2 = 229 + math.sin(t * 0.1 + 2) * 1.5 + random.uniform(-0.2, 0.2)
@@ -414,37 +423,76 @@ def generate_simulated_data():
     i2 = 9.5 + math.sin(t * 0.2 + 2) * 0.8 + random.uniform(-0.1, 0.1)
     i3 = 10.2 + math.sin(t * 0.2 + 4) * 0.8 + random.uniform(-0.1, 0.1)
 
-    if in_fault:
-        # INJECT FAULT:
-        # 1. Voltage Sag on Phase 1 (Drops below 207V limit to trigger alert)
-        v1 = v1 * 0.85  # ~195V
-        # 2. Current Unbalance Spike (Phase 3 spikes, causing I_unb > 10%)
-        i3 = i3 * 1.8   # ~18A
+    # --- ADVANCED FAULT INJECTION (Controlled by API) ---
+    
+    # 1. Voltage Sag (Undervoltage)
+    if simulator_state.get("voltage_sag"):
+        v_mult = 0.82 # ~188V
+        v1 *= v_mult
+        v2 *= v_mult
+        v3 *= v_mult
 
-    # Calculate powers realistically from smooth V and I
-    p1, p2, p3 = v1*i1*0.9/1000, v2*i2*0.9/1000, v3*i3*0.9/1000
-    s1, s2, s3 = v1*i1/1000, v2*i2/1000, v3*i3/1000
-    # Avoid negative sqrt due to floating point precision
+    # 2. Voltage Swell (Overvoltage)
+    if simulator_state.get("voltage_swell"):
+        v_mult = 1.15 # ~265V
+        v1 *= v_mult
+        v2 *= v_mult
+        v3 *= v_mult
+
+    # 3. Phase Loss
+    if simulator_state.get("phase_loss"):
+        v1 = random.uniform(5.0, 15.0) # Induced noise on dead phase
+
+    # 4. Overload (High current causing voltage dip)
+    if simulator_state.get("overload"):
+        i_mult = 5.5 # ~55A
+        i1 *= i_mult
+        i2 *= i_mult
+        i3 *= i_mult
+        v1 *= 0.80 # Voltage drop to ~184V to trigger Overload alert (needs <190V)
+        v2 *= 0.80
+        v3 *= 0.80
+
+    # 5. Unbalance (Phase 1 high, Phase 2 low)
+    if simulator_state.get("unbalance_high"):
+        v1 *= 1.08
+        v2 *= 0.92
+        i1 *= 1.15
+        i2 *= 0.85
+
+    # --- Harmonics Generation ---
+    thdv1 = 2.1 + random.uniform(-0.1, 0.1)
+    thdv2 = 2.2 + random.uniform(-0.1, 0.1)
+    thdv3 = 2.0 + random.uniform(-0.1, 0.1)
+    
+    # 6. High Harmonics
+    if simulator_state.get("harmonics_high"):
+        mult = 5.0 # ~10-11% THD (needs >8.0 to trigger alert)
+        thdv1 *= mult
+        thdv2 *= mult
+        thdv3 *= mult
+
+    thdi1 = 5.5 + random.uniform(-0.5, 0.5)
+    thdi2 = 5.8 + random.uniform(-0.5, 0.5)
+    thdi3 = 5.4 + random.uniform(-0.5, 0.5)
+    
+    v_avg = (v1 + v2 + v3) / 3
+    i_avg = (i1 + i2 + i3) / 3
+    
+    v_unb = calculate_unbalance(v1, v2, v3) if 'calculate_unbalance' in globals() else 0.8
+    i_unb = 1.2 + random.uniform(-0.2, 0.2)
+    
+    p1 = (v1 * i1 * 0.9) / 1000.0
+    p2 = (v2 * i2 * 0.9) / 1000.0
+    p3 = (v3 * i3 * 0.9) / 1000.0
+    
+    s1 = (v1 * i1) / 1000.0
+    s2 = (v2 * i2) / 1000.0
+    s3 = (v3 * i3) / 1000.0
+    
     q1 = math.sqrt(max(0, s1**2 - p1**2))
     q2 = math.sqrt(max(0, s2**2 - p2**2))
     q3 = math.sqrt(max(0, s3**2 - p3**2))
-
-    # THD with very slow changes
-    thdv1 = 2.5 + math.sin(t * 0.05) * 0.3 + random.uniform(-0.05, 0.05)
-    thdv2 = 2.4 + math.sin(t * 0.05 + 2) * 0.3 + random.uniform(-0.05, 0.05)
-    thdv3 = 2.6 + math.sin(t * 0.05 + 4) * 0.3 + random.uniform(-0.05, 0.05)
-
-    thdi1 = 25.0 + math.sin(t * 0.08) * 5.0 + random.uniform(-1.0, 1.0)
-    thdi2 = 25.0 + math.sin(t * 0.08 + 2) * 5.0 + random.uniform(-1.0, 1.0)
-    # Simulate high unbalanced THDi on Phase 3
-    thdi3 = 130.0 + math.sin(t * 0.08 + 4) * 10.0 + random.uniform(-2.0, 2.0)
-    
-    # Calculate real unbalance dynamically based on generated values
-    v_avg = (v1 + v2 + v3) / 3
-    v_unb = max(abs(v1-v_avg), abs(v2-v_avg), abs(v3-v_avg)) / v_avg * 100
-    
-    i_avg = (i1 + i2 + i3) / 3
-    i_unb = max(abs(i1-i_avg), abs(i2-i_avg), abs(i3-i_avg)) / i_avg * 100
 
     return {
         "status": "OK",
@@ -539,7 +587,7 @@ async def poll_modbus_data():
                             row[1] = "Fault"
                         
                         # Add fault details to the end of the row
-                        fault_details = " | ".join([f"{a['category'].upper()}: {a['message']}" for a in current_alerts.get("alerts", [])])
+                        fault_details = " | ".join([f"{a['category'].upper()}: {a['message']} ({a.get('detail', '')})" for a in current_alerts.get("alerts", [])])
                         row.append(fault_details)
                         
                         writer.writerow(row)
@@ -553,7 +601,7 @@ async def poll_modbus_data():
                         is_cooldown_expired = now - last_line_notify_time > LINE_NOTIFY_COOLDOWN
                         
                         if is_new_fault_pattern or is_cooldown_expired:
-                            alert_msgs = [f"⚠️ {a['category'].upper()}: {a['message']}" for a in current_alerts.get("alerts", [])]
+                            alert_msgs = [f"⚠️ {a['category'].upper()}: {a['message']}\n💡 {a.get('detail', '')}" for a in current_alerts.get("alerts", [])]
                             full_msg = "\n🚨 [FAULT DETECTED] PM2000\n" + "\n".join(alert_msgs)
                             full_msg += f"\n⏰ เวลา: {datetime.now().strftime('%H:%M:%S')}"
                             
@@ -832,55 +880,8 @@ def get_latest_data() -> Dict:
 
 
 def check_limits(data: Dict) -> Dict:
-    """Simple threshold checker used by /api/alerts."""
-    alerts: List[Dict[str, str]] = []
-
-    voltage_avg = float(data.get("V_LN_avg", 0) or 0)
-    freq = float(data.get("Freq", 0) or 0)
-    pf_total = abs(float(data.get("PF_Total", 0) or 0))
-    thdv_avg = (
-        float(data.get("THDv_L1", 0) or 0)
-        + float(data.get("THDv_L2", 0) or 0)
-        + float(data.get("THDv_L3", 0) or 0)
-    ) / 3.0
-    i_unb = float(data.get("I_unb", 0) or 0)
-
-    if voltage_avg and (voltage_avg < 207 or voltage_avg > 253):
-        alerts.append({
-            "category": "voltage",
-            "severity": "high",
-            "message": f"Voltage average out of range: {voltage_avg:.1f} V",
-        })
-    if freq and (freq < 49.5 or freq > 50.5):
-        alerts.append({
-            "category": "frequency",
-            "severity": "high",
-            "message": f"Frequency out of range: {freq:.2f} Hz",
-        })
-    if pf_total and pf_total < 0.9:
-        alerts.append({
-            "category": "power_factor",
-            "severity": "medium",
-            "message": f"Power factor low: {pf_total:.3f}",
-        })
-    if thdv_avg > 5:
-        alerts.append({
-            "category": "harmonics",
-            "severity": "medium",
-            "message": f"THDv average high: {thdv_avg:.2f}%",
-        })
-    if i_unb > 10:
-        alerts.append({
-            "category": "unbalance",
-            "severity": "medium",
-            "message": f"Current unbalance high: {i_unb:.2f}%",
-        })
-
-    return {
-        "count": len(alerts),
-        "status": "ALERT" if alerts else "OK",
-        "alerts": alerts,
-    }
+    """Wrapper that calls the Advanced Diagnostic Engine."""
+    return diagnose_faults(data)
 
 
 # ============================================================================
@@ -1173,6 +1174,22 @@ async def toggle_simulate_mode(request: Request):
              return {"message": "Switched to Real Mode, but no device found. Please check connection.", "simulate_mode": False}
 
 
+@app.post("/api/v1/simulator/state")
+@rate_limit
+async def update_simulator_state(request: Request):
+    """Update simulator fault toggles"""
+    global simulator_state
+    try:
+        body = await request.json()
+        for key, value in body.items():
+            if key in simulator_state:
+                simulator_state[key] = bool(value)
+        return {"status": "success", "simulator_state": simulator_state}
+    except Exception as e:
+        logger.error(f"Error updating simulator state: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
 @app.get("/api/v1/auto-connect")
 @rate_limit
 async def auto_connect_real_device(request: Request, validate: bool = True):
@@ -1460,6 +1477,98 @@ async def get_ai_fault_summary(request: Request):
     except Exception as e:
         logger.error(f"Error in get_ai_fault_summary: {e}")
         raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.post("/api/v1/chat")
+@ai_rate_limit
+async def ai_chat(request: Request):
+    """
+    Conversational AI interface.
+    Accepts message history and returns AI response with system context.
+    """
+    from ai_analyzer import generate_chat_response
+    global cached_data, fault_log_filename
+    
+    try:
+        body = await request.json()
+        messages = body.get("messages", [])
+        
+        # 1. Gather Context: Latest Data
+        current_context = cached_data if cached_data else {}
+        
+        # 2. Gather Context: Recent Faults
+        recent_faults = []
+        if os.path.exists(fault_log_filename):
+            try:
+                with open(fault_log_filename, 'r', encoding='utf-8') as f:
+                    lines = f.readlines()
+                    if len(lines) > 1:
+                        header = lines[0].strip().split(',')
+                        last_lines = lines[-5:] # Last 5 faults
+                        for line in last_lines:
+                            values = line.strip().split(',')
+                            record = {header[i]: values[i] if i < len(values) else "" for i in range(len(header))}
+                            recent_faults.append(record)
+            except Exception as e:
+                logger.error(f"Error reading fault log for chat: {e}")
+
+        # 3. Generate response
+        response_text = await generate_chat_response(messages, current_context, recent_faults)
+        
+        return {"response": response_text}
+        
+    except Exception as e:
+        logger.error(f"Error in ai_chat: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+# ============================================================================
+# Simulator Control Endpoints
+# ============================================================================
+
+@app.get("/api/v1/simulator/status")
+async def get_simulator_status():
+    """Get current active faults in simulator."""
+    global simulator_state, SIMULATE_MODE
+    return {
+        "is_simulating": SIMULATE_MODE,
+        "state": simulator_state
+    }
+
+@app.post("/api/v1/simulator/inject")
+async def inject_fault(request: Request):
+    """Toggle or set specific fault injections."""
+    global simulator_state, SIMULATE_MODE
+    if not SIMULATE_MODE:
+        raise HTTPException(status_code=400, detail="Simulator is not active")
+        
+    try:
+        body = await request.json()
+        fault_type = body.get("type")
+        value = body.get("value") # True, False, or None to toggle
+        
+        if fault_type not in simulator_state:
+            raise HTTPException(status_code=400, detail=f"Unknown fault type: {fault_type}")
+            
+        if value is not None:
+            simulator_state[fault_type] = bool(value)
+        else:
+            simulator_state[fault_type] = not simulator_state[fault_type]
+            
+        logger.info(f"Simulator Fault Updated: {fault_type} = {simulator_state[fault_type]}")
+        return {"status": "success", "state": simulator_state}
+    except Exception as e:
+        logger.error(f"Simulator injection error: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/api/v1/simulator/reset")
+async def reset_simulator():
+    """Clear all active fault injections."""
+    global simulator_state
+    for key in simulator_state:
+        simulator_state[key] = False
+    logger.info("Simulator state reset to normal")
+    return {"status": "success", "state": simulator_state}
 
 
 # ============================================================================

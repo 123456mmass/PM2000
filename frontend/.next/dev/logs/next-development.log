@@ -1,3 +1,1268 @@
-[00:00:00.981] Server  LOG     ✓ Ready in 716ms
-[00:00:11.519] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
-[00:03:22.330] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:00:00.923] Server  LOG     ✓ Ready in 661ms
+[00:00:04.330] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:00:36.501] Server  LOG     ✓ Compiled in 330ms
+[00:00:57.993] Server  ERROR   ⨯ ReferenceError: postChat is not defined
+[00:00:58.005] Server  LOG     ✓ Compiled in 49ms
+[00:00:58.207] Server  ERROR   ⨯ ReferenceError: postChat is not defined
+[00:00:58.850] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:00:58.850] Browser ERROR   ErrorBoundary caught an error: {} {"componentStack":"\n    at Lazy (<anonymous>)\n    at ErrorBoundary (http://localhost:3000/_next/static/chunks/_2308458a._.js:98:9)\n    at body (<anonymous>)\n    at html (<anonymous>)\n    at RootLayout [Server] (<anonymous>)\n    at SegmentViewNode (http://localhost:3000/_next/static/chunks/node_modules_next_dist_f3530cac._.js:3309:28)\n    at __next_root_layout_boundary__ (http://localhost:3000/_next/static/chunks/node_modules_next_dist_f3530cac._.js:1681:64)\n    at RedirectErrorBoundary (http://localhost:3000/_next/static/chunks/node_modules_next_dist_client_17643121._.js:10149:9)\n    at RedirectBoundary (http://localhost:3000/_next/static/chunks/node_modules_next_dist_client_17643121._.js:10191:29)\n    at HTTPAccessFallbackErrorBoundary (http://localhost:3000/_next/static/chunks/node_modules_next_dist_client_17643121._.js:10577:9)\n    at HTTPAccessFallbackBoundary (http://localhost:3000/_next/static/chunks/node_modules_next_dist_client_17643121._.js:10652:39)\n    at DevRootHTTPAccessFallbackBoundary (http://localhost:3000/_next/static/chunks/node_modules_next_dist_client_17643121._.js:10721:46)\n    at AppDevOverlayErrorBoundary (http://localhost:3000/_next/static/chunks/node_modules_next_dist_f3530cac._.js:3420:9)\n    at HotReload (http://localhost:3000/_next/static/chunks/node_modules_next_dist_client_17643121._.js:11750:22)\n    at Router (http://localhost:3000/_next/static/chunks/node_modules_next_dist_client_17643121._.js:11906:23)\n    at ErrorBoundaryHandler (http://localhost:3000/_next/static/chunks/node_modules_next_dist_client_17643121._.js:1030:9)\n    at ErrorBoundary (http://localhost:3000/_next/static/chunks/node_modules_next_dist_client_17643121._.js:1096:26)\n    at RootErrorBoundary (http://localhost:3000/_next/static/chunks/node_modules_next_dist_client_17643121._.js:10403:30)\n    at AppRouter (http://localhost:3000/_next/static/chunks/node_modules_next_dist_client_17643121._.js:12225:22)\n    at ServerRoot (http://localhost:3000/_next/static/chunks/node_modules_next_dist_client_17643121._.js:12584:23)\n    at Root (http://localhost:3000/_next/static/chunks/node_modules_next_dist_client_17643121._.js:12602:17)\n    at AppDevOverlayErrorBoundary (http://localhost:3000/_next/static/chunks/node_modules_next_dist_f3530cac._.js:3420:9)\n    at RootLevelDevOverlayElement (http://localhost:3000/_next/static/chunks/node_modules_next_dist_f3530cac._.js:3561:39)"}
+[00:01:07.511] Server  WARN    ⚠ Fast Refresh had to perform a full reload when ./app/page.tsx changed. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+[00:01:07.524] Server  LOG     ✓ Compiled in 163ms
+[00:01:07.860] Server  ERROR   ⨯ ReferenceError: postChat is not defined
+[00:01:08.077] Server  ERROR   ⨯ ReferenceError: postChat is not defined
+[00:01:08.475] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:01:08.475] Browser ERROR   ErrorBoundary caught an error: {} {"componentStack":"\n    at Lazy (<anonymous>)\n    at ErrorBoundary (http://localhost:3000/_next/static/chunks/_2308458a._.js:98:9)\n    at body (<anonymous>)\n    at html (<anonymous>)\n    at RootLayout [Server] (<anonymous>)\n    at SegmentViewNode (http://localhost:3000/_next/static/chunks/node_modules_next_dist_f3530cac._.js:3309:28)\n    at __next_root_layout_boundary__ (http://localhost:3000/_next/static/chunks/node_modules_next_dist_f3530cac._.js:1681:64)\n    at RedirectErrorBoundary (http://localhost:3000/_next/static/chunks/node_modules_next_dist_client_17643121._.js:10149:9)\n    at RedirectBoundary (http://localhost:3000/_next/static/chunks/node_modules_next_dist_client_17643121._.js:10191:29)\n    at HTTPAccessFallbackErrorBoundary (http://localhost:3000/_next/static/chunks/node_modules_next_dist_client_17643121._.js:10577:9)\n    at HTTPAccessFallbackBoundary (http://localhost:3000/_next/static/chunks/node_modules_next_dist_client_17643121._.js:10652:39)\n    at DevRootHTTPAccessFallbackBoundary (http://localhost:3000/_next/static/chunks/node_modules_next_dist_client_17643121._.js:10721:46)\n    at AppDevOverlayErrorBoundary (http://localhost:3000/_next/static/chunks/node_modules_next_dist_f3530cac._.js:3420:9)\n    at HotReload (http://localhost:3000/_next/static/chunks/node_modules_next_dist_client_17643121._.js:11750:22)\n    at Router (http://localhost:3000/_next/static/chunks/node_modules_next_dist_client_17643121._.js:11906:23)\n    at ErrorBoundaryHandler (http://localhost:3000/_next/static/chunks/node_modules_next_dist_client_17643121._.js:1030:9)\n    at ErrorBoundary (http://localhost:3000/_next/static/chunks/node_modules_next_dist_client_17643121._.js:1096:26)\n    at RootErrorBoundary (http://localhost:3000/_next/static/chunks/node_modules_next_dist_client_17643121._.js:10403:30)\n    at AppRouter (http://localhost:3000/_next/static/chunks/node_modules_next_dist_client_17643121._.js:12225:22)\n    at ServerRoot (http://localhost:3000/_next/static/chunks/node_modules_next_dist_client_17643121._.js:12584:23)\n    at Root (http://localhost:3000/_next/static/chunks/node_modules_next_dist_client_17643121._.js:12602:17)\n    at AppDevOverlayErrorBoundary (http://localhost:3000/_next/static/chunks/node_modules_next_dist_f3530cac._.js:3420:9)\n    at RootLevelDevOverlayElement (http://localhost:3000/_next/static/chunks/node_modules_next_dist_f3530cac._.js:3561:39)"}
+[00:01:21.695] Server  WARN    ⚠ Fast Refresh had to perform a full reload when ./utils/apiClient.ts changed. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+[00:01:21.722] Server  LOG     ✓ Compiled in 30ms
+[00:01:22.608] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:01:25.273] Browser WARN    Warning fetching page1: Failed to fetch
+[00:01:25.273] Browser WARN    Warning fetching page2: Failed to fetch
+[00:01:25.273] Browser WARN    Warning fetching page3: Failed to fetch
+[00:01:25.273] Browser WARN    Warning fetching page4: Failed to fetch
+[00:01:25.273] Browser WARN    Warning fetching logStatus: Failed to fetch
+[00:01:25.273] Browser WARN    Warning fetching systemStatus: Failed to fetch
+[00:01:28.271] Browser WARN    Warning fetching page1: Failed to fetch
+[00:01:28.271] Browser WARN    Warning fetching page2: Failed to fetch
+[00:01:28.271] Browser WARN    Warning fetching page3: Failed to fetch
+[00:01:28.271] Browser WARN    Warning fetching page4: Failed to fetch
+[00:01:28.271] Browser WARN    Warning fetching logStatus: Failed to fetch
+[00:01:28.271] Browser WARN    Warning fetching systemStatus: Failed to fetch
+[00:01:30.284] Browser WARN    Warning fetching page1: Failed to fetch
+[00:01:30.284] Browser WARN    Warning fetching page2: Failed to fetch
+[00:01:30.284] Browser WARN    Warning fetching page3: Failed to fetch
+[00:01:30.284] Browser WARN    Warning fetching page4: Failed to fetch
+[00:01:30.284] Browser WARN    Warning fetching logStatus: Failed to fetch
+[00:01:32.282] Browser WARN    Warning fetching systemStatus: Failed to fetch
+[00:01:32.282] Browser WARN    Warning fetching page1: Failed to fetch
+[00:01:32.283] Browser WARN    Warning fetching page2: Failed to fetch
+[00:01:32.283] Browser WARN    Warning fetching page3: Failed to fetch
+[00:01:32.283] Browser WARN    Warning fetching page4: Failed to fetch
+[00:01:32.283] Browser WARN    Warning fetching logStatus: Failed to fetch
+[00:01:35.274] Browser WARN    Warning fetching systemStatus: Failed to fetch
+[00:01:35.274] Browser WARN    Warning fetching page1: Failed to fetch
+[00:01:35.274] Browser WARN    Warning fetching page2: Failed to fetch
+[00:01:35.274] Browser WARN    Warning fetching page3: Failed to fetch
+[00:01:35.274] Browser WARN    Warning fetching page4: Failed to fetch
+[00:01:35.274] Browser WARN    Warning fetching logStatus: Failed to fetch
+[00:01:37.277] Browser WARN    Warning fetching systemStatus: Failed to fetch
+[00:01:37.277] Browser WARN    Warning fetching page1: Failed to fetch
+[00:01:37.277] Browser WARN    Warning fetching page2: Failed to fetch
+[00:01:37.277] Browser WARN    Warning fetching page3: Failed to fetch
+[00:01:37.277] Browser WARN    Warning fetching page4: Failed to fetch
+[00:01:37.277] Browser WARN    Warning fetching logStatus: Failed to fetch
+[00:01:39.271] Browser WARN    Warning fetching systemStatus: Failed to fetch
+[00:01:39.271] Browser WARN    Warning fetching page1: Failed to fetch
+[00:01:39.271] Browser WARN    Warning fetching page2: Failed to fetch
+[00:01:39.271] Browser WARN    Warning fetching page3: Failed to fetch
+[00:01:39.271] Browser WARN    Warning fetching page4: Failed to fetch
+[00:01:39.271] Browser WARN    Warning fetching logStatus: Failed to fetch
+[00:01:40.076] Server  LOG     ✓ Compiled in 31ms
+[00:01:41.273] Browser WARN    Warning fetching systemStatus: Failed to fetch
+[00:01:41.273] Browser WARN    Warning fetching page1: Failed to fetch
+[00:01:41.273] Browser WARN    Warning fetching page2: Failed to fetch
+[00:01:41.273] Browser WARN    Warning fetching page3: Failed to fetch
+[00:01:41.273] Browser WARN    Warning fetching page4: Failed to fetch
+[00:01:41.273] Browser WARN    Warning fetching logStatus: Failed to fetch
+[00:01:44.273] Browser WARN    Warning fetching systemStatus: Failed to fetch
+[00:01:44.273] Browser WARN    Warning fetching page1: Failed to fetch
+[00:01:44.273] Browser WARN    Warning fetching page2: Failed to fetch
+[00:01:44.273] Browser WARN    Warning fetching page3: Failed to fetch
+[00:01:44.273] Browser WARN    Warning fetching page4: Failed to fetch
+[00:01:46.278] Browser WARN    Warning fetching logStatus: Failed to fetch
+[00:01:46.278] Browser WARN    Warning fetching systemStatus: Failed to fetch
+[00:01:46.278] Browser WARN    Warning fetching page1: Failed to fetch
+[00:01:46.278] Browser WARN    Warning fetching page2: Failed to fetch
+[00:01:46.278] Browser WARN    Warning fetching page3: Failed to fetch
+[00:01:46.278] Browser WARN    Warning fetching page4: Failed to fetch
+[00:01:49.269] Browser WARN    Warning fetching logStatus: Failed to fetch
+[00:01:49.269] Browser WARN    Warning fetching systemStatus: Failed to fetch
+[00:01:49.269] Browser WARN    Warning fetching page1: Failed to fetch
+[00:01:49.269] Browser WARN    Warning fetching page2: Failed to fetch
+[00:01:49.269] Browser WARN    Warning fetching page3: Failed to fetch
+[00:01:49.269] Browser WARN    Warning fetching page4: Failed to fetch
+[00:01:51.284] Browser WARN    Warning fetching logStatus: Failed to fetch
+[00:01:51.284] Browser WARN    Warning fetching systemStatus: Failed to fetch
+[00:01:51.284] Browser WARN    Warning fetching page1: Failed to fetch
+[00:01:51.284] Browser WARN    Warning fetching page2: Failed to fetch
+[00:01:51.284] Browser WARN    Warning fetching page3: Failed to fetch
+[00:01:51.284] Browser WARN    Warning fetching page4: Failed to fetch
+[00:01:53.281] Browser WARN    Warning fetching logStatus: Failed to fetch
+[00:01:53.281] Browser WARN    Warning fetching systemStatus: Failed to fetch
+[00:01:53.281] Browser WARN    Warning fetching page1: Failed to fetch
+[00:01:53.281] Browser WARN    Warning fetching page2: Failed to fetch
+[00:01:53.281] Browser WARN    Warning fetching page3: Failed to fetch
+[00:01:53.281] Browser WARN    Warning fetching page4: Failed to fetch
+[00:01:56.272] Browser WARN    Warning fetching logStatus: Failed to fetch
+[00:01:56.272] Browser WARN    Warning fetching systemStatus: Failed to fetch
+[00:01:56.272] Browser WARN    Warning fetching page1: Failed to fetch
+[00:01:56.272] Browser WARN    Warning fetching page2: Failed to fetch
+[00:01:56.272] Browser WARN    Warning fetching page3: Failed to fetch
+[00:01:56.272] Browser WARN    Warning fetching page4: Failed to fetch
+[00:01:58.279] Browser WARN    Warning fetching logStatus: Failed to fetch
+[00:01:58.279] Browser WARN    Warning fetching systemStatus: Failed to fetch
+[00:01:58.279] Browser WARN    Warning fetching page1: Failed to fetch
+[00:01:58.279] Browser WARN    Warning fetching page2: Failed to fetch
+[00:01:58.279] Browser WARN    Warning fetching page3: Failed to fetch
+[00:01:58.279] Browser WARN    Warning fetching page4: Failed to fetch
+[00:02:00.272] Browser WARN    Warning fetching logStatus: Failed to fetch
+[00:02:00.272] Browser WARN    Warning fetching systemStatus: Failed to fetch
+[00:02:00.272] Browser WARN    Warning fetching page1: Failed to fetch
+[00:02:00.272] Browser WARN    Warning fetching page2: Failed to fetch
+[00:02:00.272] Browser WARN    Warning fetching page3: Failed to fetch
+[00:02:00.272] Browser WARN    Warning fetching page4: Failed to fetch
+[00:02:03.275] Browser WARN    Warning fetching logStatus: Failed to fetch
+[00:02:03.275] Browser WARN    Warning fetching systemStatus: Failed to fetch
+[00:02:03.275] Browser WARN    Warning fetching page1: Failed to fetch
+[00:02:03.275] Browser WARN    Warning fetching page2: Failed to fetch
+[00:02:03.275] Browser WARN    Warning fetching page3: Failed to fetch
+[00:02:03.275] Browser WARN    Warning fetching page4: Failed to fetch
+[00:02:05.277] Browser WARN    Warning fetching logStatus: Failed to fetch
+[00:02:05.277] Browser WARN    Warning fetching systemStatus: Failed to fetch
+[00:02:05.277] Browser WARN    Warning fetching page1: Failed to fetch
+[00:02:05.277] Browser WARN    Warning fetching page2: Failed to fetch
+[00:02:05.277] Browser WARN    Warning fetching page3: Failed to fetch
+[00:02:05.277] Browser WARN    Warning fetching page4: Failed to fetch
+[00:02:07.271] Browser WARN    Warning fetching logStatus: Failed to fetch
+[00:02:07.271] Browser WARN    Warning fetching systemStatus: Failed to fetch
+[00:02:07.271] Browser WARN    Warning fetching page1: Failed to fetch
+[00:02:07.271] Browser WARN    Warning fetching page2: Failed to fetch
+[00:02:07.271] Browser WARN    Warning fetching page3: Failed to fetch
+[00:02:07.271] Browser WARN    Warning fetching page4: Failed to fetch
+[00:02:09.271] Browser WARN    Warning fetching logStatus: Failed to fetch
+[00:02:09.271] Browser WARN    Warning fetching systemStatus: Failed to fetch
+[00:02:09.271] Browser WARN    Warning fetching page1: Failed to fetch
+[00:02:09.271] Browser WARN    Warning fetching page2: Failed to fetch
+[00:02:09.271] Browser WARN    Warning fetching page3: Failed to fetch
+[00:02:09.271] Browser WARN    Warning fetching page4: Failed to fetch
+[00:02:12.272] Browser WARN    Warning fetching logStatus: Failed to fetch
+[00:02:12.272] Browser WARN    Warning fetching systemStatus: Failed to fetch
+[00:02:12.272] Browser WARN    Warning fetching page1: Failed to fetch
+[00:02:12.272] Browser WARN    Warning fetching page2: Failed to fetch
+[00:02:12.272] Browser WARN    Warning fetching page3: Failed to fetch
+[00:02:12.272] Browser WARN    Warning fetching page4: Failed to fetch
+[00:02:19.174] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:02:47.733] Browser WARN    Warning fetching page1: Failed to fetch
+[00:02:47.733] Browser WARN    Warning fetching page2: Failed to fetch
+[00:02:47.733] Browser WARN    Warning fetching page3: Failed to fetch
+[00:02:47.733] Browser WARN    Warning fetching page4: Failed to fetch
+[00:02:47.733] Browser WARN    Warning fetching logStatus: Failed to fetch
+[00:02:47.733] Browser WARN    Warning fetching systemStatus: Failed to fetch
+[00:02:50.077] Browser WARN    Warning fetching page1: Failed to fetch
+[00:02:50.077] Browser WARN    Warning fetching page2: Failed to fetch
+[00:02:50.077] Browser WARN    Warning fetching page3: Failed to fetch
+[00:02:50.077] Browser WARN    Warning fetching page4: Failed to fetch
+[00:02:50.077] Browser WARN    Warning fetching logStatus: Failed to fetch
+[00:02:50.077] Browser WARN    Warning fetching systemStatus: Failed to fetch
+[00:02:52.438] Browser WARN    Warning fetching page1: Failed to fetch
+[00:02:52.438] Browser WARN    Warning fetching page2: Failed to fetch
+[00:02:52.438] Browser WARN    Warning fetching page3: Failed to fetch
+[00:02:52.438] Browser WARN    Warning fetching page4: Failed to fetch
+[00:02:52.438] Browser WARN    Warning fetching logStatus: Failed to fetch
+[00:02:54.804] Browser WARN    Warning fetching systemStatus: Failed to fetch
+[00:02:54.804] Browser WARN    Warning fetching page1: Failed to fetch
+[00:02:54.804] Browser WARN    Warning fetching page2: Failed to fetch
+[00:02:54.804] Browser WARN    Warning fetching page3: Failed to fetch
+[00:02:54.804] Browser WARN    Warning fetching page4: Failed to fetch
+[00:02:54.804] Browser WARN    Warning fetching logStatus: Failed to fetch
+[00:02:57.145] Browser WARN    Warning fetching systemStatus: Failed to fetch
+[00:02:57.145] Browser WARN    Warning fetching page1: Failed to fetch
+[00:02:57.145] Browser WARN    Warning fetching page2: Failed to fetch
+[00:02:57.145] Browser WARN    Warning fetching page3: Failed to fetch
+[00:02:57.145] Browser WARN    Warning fetching page4: Failed to fetch
+[00:02:57.145] Browser WARN    Warning fetching logStatus: Failed to fetch
+[00:02:59.508] Browser WARN    Warning fetching systemStatus: Failed to fetch
+[00:02:59.508] Browser WARN    Warning fetching page1: Failed to fetch
+[00:02:59.508] Browser WARN    Warning fetching page2: Failed to fetch
+[00:02:59.508] Browser WARN    Warning fetching page3: Failed to fetch
+[00:02:59.508] Browser WARN    Warning fetching page4: Failed to fetch
+[00:02:59.508] Browser WARN    Warning fetching logStatus: Failed to fetch
+[00:03:01.858] Browser WARN    Warning fetching systemStatus: Failed to fetch
+[00:03:01.858] Browser WARN    Warning fetching page1: Failed to fetch
+[00:03:01.858] Browser WARN    Warning fetching page2: Failed to fetch
+[00:03:01.858] Browser WARN    Warning fetching page3: Failed to fetch
+[00:03:01.858] Browser WARN    Warning fetching page4: Failed to fetch
+[00:03:01.858] Browser WARN    Warning fetching logStatus: Failed to fetch
+[00:03:04.213] Browser WARN    Warning fetching systemStatus: Failed to fetch
+[00:03:04.213] Browser WARN    Warning fetching page1: Failed to fetch
+[00:03:04.213] Browser WARN    Warning fetching page2: Failed to fetch
+[00:03:04.213] Browser WARN    Warning fetching page3: Failed to fetch
+[00:03:04.213] Browser WARN    Warning fetching page4: Failed to fetch
+[00:03:04.213] Browser WARN    Warning fetching logStatus: Failed to fetch
+[00:03:06.560] Browser WARN    Warning fetching systemStatus: Failed to fetch
+[00:03:06.560] Browser WARN    Warning fetching page1: Failed to fetch
+[00:03:06.560] Browser WARN    Warning fetching page2: Failed to fetch
+[00:03:06.560] Browser WARN    Warning fetching page3: Failed to fetch
+[00:03:06.560] Browser WARN    Warning fetching page4: Failed to fetch
+[00:03:09.274] Browser WARN    Warning fetching logStatus: Failed to fetch
+[00:03:09.274] Browser WARN    Warning fetching systemStatus: Failed to fetch
+[00:03:09.274] Browser WARN    Warning fetching page1: Failed to fetch
+[00:03:09.274] Browser WARN    Warning fetching page2: Failed to fetch
+[00:03:09.274] Browser WARN    Warning fetching page3: Failed to fetch
+[00:03:09.274] Browser WARN    Warning fetching page4: Failed to fetch
+[00:03:11.272] Browser WARN    Warning fetching logStatus: Failed to fetch
+[00:03:11.272] Browser WARN    Warning fetching systemStatus: Failed to fetch
+[00:03:11.272] Browser WARN    Warning fetching page1: Failed to fetch
+[00:03:11.272] Browser WARN    Warning fetching page2: Failed to fetch
+[00:03:11.272] Browser WARN    Warning fetching page3: Failed to fetch
+[00:03:11.272] Browser WARN    Warning fetching page4: Failed to fetch
+[00:03:14.280] Browser WARN    Warning fetching logStatus: Failed to fetch
+[00:03:14.280] Browser WARN    Warning fetching systemStatus: Failed to fetch
+[00:03:14.280] Browser WARN    Warning fetching page1: Failed to fetch
+[00:03:14.280] Browser WARN    Warning fetching page2: Failed to fetch
+[00:03:14.280] Browser WARN    Warning fetching page3: Failed to fetch
+[00:03:14.280] Browser WARN    Warning fetching page4: Failed to fetch
+[00:03:16.271] Browser WARN    Warning fetching logStatus: Failed to fetch
+[00:03:16.271] Browser WARN    Warning fetching systemStatus: Failed to fetch
+[00:03:16.271] Browser WARN    Warning fetching page1: Failed to fetch
+[00:03:16.271] Browser WARN    Warning fetching page2: Failed to fetch
+[00:03:16.271] Browser WARN    Warning fetching page3: Failed to fetch
+[00:03:16.271] Browser WARN    Warning fetching page4: Failed to fetch
+[00:03:18.272] Browser WARN    Warning fetching logStatus: Failed to fetch
+[00:03:18.272] Browser WARN    Warning fetching systemStatus: Failed to fetch
+[00:03:18.272] Browser WARN    Warning fetching page1: Failed to fetch
+[00:03:18.272] Browser WARN    Warning fetching page2: Failed to fetch
+[00:03:18.272] Browser WARN    Warning fetching page3: Failed to fetch
+[00:03:18.272] Browser WARN    Warning fetching page4: Failed to fetch
+[00:03:21.281] Browser WARN    Warning fetching logStatus: Failed to fetch
+[00:03:21.282] Browser WARN    Warning fetching systemStatus: Failed to fetch
+[00:03:21.282] Browser WARN    Warning fetching page1: Failed to fetch
+[00:03:21.282] Browser WARN    Warning fetching page2: Failed to fetch
+[00:03:21.282] Browser WARN    Warning fetching page3: Failed to fetch
+[00:03:21.282] Browser WARN    Warning fetching page4: Failed to fetch
+[00:03:22.595] Browser WARN    Warning fetching logStatus: Failed to fetch
+[00:03:22.920] Browser WARN    Warning fetching systemStatus: Failed to fetch
+[00:03:22.920] Browser WARN    Warning fetching page1: Failed to fetch
+[00:03:22.920] Browser WARN    Warning fetching page2: Failed to fetch
+[00:03:22.920] Browser WARN    Warning fetching page3: Failed to fetch
+[00:03:22.920] Browser WARN    Warning fetching page4: Failed to fetch
+[00:03:24.936] Browser WARN    Warning fetching logStatus: Failed to fetch
+[00:03:25.283] Browser WARN    Warning fetching systemStatus: Failed to fetch
+[00:03:25.283] Browser WARN    Warning fetching page1: Failed to fetch
+[00:03:25.283] Browser WARN    Warning fetching page2: Failed to fetch
+[00:03:25.283] Browser WARN    Warning fetching page3: Failed to fetch
+[00:03:25.283] Browser WARN    Warning fetching page4: Failed to fetch
+[00:03:27.294] Browser WARN    Warning fetching logStatus: Failed to fetch
+[00:03:27.644] Browser WARN    Warning fetching systemStatus: Failed to fetch
+[00:03:27.644] Browser WARN    Warning fetching page1: Failed to fetch
+[00:03:27.644] Browser WARN    Warning fetching page2: Failed to fetch
+[00:03:27.644] Browser WARN    Warning fetching page3: Failed to fetch
+[00:03:27.644] Browser WARN    Warning fetching page4: Failed to fetch
+[00:03:30.287] Browser WARN    Warning fetching logStatus: Failed to fetch
+[00:03:30.287] Browser WARN    Warning fetching systemStatus: Failed to fetch
+[00:03:30.288] Browser WARN    Warning fetching page1: Failed to fetch
+[00:03:30.288] Browser WARN    Warning fetching page2: Failed to fetch
+[00:03:30.288] Browser WARN    Warning fetching page3: Failed to fetch
+[00:03:30.288] Browser WARN    Warning fetching page4: Failed to fetch
+[00:03:33.273] Browser WARN    Warning fetching logStatus: Failed to fetch
+[00:03:33.273] Browser WARN    Warning fetching systemStatus: Failed to fetch
+[00:03:33.273] Browser WARN    Warning fetching page1: Failed to fetch
+[00:03:33.273] Browser WARN    Warning fetching page2: Failed to fetch
+[00:03:33.273] Browser WARN    Warning fetching page3: Failed to fetch
+[00:03:33.273] Browser WARN    Warning fetching page4: Failed to fetch
+[00:03:35.283] Browser WARN    Warning fetching logStatus: Failed to fetch
+[00:03:35.283] Browser WARN    Warning fetching systemStatus: Failed to fetch
+[00:03:35.283] Browser WARN    Warning fetching page1: Failed to fetch
+[00:03:35.283] Browser WARN    Warning fetching page2: Failed to fetch
+[00:03:35.283] Browser WARN    Warning fetching page3: Failed to fetch
+[00:03:35.283] Browser WARN    Warning fetching page4: Failed to fetch
+[00:03:37.288] Browser WARN    Warning fetching logStatus: Failed to fetch
+[00:03:37.288] Browser WARN    Warning fetching systemStatus: Failed to fetch
+[00:03:37.288] Browser WARN    Warning fetching page1: Failed to fetch
+[00:03:37.289] Browser WARN    Warning fetching page2: Failed to fetch
+[00:03:37.289] Browser WARN    Warning fetching page3: Failed to fetch
+[00:03:37.289] Browser WARN    Warning fetching page4: Failed to fetch
+[00:03:39.862] Browser WARN    Warning fetching logStatus: Failed to fetch
+[00:03:39.862] Browser WARN    Warning fetching systemStatus: Failed to fetch
+[00:03:39.862] Browser WARN    Warning fetching page1: Failed to fetch
+[00:03:39.862] Browser WARN    Warning fetching page2: Failed to fetch
+[00:03:39.862] Browser WARN    Warning fetching page3: Failed to fetch
+[00:03:42.277] Browser WARN    Warning fetching page4: Failed to fetch
+[00:03:42.277] Browser WARN    Warning fetching logStatus: Failed to fetch
+[00:03:42.277] Browser WARN    Warning fetching systemStatus: Failed to fetch
+[00:03:42.277] Browser WARN    Warning fetching page1: Failed to fetch
+[00:03:42.277] Browser WARN    Warning fetching page2: Failed to fetch
+[00:03:42.277] Browser WARN    Warning fetching page3: Failed to fetch
+[00:03:44.270] Browser WARN    Warning fetching page4: Failed to fetch
+[00:03:44.270] Browser WARN    Warning fetching logStatus: Failed to fetch
+[00:03:44.270] Browser WARN    Warning fetching systemStatus: Failed to fetch
+[00:03:44.270] Browser WARN    Warning fetching page1: Failed to fetch
+[00:03:44.270] Browser WARN    Warning fetching page2: Failed to fetch
+[00:03:44.270] Browser WARN    Warning fetching page3: Failed to fetch
+[00:03:47.270] Browser WARN    Warning fetching page4: Failed to fetch
+[00:03:47.270] Browser WARN    Warning fetching logStatus: Failed to fetch
+[00:03:47.270] Browser WARN    Warning fetching systemStatus: Failed to fetch
+[00:03:47.271] Browser WARN    Warning fetching page1: Failed to fetch
+[00:03:47.271] Browser WARN    Warning fetching page2: Failed to fetch
+[00:03:47.271] Browser WARN    Warning fetching page3: Failed to fetch
+[00:03:49.281] Browser WARN    Warning fetching page4: Failed to fetch
+[00:03:49.281] Browser WARN    Warning fetching logStatus: Failed to fetch
+[00:03:49.282] Browser WARN    Warning fetching systemStatus: Failed to fetch
+[00:03:49.282] Browser WARN    Warning fetching page1: Failed to fetch
+[00:03:49.282] Browser WARN    Warning fetching page2: Failed to fetch
+[00:03:49.282] Browser WARN    Warning fetching page3: Failed to fetch
+[00:03:51.282] Browser WARN    Warning fetching page4: Failed to fetch
+[00:03:51.282] Browser WARN    Warning fetching logStatus: Failed to fetch
+[00:03:51.282] Browser WARN    Warning fetching systemStatus: Failed to fetch
+[00:03:51.282] Browser WARN    Warning fetching page1: Failed to fetch
+[00:03:51.282] Browser WARN    Warning fetching page2: Failed to fetch
+[00:03:51.282] Browser WARN    Warning fetching page3: Failed to fetch
+[00:03:54.275] Browser WARN    Warning fetching page4: Failed to fetch
+[00:03:54.275] Browser WARN    Warning fetching logStatus: Failed to fetch
+[00:03:54.275] Browser WARN    Warning fetching systemStatus: Failed to fetch
+[00:03:54.275] Browser WARN    Warning fetching page1: Failed to fetch
+[00:03:54.275] Browser WARN    Warning fetching page2: Failed to fetch
+[00:03:54.275] Browser WARN    Warning fetching page3: Failed to fetch
+[00:03:56.281] Browser WARN    Warning fetching page4: Failed to fetch
+[00:03:56.282] Browser WARN    Warning fetching logStatus: Failed to fetch
+[00:03:56.282] Browser WARN    Warning fetching systemStatus: Failed to fetch
+[00:03:56.282] Browser WARN    Warning fetching page1: Failed to fetch
+[00:03:56.282] Browser WARN    Warning fetching page2: Failed to fetch
+[00:03:56.282] Browser WARN    Warning fetching page3: Failed to fetch
+[00:03:58.273] Browser WARN    Warning fetching page4: Failed to fetch
+[00:03:58.273] Browser WARN    Warning fetching logStatus: Failed to fetch
+[00:03:58.273] Browser WARN    Warning fetching systemStatus: Failed to fetch
+[00:03:58.273] Browser WARN    Warning fetching page1: Failed to fetch
+[00:03:58.273] Browser WARN    Warning fetching page2: Failed to fetch
+[00:04:00.270] Browser WARN    Warning fetching page3: Failed to fetch
+[00:04:00.270] Browser WARN    Warning fetching page4: Failed to fetch
+[00:04:00.270] Browser WARN    Warning fetching logStatus: Failed to fetch
+[00:04:00.270] Browser WARN    Warning fetching systemStatus: Failed to fetch
+[00:04:00.270] Browser WARN    Warning fetching page1: Failed to fetch
+[00:04:00.270] Browser WARN    Warning fetching page2: Failed to fetch
+[00:04:03.275] Browser WARN    Warning fetching page3: Failed to fetch
+[00:04:03.275] Browser WARN    Warning fetching page4: Failed to fetch
+[00:04:03.275] Browser WARN    Warning fetching logStatus: Failed to fetch
+[00:04:03.276] Browser WARN    Warning fetching systemStatus: Failed to fetch
+[00:04:03.276] Browser WARN    Warning fetching page1: Failed to fetch
+[00:04:03.276] Browser WARN    Warning fetching page2: Failed to fetch
+[00:04:05.275] Browser WARN    Warning fetching page3: Failed to fetch
+[00:04:05.275] Browser WARN    Warning fetching page4: Failed to fetch
+[00:04:05.275] Browser WARN    Warning fetching logStatus: Failed to fetch
+[00:04:05.275] Browser WARN    Warning fetching systemStatus: Failed to fetch
+[00:04:05.275] Browser WARN    Warning fetching page1: Failed to fetch
+[00:04:07.283] Browser WARN    Warning fetching page2: Failed to fetch
+[00:04:07.284] Browser WARN    Warning fetching page3: Failed to fetch
+[00:04:07.284] Browser WARN    Warning fetching page4: Failed to fetch
+[00:04:07.284] Browser WARN    Warning fetching logStatus: Failed to fetch
+[00:04:07.284] Browser WARN    Warning fetching systemStatus: Failed to fetch
+[00:04:07.284] Browser WARN    Warning fetching page1: Failed to fetch
+[00:04:10.275] Browser WARN    Warning fetching page2: Failed to fetch
+[00:04:10.275] Browser WARN    Warning fetching page3: Failed to fetch
+[00:04:10.275] Browser WARN    Warning fetching page4: Failed to fetch
+[00:04:10.275] Browser WARN    Warning fetching logStatus: Failed to fetch
+[00:04:10.275] Browser WARN    Warning fetching systemStatus: Failed to fetch
+[00:04:10.275] Browser WARN    Warning fetching page1: Failed to fetch
+[00:04:12.273] Browser WARN    Warning fetching page2: Failed to fetch
+[00:04:12.273] Browser WARN    Warning fetching page3: Failed to fetch
+[00:04:12.273] Browser WARN    Warning fetching page4: Failed to fetch
+[00:04:12.273] Browser WARN    Warning fetching logStatus: Failed to fetch
+[00:04:12.273] Browser WARN    Warning fetching systemStatus: Failed to fetch
+[00:04:14.272] Browser WARN    Warning fetching page1: Failed to fetch
+[00:04:14.272] Browser WARN    Warning fetching page2: Failed to fetch
+[00:04:14.272] Browser WARN    Warning fetching page3: Failed to fetch
+[00:04:14.272] Browser WARN    Warning fetching page4: Failed to fetch
+[00:04:14.272] Browser WARN    Warning fetching logStatus: Failed to fetch
+[00:04:14.272] Browser WARN    Warning fetching systemStatus: Failed to fetch
+[00:04:17.273] Browser WARN    Warning fetching page1: Failed to fetch
+[00:04:17.273] Browser WARN    Warning fetching page2: Failed to fetch
+[00:04:17.274] Browser WARN    Warning fetching page3: Failed to fetch
+[00:04:17.274] Browser WARN    Warning fetching page4: Failed to fetch
+[00:04:17.274] Browser WARN    Warning fetching logStatus: Failed to fetch
+[00:04:17.274] Browser WARN    Warning fetching systemStatus: Failed to fetch
+[00:04:19.272] Browser WARN    Warning fetching page1: Failed to fetch
+[00:04:19.272] Browser WARN    Warning fetching page2: Failed to fetch
+[00:04:19.273] Browser WARN    Warning fetching page3: Failed to fetch
+[00:04:19.273] Browser WARN    Warning fetching page4: Failed to fetch
+[00:04:19.273] Browser WARN    Warning fetching logStatus: Failed to fetch
+[00:04:19.273] Browser WARN    Warning fetching systemStatus: Failed to fetch
+[00:04:21.287] Browser WARN    Warning fetching page1: Failed to fetch
+[00:04:21.287] Browser WARN    Warning fetching page2: Failed to fetch
+[00:04:21.287] Browser WARN    Warning fetching page3: Failed to fetch
+[00:04:21.287] Browser WARN    Warning fetching page4: Failed to fetch
+[00:04:21.287] Browser WARN    Warning fetching logStatus: Failed to fetch
+[00:04:21.287] Browser WARN    Warning fetching systemStatus: Failed to fetch
+[00:04:24.279] Browser WARN    Warning fetching page1: Failed to fetch
+[00:04:24.279] Browser WARN    Warning fetching page2: Failed to fetch
+[00:04:24.279] Browser WARN    Warning fetching page3: Failed to fetch
+[00:04:24.279] Browser WARN    Warning fetching page4: Failed to fetch
+[00:04:24.279] Browser WARN    Warning fetching logStatus: Failed to fetch
+[00:04:26.272] Browser WARN    Warning fetching systemStatus: Failed to fetch
+[00:04:26.272] Browser WARN    Warning fetching page1: Failed to fetch
+[00:04:26.272] Browser WARN    Warning fetching page2: Failed to fetch
+[00:04:26.272] Browser WARN    Warning fetching page3: Failed to fetch
+[00:04:26.272] Browser WARN    Warning fetching page4: Failed to fetch
+[00:04:26.272] Browser WARN    Warning fetching logStatus: Failed to fetch
+[00:04:28.283] Browser WARN    Warning fetching systemStatus: Failed to fetch
+[00:04:28.283] Browser WARN    Warning fetching page1: Failed to fetch
+[00:04:28.283] Browser WARN    Warning fetching page2: Failed to fetch
+[00:04:28.283] Browser WARN    Warning fetching page3: Failed to fetch
+[00:04:28.284] Browser WARN    Warning fetching page4: Failed to fetch
+[00:04:28.284] Browser WARN    Warning fetching logStatus: Failed to fetch
+[00:04:31.283] Browser WARN    Warning fetching systemStatus: Failed to fetch
+[00:04:31.283] Browser WARN    Warning fetching page1: Failed to fetch
+[00:04:31.283] Browser WARN    Warning fetching page2: Failed to fetch
+[00:04:31.283] Browser WARN    Warning fetching page3: Failed to fetch
+[00:04:31.283] Browser WARN    Warning fetching page4: Failed to fetch
+[00:04:33.271] Browser WARN    Warning fetching logStatus: Failed to fetch
+[00:04:33.271] Browser WARN    Warning fetching systemStatus: Failed to fetch
+[00:04:33.271] Browser WARN    Warning fetching page1: Failed to fetch
+[00:04:33.271] Browser WARN    Warning fetching page2: Failed to fetch
+[00:04:33.272] Browser WARN    Warning fetching page3: Failed to fetch
+[00:04:33.272] Browser WARN    Warning fetching page4: Failed to fetch
+[00:04:35.283] Browser WARN    Warning fetching logStatus: Failed to fetch
+[00:04:35.283] Browser WARN    Warning fetching systemStatus: Failed to fetch
+[00:04:35.283] Browser WARN    Warning fetching page1: Failed to fetch
+[00:04:35.283] Browser WARN    Warning fetching page2: Failed to fetch
+[00:04:35.283] Browser WARN    Warning fetching page3: Failed to fetch
+[00:04:37.279] Browser WARN    Warning fetching page4: Failed to fetch
+[00:04:38.271] Browser WARN    Warning fetching logStatus: Failed to fetch
+[00:04:38.272] Browser WARN    Warning fetching systemStatus: Failed to fetch
+[00:04:38.272] Browser WARN    Warning fetching page1: Failed to fetch
+[00:04:38.272] Browser WARN    Warning fetching page2: Failed to fetch
+[00:04:38.272] Browser WARN    Warning fetching page3: Failed to fetch
+[00:04:40.275] Browser WARN    Warning fetching page4: Failed to fetch
+[00:04:40.275] Browser WARN    Warning fetching logStatus: Failed to fetch
+[00:04:40.275] Browser WARN    Warning fetching systemStatus: Failed to fetch
+[00:04:40.275] Browser WARN    Warning fetching page1: Failed to fetch
+[00:04:40.275] Browser WARN    Warning fetching page2: Failed to fetch
+[00:04:40.275] Browser WARN    Warning fetching page3: Failed to fetch
+[00:04:42.272] Browser WARN    Warning fetching page4: Failed to fetch
+[00:04:42.272] Browser WARN    Warning fetching logStatus: Failed to fetch
+[00:04:42.272] Browser WARN    Warning fetching systemStatus: Failed to fetch
+[00:04:42.272] Browser WARN    Warning fetching page1: Failed to fetch
+[00:04:42.272] Browser WARN    Warning fetching page2: Failed to fetch
+[00:08:00.692] Server  LOG     ✓ Compiled in 35ms
+[00:08:17.775] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:11:32.979] Server  LOG     ✓ Compiled in 33ms
+[00:11:45.935] Server  LOG     ✓ Compiled in 30ms
+[00:11:51.395] Server  LOG     ✓ Compiled in 38ms
+[00:11:52.283] Browser ERROR   ./app/page.tsx:992:5
+Parsing ecmascript source code failed
+  990 |
+  991 |     </footer>
+> 992 |     </main >
+      |     ^
+  993 |   );
+  994 | }
+  995 |
+
+Expression expected
+
+Import traces:
+  Client Component Browser:
+    ./app/page.tsx [Client Component Browser]
+    ./app/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./app/page.tsx [Client Component SSR]
+    ./app/page.tsx [Server Component]
+[00:11:52.283] Browser ERROR   ./app/page.tsx:992:6
+Parsing ecmascript source code failed
+  990 |
+  991 |     </footer>
+> 992 |     </main >
+      |      ^^^^^^^
+  993 |   );
+  994 | }
+  995 |
+
+Unterminated regexp literal
+
+Import traces:
+  Client Component Browser:
+    ./app/page.tsx [Client Component Browser]
+    ./app/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./app/page.tsx [Client Component SSR]
+    ./app/page.tsx [Server Component]
+[00:11:52.283] Browser ERROR   ./app/page.tsx:992:5
+Parsing ecmascript source code failed
+  990 |
+  991 |     </footer>
+> 992 |     </main >
+      |     ^
+  993 |   );
+  994 | }
+  995 |
+
+Expression expected
+
+Import traces:
+  Client Component Browser:
+    ./app/page.tsx [Client Component Browser]
+    ./app/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./app/page.tsx [Client Component SSR]
+    ./app/page.tsx [Server Component]
+[00:11:52.283] Browser ERROR   ./app/page.tsx:992:6
+Parsing ecmascript source code failed
+  990 |
+  991 |     </footer>
+> 992 |     </main >
+      |      ^^^^^^^
+  993 |   );
+  994 | }
+  995 |
+
+Unterminated regexp literal
+
+Import traces:
+  Client Component Browser:
+    ./app/page.tsx [Client Component Browser]
+    ./app/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./app/page.tsx [Client Component SSR]
+    ./app/page.tsx [Server Component]
+[00:12:11.270] Browser ERROR   ./app/page.tsx:992:5
+Parsing ecmascript source code failed
+  990 |
+  991 |     </footer>
+> 992 |     </main >
+      |     ^
+  993 |   );
+  994 | }
+  995 |
+
+Expression expected
+
+Import traces:
+  Client Component Browser:
+    ./app/page.tsx [Client Component Browser]
+    ./app/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./app/page.tsx [Client Component SSR]
+    ./app/page.tsx [Server Component]
+[00:12:11.270] Browser ERROR   ./app/page.tsx:992:6
+Parsing ecmascript source code failed
+  990 |
+  991 |     </footer>
+> 992 |     </main >
+      |      ^^^^^^^
+  993 |   );
+  994 | }
+  995 |
+
+Unterminated regexp literal
+
+Import traces:
+  Client Component Browser:
+    ./app/page.tsx [Client Component Browser]
+    ./app/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./app/page.tsx [Client Component SSR]
+    ./app/page.tsx [Server Component]
+[00:12:11.271] Browser ERROR   ./app/page.tsx:992:5
+Parsing ecmascript source code failed
+  990 |
+  991 |     </footer>
+> 992 |     </main >
+      |     ^
+  993 |   );
+  994 | }
+  995 |
+
+Expression expected
+
+Import traces:
+  Client Component Browser:
+    ./app/page.tsx [Client Component Browser]
+    ./app/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./app/page.tsx [Client Component SSR]
+    ./app/page.tsx [Server Component]
+[00:12:11.271] Browser ERROR   ./app/page.tsx:992:6
+Parsing ecmascript source code failed
+  990 |
+  991 |     </footer>
+> 992 |     </main >
+      |      ^^^^^^^
+  993 |   );
+  994 | }
+  995 |
+
+Unterminated regexp literal
+
+Import traces:
+  Client Component Browser:
+    ./app/page.tsx [Client Component Browser]
+    ./app/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./app/page.tsx [Client Component SSR]
+    ./app/page.tsx [Server Component]
+[00:12:18.278] Browser ERROR   ./app/page.tsx:992:5
+Parsing ecmascript source code failed
+  990 |
+  991 |     </footer>
+> 992 |     </main >
+      |     ^
+  993 |   );
+  994 | }
+  995 |
+
+Expression expected
+
+Import traces:
+  Client Component Browser:
+    ./app/page.tsx [Client Component Browser]
+    ./app/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./app/page.tsx [Client Component SSR]
+    ./app/page.tsx [Server Component]
+[00:12:18.278] Browser ERROR   ./app/page.tsx:992:6
+Parsing ecmascript source code failed
+  990 |
+  991 |     </footer>
+> 992 |     </main >
+      |      ^^^^^^^
+  993 |   );
+  994 | }
+  995 |
+
+Unterminated regexp literal
+
+Import traces:
+  Client Component Browser:
+    ./app/page.tsx [Client Component Browser]
+    ./app/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./app/page.tsx [Client Component SSR]
+    ./app/page.tsx [Server Component]
+[00:12:18.279] Browser ERROR   ./app/page.tsx:992:5
+Parsing ecmascript source code failed
+  990 |
+  991 |     </footer>
+> 992 |     </main >
+      |     ^
+  993 |   );
+  994 | }
+  995 |
+
+Expression expected
+
+Import traces:
+  Client Component Browser:
+    ./app/page.tsx [Client Component Browser]
+    ./app/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./app/page.tsx [Client Component SSR]
+    ./app/page.tsx [Server Component]
+[00:12:18.279] Browser ERROR   ./app/page.tsx:992:6
+Parsing ecmascript source code failed
+  990 |
+  991 |     </footer>
+> 992 |     </main >
+      |      ^^^^^^^
+  993 |   );
+  994 | }
+  995 |
+
+Unterminated regexp literal
+
+Import traces:
+  Client Component Browser:
+    ./app/page.tsx [Client Component Browser]
+    ./app/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./app/page.tsx [Client Component SSR]
+    ./app/page.tsx [Server Component]
+[00:12:23.003] Server  LOG     ✓ Compiled in 32ms
+[00:12:23.270] Browser ERROR   ./app/page.tsx:992:5
+Parsing ecmascript source code failed
+  990 |
+  991 |     </footer>
+> 992 |     </main >
+      |     ^
+  993 |   );
+  994 | }
+  995 |
+
+Expression expected
+
+Import traces:
+  Client Component Browser:
+    ./app/page.tsx [Client Component Browser]
+    ./app/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./app/page.tsx [Client Component SSR]
+    ./app/page.tsx [Server Component]
+[00:12:23.270] Browser ERROR   ./app/page.tsx:992:6
+Parsing ecmascript source code failed
+  990 |
+  991 |     </footer>
+> 992 |     </main >
+      |      ^^^^^^^
+  993 |   );
+  994 | }
+  995 |
+
+Unterminated regexp literal
+
+Import traces:
+  Client Component Browser:
+    ./app/page.tsx [Client Component Browser]
+    ./app/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./app/page.tsx [Client Component SSR]
+    ./app/page.tsx [Server Component]
+[00:12:23.270] Browser ERROR   ./app/page.tsx:991:7
+Parsing ecmascript source code failed
+  989 |       </footer>
+  990 |
+> 991 |     </footer>
+      |       ^^^^^^
+  992 |   );
+  993 |   );
+  994 | }
+
+Expected corresponding JSX closing tag for <main>
+
+Import traces:
+  Client Component Browser:
+    ./app/page.tsx [Client Component Browser]
+    ./app/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./app/page.tsx [Client Component SSR]
+    ./app/page.tsx [Server Component]
+[00:12:23.274] Browser ERROR   ./app/page.tsx:992:5
+Parsing ecmascript source code failed
+  990 |
+  991 |     </footer>
+> 992 |     </main >
+      |     ^
+  993 |   );
+  994 | }
+  995 |
+
+Expression expected
+
+Import traces:
+  Client Component Browser:
+    ./app/page.tsx [Client Component Browser]
+    ./app/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./app/page.tsx [Client Component SSR]
+    ./app/page.tsx [Server Component]
+[00:12:23.274] Browser ERROR   ./app/page.tsx:992:6
+Parsing ecmascript source code failed
+  990 |
+  991 |     </footer>
+> 992 |     </main >
+      |      ^^^^^^^
+  993 |   );
+  994 | }
+  995 |
+
+Unterminated regexp literal
+
+Import traces:
+  Client Component Browser:
+    ./app/page.tsx [Client Component Browser]
+    ./app/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./app/page.tsx [Client Component SSR]
+    ./app/page.tsx [Server Component]
+[00:12:23.274] Browser ERROR   ./app/page.tsx:991:7
+Parsing ecmascript source code failed
+  989 |       </footer>
+  990 |
+> 991 |     </footer>
+      |       ^^^^^^
+  992 |   );
+  993 |   );
+  994 | }
+
+Expected corresponding JSX closing tag for <main>
+
+Import traces:
+  Client Component Browser:
+    ./app/page.tsx [Client Component Browser]
+    ./app/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./app/page.tsx [Client Component SSR]
+    ./app/page.tsx [Server Component]
+[00:12:29.270] Browser ERROR   ./app/page.tsx:991:7
+Parsing ecmascript source code failed
+  989 |       </footer>
+  990 |
+> 991 |     </footer>
+      |       ^^^^^^
+  992 |   );
+  993 |   );
+  994 | }
+
+Expected corresponding JSX closing tag for <main>
+
+Import traces:
+  Client Component Browser:
+    ./app/page.tsx [Client Component Browser]
+    ./app/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./app/page.tsx [Client Component SSR]
+    ./app/page.tsx [Server Component]
+[00:12:29.271] Browser ERROR   ./app/page.tsx:991:7
+Parsing ecmascript source code failed
+  989 |       </footer>
+  990 |
+> 991 |     </footer>
+      |       ^^^^^^
+  992 |   );
+  993 |   );
+  994 | }
+
+Expected corresponding JSX closing tag for <main>
+
+Import traces:
+  Client Component Browser:
+    ./app/page.tsx [Client Component Browser]
+    ./app/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./app/page.tsx [Client Component SSR]
+    ./app/page.tsx [Server Component]
+[00:12:56.278] Browser ERROR   ./app/page.tsx:991:7
+Parsing ecmascript source code failed
+  989 |       </footer>
+  990 |
+> 991 |     </footer>
+      |       ^^^^^^
+  992 |   );
+  993 | }
+  994 |
+
+Expected corresponding JSX closing tag for <main>
+
+Import traces:
+  Client Component Browser:
+    ./app/page.tsx [Client Component Browser]
+    ./app/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./app/page.tsx [Client Component SSR]
+    ./app/page.tsx [Server Component]
+[00:12:56.278] Browser ERROR   ./app/page.tsx:991:7
+Parsing ecmascript source code failed
+  989 |       </footer>
+  990 |
+> 991 |     </footer>
+      |       ^^^^^^
+  992 |   );
+  993 | }
+  994 |
+
+Expected corresponding JSX closing tag for <main>
+
+Import traces:
+  Client Component Browser:
+    ./app/page.tsx [Client Component Browser]
+    ./app/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./app/page.tsx [Client Component SSR]
+    ./app/page.tsx [Server Component]
+[00:13:53.848] Server  LOG     ✓ Compiled in 33ms
+[00:14:04.482] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:14:04.867] Browser WARN    Warning fetching page1: Failed to fetch
+[00:14:04.868] Browser WARN    Warning fetching page2: Failed to fetch
+[00:14:04.868] Browser WARN    Warning fetching page3: Failed to fetch
+[00:14:04.868] Browser WARN    Warning fetching page4: Failed to fetch
+[00:14:04.868] Browser WARN    Warning fetching logStatus: Failed to fetch
+[00:14:04.868] Browser WARN    Warning fetching systemStatus: Failed to fetch
+[00:16:59.475] Server  LOG     ✓ Compiled in 49ms
+[00:19:23.409] Server  LOG     ✓ Compiled in 49ms
+[00:19:32.796] Server  LOG     ✓ Compiled in 28ms
+[00:20:35.979] Server  LOG     ✓ Compiled in 33ms
+[00:21:01.904] Server  LOG     ✓ Compiled in 38ms
+[00:22:07.337] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:22:13.516] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:24:49.820] Server  LOG     ✓ Compiled in 29ms
+[00:25:03.668] Server  LOG     ✓ Compiled in 45ms
+[00:25:20.443] Server  LOG     ✓ Compiled in 29ms
+[00:25:22.494] Server  LOG     ✓ Compiled in 46ms
+[00:25:23.271] Browser ERROR   Failed to fetch simulator status {}
+[00:25:23.271] Browser ERROR   Failed to fetch simulator status {}
+[00:25:29.270] Browser ERROR   Failed to fetch simulator status {}
+[00:25:34.270] Browser ERROR   Failed to fetch simulator status {}
+[00:25:39.283] Browser ERROR   Failed to fetch simulator status {}
+[00:25:44.280] Browser ERROR   Failed to fetch simulator status {}
+[00:25:49.271] Browser ERROR   Failed to fetch simulator status {}
+[00:25:54.275] Browser ERROR   Failed to fetch simulator status {}
+[00:26:07.623] Browser ERROR   Failed to fetch simulator status {}
+[00:26:07.623] Browser ERROR   Failed to fetch simulator status {}
+[00:26:11.152] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:26:11.152] Browser ERROR   Failed to fetch simulator status {}
+[00:26:11.254] Browser ERROR   Failed to fetch simulator status {}
+[00:26:16.202] Browser ERROR   Failed to fetch simulator status {}
+[00:26:22.276] Browser ERROR   Failed to fetch simulator status {}
+[00:26:27.285] Browser ERROR   Failed to fetch simulator status {}
+[00:26:32.273] Browser ERROR   Failed to fetch simulator status {}
+[00:26:36.086] Browser ERROR   Failed to fetch simulator status {}
+[00:26:36.086] Browser ERROR   Failed to fetch simulator status {}
+[00:26:42.273] Browser ERROR   Failed to fetch simulator status {}
+[00:26:47.271] Browser ERROR   Failed to fetch simulator status {}
+[00:26:52.280] Browser ERROR   Failed to fetch simulator status {}
+[00:26:56.062] Browser ERROR   Failed to fetch simulator status {}
+[00:27:01.061] Browser ERROR   Failed to fetch simulator status {}
+[00:27:06.073] Browser ERROR   Failed to fetch simulator status {}
+[00:27:11.072] Browser ERROR   Failed to fetch simulator status {}
+[00:27:17.270] Browser ERROR   Failed to fetch simulator status {}
+[00:27:22.269] Browser ERROR   Failed to fetch simulator status {}
+[00:27:27.275] Browser WARN    Warning fetching page1: Failed to fetch
+[00:27:27.275] Browser WARN    Warning fetching page2: Failed to fetch
+[00:27:27.275] Browser WARN    Warning fetching page3: Failed to fetch
+[00:27:27.275] Browser WARN    Warning fetching page4: Failed to fetch
+[00:27:27.275] Browser WARN    Warning fetching logStatus: Failed to fetch
+[00:27:27.275] Browser WARN    Warning fetching systemStatus: Failed to fetch
+[00:27:29.272] Browser WARN    Warning fetching page1: Failed to fetch
+[00:27:29.272] Browser WARN    Warning fetching page2: Failed to fetch
+[00:27:29.272] Browser WARN    Warning fetching page3: Failed to fetch
+[00:27:29.272] Browser WARN    Warning fetching page4: Failed to fetch
+[00:27:29.272] Browser WARN    Warning fetching logStatus: Failed to fetch
+[00:27:29.272] Browser WARN    Warning fetching systemStatus: Failed to fetch
+[00:29:12.240] Server  LOG     ✓ Compiled in 65ms
+[00:29:17.338] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:29:21.639] Server  LOG     ✓ Compiled in 51ms
+[00:32:06.272] Browser WARN    Warning fetching page1: Failed to fetch
+[00:32:06.272] Browser WARN    Warning fetching page2: Failed to fetch
+[00:32:06.272] Browser WARN    Warning fetching page3: Failed to fetch
+[00:32:06.272] Browser WARN    Warning fetching page4: Failed to fetch
+[00:32:06.272] Browser WARN    Warning fetching logStatus: Failed to fetch
+[00:32:08.284] Browser WARN    Warning fetching systemStatus: Failed to fetch
+[00:32:08.285] Browser WARN    Warning fetching page1: Failed to fetch
+[00:32:08.285] Browser WARN    Warning fetching page2: Failed to fetch
+[00:32:08.285] Browser WARN    Warning fetching page3: Failed to fetch
+[00:32:08.285] Browser WARN    Warning fetching page4: Failed to fetch
+[00:32:11.282] Browser WARN    Warning fetching logStatus: Failed to fetch
+[00:32:11.282] Browser WARN    Warning fetching systemStatus: Failed to fetch
+[00:32:11.282] Browser WARN    Warning fetching page1: Failed to fetch
+[00:32:11.282] Browser WARN    Warning fetching page2: Failed to fetch
+[00:32:11.282] Browser WARN    Warning fetching page3: Failed to fetch
+[00:32:13.285] Browser WARN    Warning fetching page4: Failed to fetch
+[00:32:13.285] Browser WARN    Warning fetching logStatus: Failed to fetch
+[00:32:13.285] Browser WARN    Warning fetching systemStatus: Failed to fetch
+[00:32:13.285] Browser WARN    Warning fetching page1: Failed to fetch
+[00:32:15.286] Browser WARN    Warning fetching page2: Failed to fetch
+[00:32:15.286] Browser WARN    Warning fetching page3: Failed to fetch
+[00:32:15.286] Browser WARN    Warning fetching page4: Failed to fetch
+[00:32:15.286] Browser WARN    Warning fetching logStatus: Failed to fetch
+[00:32:15.286] Browser WARN    Warning fetching systemStatus: Failed to fetch
+[00:32:18.281] Browser WARN    Warning fetching page1: Failed to fetch
+[00:32:18.281] Browser WARN    Warning fetching page2: Failed to fetch
+[00:32:18.281] Browser WARN    Warning fetching page3: Failed to fetch
+[00:32:18.281] Browser WARN    Warning fetching page4: Failed to fetch
+[00:32:18.281] Browser WARN    Warning fetching logStatus: Failed to fetch
+[00:32:20.270] Browser WARN    Warning fetching systemStatus: Failed to fetch
+[00:32:20.270] Browser WARN    Warning fetching page1: Failed to fetch
+[00:32:20.270] Browser WARN    Warning fetching page2: Failed to fetch
+[00:32:20.270] Browser WARN    Warning fetching page3: Failed to fetch
+[00:32:20.270] Browser WARN    Warning fetching page4: Failed to fetch
+[00:32:20.270] Browser WARN    Warning fetching logStatus: Failed to fetch
+[00:32:23.274] Browser WARN    Warning fetching systemStatus: Failed to fetch
+[00:32:23.274] Browser WARN    Warning fetching page1: Failed to fetch
+[00:32:23.274] Browser WARN    Warning fetching page2: Failed to fetch
+[00:32:23.274] Browser WARN    Warning fetching page3: Failed to fetch
+[00:32:23.274] Browser WARN    Warning fetching page4: Failed to fetch
+[00:32:23.274] Browser WARN    Warning fetching logStatus: Failed to fetch
+[00:32:25.276] Browser WARN    Warning fetching systemStatus: Failed to fetch
+[00:32:25.276] Browser WARN    Warning fetching page1: Failed to fetch
+[00:32:25.276] Browser WARN    Warning fetching page2: Failed to fetch
+[00:32:25.276] Browser WARN    Warning fetching page3: Failed to fetch
+[00:32:25.276] Browser WARN    Warning fetching page4: Failed to fetch
+[00:32:25.276] Browser WARN    Warning fetching logStatus: Failed to fetch
+[00:32:27.284] Browser WARN    Warning fetching systemStatus: Failed to fetch
+[00:32:27.284] Browser WARN    Warning fetching page1: Failed to fetch
+[00:32:27.284] Browser WARN    Warning fetching page2: Failed to fetch
+[00:32:27.285] Browser WARN    Warning fetching page3: Failed to fetch
+[00:32:27.285] Browser WARN    Warning fetching page4: Failed to fetch
+[00:32:27.285] Browser WARN    Warning fetching logStatus: Failed to fetch
+[00:32:30.280] Browser WARN    Warning fetching systemStatus: Failed to fetch
+[00:32:30.280] Browser WARN    Warning fetching page1: Failed to fetch
+[00:32:30.280] Browser WARN    Warning fetching page2: Failed to fetch
+[00:32:30.280] Browser WARN    Warning fetching page3: Failed to fetch
+[00:32:30.280] Browser WARN    Warning fetching page4: Failed to fetch
+[00:32:30.280] Browser WARN    Warning fetching logStatus: Failed to fetch
+[00:32:32.273] Browser WARN    Warning fetching systemStatus: Failed to fetch
+[00:32:32.273] Browser WARN    Warning fetching page1: Failed to fetch
+[00:32:32.273] Browser WARN    Warning fetching page2: Failed to fetch
+[00:32:32.273] Browser WARN    Warning fetching page3: Failed to fetch
+[00:32:32.273] Browser WARN    Warning fetching page4: Failed to fetch
+[00:32:34.275] Browser WARN    Warning fetching logStatus: Failed to fetch
+[00:32:34.275] Browser WARN    Warning fetching systemStatus: Failed to fetch
+[00:32:34.275] Browser WARN    Warning fetching page1: Failed to fetch
+[00:32:34.275] Browser WARN    Warning fetching page2: Failed to fetch
+[00:32:34.275] Browser WARN    Warning fetching page3: Failed to fetch
+[00:32:34.275] Browser WARN    Warning fetching page4: Failed to fetch
+[00:32:36.428] Browser WARN    Warning fetching logStatus: Failed to fetch
+[00:32:36.428] Browser WARN    Warning fetching systemStatus: Failed to fetch
+[00:32:36.428] Browser WARN    Warning fetching page1: Failed to fetch
+[00:32:36.428] Browser WARN    Warning fetching page2: Failed to fetch
+[00:32:36.428] Browser WARN    Warning fetching page3: Failed to fetch
+[00:32:36.553] Browser WARN    Warning fetching page4: Failed to fetch
+[00:32:39.282] Browser WARN    Warning fetching logStatus: Failed to fetch
+[00:32:39.282] Browser WARN    Warning fetching systemStatus: Failed to fetch
+[00:32:39.282] Browser WARN    Warning fetching page1: Failed to fetch
+[00:32:39.282] Browser WARN    Warning fetching page2: Failed to fetch
+[00:32:39.282] Browser WARN    Warning fetching page3: Failed to fetch
+[00:32:39.282] Browser WARN    Warning fetching page4: Failed to fetch
+[00:32:41.271] Browser WARN    Warning fetching logStatus: Failed to fetch
+[00:32:41.271] Browser WARN    Warning fetching systemStatus: Failed to fetch
+[00:32:41.271] Browser WARN    Warning fetching page1: Failed to fetch
+[00:32:41.271] Browser WARN    Warning fetching page2: Failed to fetch
+[00:32:41.271] Browser WARN    Warning fetching page3: Failed to fetch
+[00:32:41.271] Browser WARN    Warning fetching page4: Failed to fetch
+[00:32:44.280] Browser WARN    Warning fetching logStatus: Failed to fetch
+[00:32:44.280] Browser WARN    Warning fetching systemStatus: Failed to fetch
+[00:32:44.280] Browser ERROR   Chat error: {}
+[00:32:44.280] Browser WARN    Warning fetching page1: Failed to fetch
+[00:32:44.280] Browser WARN    Warning fetching page2: Failed to fetch
+[00:32:44.280] Browser WARN    Warning fetching page3: Failed to fetch
+[00:32:46.284] Browser WARN    Warning fetching page4: Failed to fetch
+[00:32:46.284] Browser WARN    Warning fetching logStatus: Failed to fetch
+[00:32:46.284] Browser WARN    Warning fetching systemStatus: Failed to fetch
+[00:32:46.284] Browser WARN    Warning fetching page1: Failed to fetch
+[00:32:46.284] Browser WARN    Warning fetching page2: Failed to fetch
+[00:32:46.284] Browser WARN    Warning fetching page3: Failed to fetch
+[00:32:49.269] Browser WARN    Warning fetching page4: Failed to fetch
+[00:32:49.269] Browser WARN    Warning fetching logStatus: Failed to fetch
+[00:32:49.269] Browser WARN    Warning fetching systemStatus: Failed to fetch
+[00:32:49.269] Browser WARN    Warning fetching page1: Failed to fetch
+[00:32:49.269] Browser WARN    Warning fetching page2: Failed to fetch
+[00:32:49.269] Browser WARN    Warning fetching page3: Failed to fetch
+[00:32:51.279] Browser WARN    Warning fetching page4: Failed to fetch
+[00:32:51.279] Browser WARN    Warning fetching logStatus: Failed to fetch
+[00:32:51.279] Browser WARN    Warning fetching systemStatus: Failed to fetch
+[00:32:51.279] Browser WARN    Warning fetching page1: Failed to fetch
+[00:32:51.279] Browser WARN    Warning fetching page2: Failed to fetch
+[00:32:51.279] Browser WARN    Warning fetching page3: Failed to fetch
+[00:32:53.280] Browser WARN    Warning fetching page4: Failed to fetch
+[00:32:53.280] Browser WARN    Warning fetching logStatus: Failed to fetch
+[00:32:53.280] Browser WARN    Warning fetching systemStatus: Failed to fetch
+[00:32:53.280] Browser WARN    Warning fetching page1: Failed to fetch
+[00:32:53.280] Browser WARN    Warning fetching page2: Failed to fetch
+[00:32:53.280] Browser WARN    Warning fetching page3: Failed to fetch
+[00:32:56.278] Browser WARN    Warning fetching page4: Failed to fetch
+[00:32:56.278] Browser WARN    Warning fetching logStatus: Failed to fetch
+[00:32:56.278] Browser WARN    Warning fetching systemStatus: Failed to fetch
+[00:32:56.278] Browser WARN    Warning fetching page1: Failed to fetch
+[00:32:56.278] Browser WARN    Warning fetching page2: Failed to fetch
+[00:32:56.278] Browser WARN    Warning fetching page3: Failed to fetch
+[00:32:58.281] Browser WARN    Warning fetching page4: Failed to fetch
+[00:32:58.281] Browser WARN    Warning fetching logStatus: Failed to fetch
+[00:32:58.281] Browser WARN    Warning fetching systemStatus: Failed to fetch
+[00:32:58.281] Browser WARN    Warning fetching page1: Failed to fetch
+[00:32:58.281] Browser WARN    Warning fetching page2: Failed to fetch
+[00:32:58.281] Browser WARN    Warning fetching page3: Failed to fetch
+[00:33:00.282] Browser WARN    Warning fetching page4: Failed to fetch
+[00:33:00.282] Browser WARN    Warning fetching logStatus: Failed to fetch
+[00:33:00.282] Browser WARN    Warning fetching systemStatus: Failed to fetch
+[00:33:00.282] Browser WARN    Warning fetching page1: Failed to fetch
+[00:33:00.282] Browser WARN    Warning fetching page2: Failed to fetch
+[00:33:00.282] Browser WARN    Warning fetching page3: Failed to fetch
+[00:33:03.273] Browser WARN    Warning fetching page4: Failed to fetch
+[00:33:03.273] Browser WARN    Warning fetching logStatus: Failed to fetch
+[00:33:03.273] Browser WARN    Warning fetching systemStatus: Failed to fetch
+[00:33:03.273] Browser WARN    Warning fetching page1: Failed to fetch
+[00:33:03.273] Browser WARN    Warning fetching page2: Failed to fetch
+[00:33:03.273] Browser WARN    Warning fetching page3: Failed to fetch
+[00:33:05.282] Browser WARN    Warning fetching page4: Failed to fetch
+[00:33:05.282] Browser WARN    Warning fetching logStatus: Failed to fetch
+[00:33:05.282] Browser WARN    Warning fetching systemStatus: Failed to fetch
+[00:33:05.282] Browser WARN    Warning fetching page1: Failed to fetch
+[00:33:05.282] Browser WARN    Warning fetching page2: Failed to fetch
+[00:33:05.282] Browser WARN    Warning fetching page3: Failed to fetch
+[00:33:07.278] Browser WARN    Warning fetching page4: Failed to fetch
+[00:33:07.278] Browser WARN    Warning fetching logStatus: Failed to fetch
+[00:33:07.278] Browser WARN    Warning fetching systemStatus: Failed to fetch
+[00:33:07.278] Browser WARN    Warning fetching page1: Failed to fetch
+[00:33:07.278] Browser WARN    Warning fetching page2: Failed to fetch
+[00:33:07.278] Browser WARN    Warning fetching page3: Failed to fetch
+[00:40:37.735] Browser WARN    Warning fetching page1: Failed to fetch
+[00:40:37.735] Browser WARN    Warning fetching page2: Failed to fetch
+[00:40:37.735] Browser WARN    Warning fetching page3: Failed to fetch
+[00:40:37.735] Browser WARN    Warning fetching page4: Failed to fetch
+[00:40:37.735] Browser WARN    Warning fetching logStatus: Failed to fetch
+[00:40:37.735] Browser WARN    Warning fetching systemStatus: Failed to fetch
+[00:57:59.325] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:58:44.483] Browser WARN    The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[00:58:44.483] Browser WARN    The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[01:01:30.871] Server  LOG     ✓ Compiled in 63ms
+[01:12:44.397] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[01:17:38.271] Browser WARN    Warning fetching page1: Failed to fetch
+[01:17:38.271] Browser WARN    Warning fetching page2: Failed to fetch
+[01:17:38.271] Browser WARN    Warning fetching page3: Failed to fetch
+[01:17:38.271] Browser WARN    Warning fetching page4: Failed to fetch
+[01:17:38.271] Browser WARN    Warning fetching logStatus: Failed to fetch
+[01:17:38.271] Browser WARN    Warning fetching systemStatus: Failed to fetch
+[01:20:00.274] Browser WARN    Warning fetching page1: Failed to fetch
+[01:20:00.274] Browser WARN    Warning fetching page2: Failed to fetch
+[01:20:00.274] Browser WARN    Warning fetching page3: Failed to fetch
+[01:20:00.274] Browser WARN    Warning fetching page4: Failed to fetch
+[01:20:00.274] Browser WARN    Warning fetching logStatus: Failed to fetch
+[01:20:00.274] Browser WARN    Warning fetching systemStatus: Failed to fetch
+[01:20:02.271] Browser WARN    Warning fetching page1: Failed to fetch
+[01:20:02.271] Browser WARN    Warning fetching page2: Failed to fetch
+[01:20:02.271] Browser WARN    Warning fetching page3: Failed to fetch
+[01:20:02.271] Browser WARN    Warning fetching page4: Failed to fetch
+[01:20:02.271] Browser WARN    Warning fetching logStatus: Failed to fetch
+[01:20:02.271] Browser WARN    Warning fetching systemStatus: Failed to fetch
+[01:22:04.272] Browser WARN    Warning fetching page1: Failed to fetch
+[01:22:04.272] Browser WARN    Warning fetching page2: Failed to fetch
+[01:22:04.272] Browser WARN    Warning fetching page3: Failed to fetch
+[01:22:04.272] Browser WARN    Warning fetching page4: Failed to fetch
+[01:22:04.272] Browser WARN    Warning fetching logStatus: Failed to fetch
+[01:22:06.272] Browser WARN    Warning fetching systemStatus: Failed to fetch
+[01:22:06.272] Browser WARN    Warning fetching page1: Failed to fetch
+[01:22:06.272] Browser WARN    Warning fetching page2: Failed to fetch
+[01:22:06.272] Browser WARN    Warning fetching page3: Failed to fetch
+[01:22:06.272] Browser WARN    Warning fetching page4: Failed to fetch
+[01:22:09.271] Browser WARN    Warning fetching logStatus: Failed to fetch
+[01:22:09.271] Browser WARN    Warning fetching systemStatus: Failed to fetch
+[01:22:09.271] Browser WARN    Warning fetching page1: Failed to fetch
+[01:22:09.271] Browser WARN    Warning fetching page2: Failed to fetch
+[01:22:09.271] Browser WARN    Warning fetching page3: Failed to fetch
+[01:22:10.272] Browser WARN    Warning fetching page4: Failed to fetch
+[01:22:11.275] Browser WARN    Warning fetching logStatus: Failed to fetch
+[01:22:11.275] Browser WARN    Warning fetching systemStatus: Failed to fetch
+[01:22:11.275] Browser WARN    Warning fetching page1: Failed to fetch
+[01:22:11.275] Browser WARN    Warning fetching page2: Failed to fetch
+[01:22:11.275] Browser WARN    Warning fetching page3: Failed to fetch
+[01:22:12.271] Browser WARN    Warning fetching page4: Failed to fetch
+[01:22:13.280] Browser WARN    Warning fetching logStatus: Failed to fetch
+[01:22:13.280] Browser WARN    Warning fetching systemStatus: Failed to fetch
+[01:22:13.280] Browser WARN    Warning fetching page1: Failed to fetch
+[01:22:13.280] Browser WARN    Warning fetching page2: Failed to fetch
+[01:22:16.275] Browser WARN    Warning fetching page3: Failed to fetch
+[01:22:16.275] Browser WARN    Warning fetching page4: Failed to fetch
+[01:22:16.275] Browser WARN    Warning fetching logStatus: Failed to fetch
+[01:22:16.275] Browser WARN    Warning fetching systemStatus: Failed to fetch
+[01:22:16.275] Browser WARN    Warning fetching page1: Failed to fetch
+[01:22:16.275] Browser WARN    Warning fetching page2: Failed to fetch
+[01:22:17.268] Browser WARN    Warning fetching page3: Failed to fetch
+[01:22:18.272] Browser WARN    Warning fetching page4: Failed to fetch
+[01:22:18.272] Browser WARN    Warning fetching logStatus: Failed to fetch
+[01:22:18.272] Browser WARN    Warning fetching systemStatus: Failed to fetch
+[01:22:18.272] Browser WARN    Warning fetching page1: Failed to fetch
+[01:22:18.272] Browser WARN    Warning fetching page2: Failed to fetch
+[01:22:19.275] Browser WARN    Warning fetching page3: Failed to fetch
+[01:22:20.272] Browser WARN    Warning fetching page4: Failed to fetch
+[01:22:20.272] Browser WARN    Warning fetching logStatus: Failed to fetch
+[01:22:20.272] Browser WARN    Warning fetching systemStatus: Failed to fetch
+[01:22:20.272] Browser WARN    Warning fetching page1: Failed to fetch
+[01:22:23.273] Browser WARN    Warning fetching page2: Failed to fetch
+[01:22:23.273] Browser WARN    Warning fetching page3: Failed to fetch
+[01:22:23.273] Browser WARN    Warning fetching page4: Failed to fetch
+[01:22:23.273] Browser WARN    Warning fetching logStatus: Failed to fetch
+[01:22:23.273] Browser WARN    Warning fetching systemStatus: Failed to fetch
+[01:22:23.273] Browser WARN    Warning fetching page1: Failed to fetch
+[01:22:24.270] Browser WARN    Warning fetching page2: Failed to fetch
+[01:22:25.273] Browser WARN    Warning fetching page3: Failed to fetch
+[01:22:25.273] Browser WARN    Warning fetching page4: Failed to fetch
+[01:22:25.273] Browser WARN    Warning fetching logStatus: Failed to fetch
+[01:22:25.273] Browser WARN    Warning fetching systemStatus: Failed to fetch
+[01:22:25.273] Browser WARN    Warning fetching page1: Failed to fetch
+[01:22:26.269] Browser WARN    Warning fetching page2: Failed to fetch
+[01:22:27.271] Browser WARN    Warning fetching page3: Failed to fetch
+[01:22:27.271] Browser WARN    Warning fetching page4: Failed to fetch
+[01:22:27.271] Browser WARN    Warning fetching logStatus: Failed to fetch
+[01:22:27.271] Browser WARN    Warning fetching systemStatus: Failed to fetch
+[01:22:27.271] Browser WARN    Warning fetching page1: Failed to fetch
+[01:22:29.275] Browser WARN    Warning fetching page2: Failed to fetch
+[01:22:29.275] Browser WARN    Warning fetching page3: Failed to fetch
+[01:22:29.275] Browser WARN    Warning fetching page4: Failed to fetch
+[01:22:29.275] Browser WARN    Warning fetching logStatus: Failed to fetch
+[01:22:29.275] Browser WARN    Warning fetching systemStatus: Failed to fetch
+[01:22:38.269] Browser WARN    Warning fetching page1: Failed to fetch
+[01:22:38.269] Browser WARN    Warning fetching page2: Failed to fetch
+[01:22:38.269] Browser WARN    Warning fetching page3: Failed to fetch
+[01:22:38.269] Browser WARN    Warning fetching page4: Failed to fetch
+[01:22:38.269] Browser WARN    Warning fetching logStatus: Failed to fetch
+[01:22:38.269] Browser WARN    Warning fetching systemStatus: Failed to fetch
+[01:22:48.214] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[01:29:41.278] Browser WARN    Warning fetching page1: Failed to fetch
+[01:29:41.278] Browser WARN    Warning fetching page2: Failed to fetch
+[01:29:41.278] Browser WARN    Warning fetching page3: Failed to fetch
+[01:29:41.278] Browser WARN    Warning fetching page4: Failed to fetch
+[01:29:41.278] Browser WARN    Warning fetching logStatus: Failed to fetch
+[01:29:41.278] Browser WARN    Warning fetching systemStatus: Failed to fetch
+[01:29:43.281] Browser WARN    Warning fetching page1: Failed to fetch
+[01:29:43.281] Browser WARN    Warning fetching page2: Failed to fetch
+[01:29:43.281] Browser WARN    Warning fetching page3: Failed to fetch
+[01:29:43.281] Browser WARN    Warning fetching page4: Failed to fetch
+[01:29:43.281] Browser WARN    Warning fetching logStatus: Failed to fetch
+[01:29:43.281] Browser WARN    Warning fetching systemStatus: Failed to fetch
+[01:29:46.286] Browser WARN    Warning fetching page1: Failed to fetch
+[01:29:46.286] Browser WARN    Warning fetching page2: Failed to fetch
+[01:29:46.286] Browser WARN    Warning fetching page3: Failed to fetch
+[01:29:46.286] Browser WARN    Warning fetching page4: Failed to fetch
+[01:29:46.286] Browser WARN    Warning fetching logStatus: Failed to fetch
+[01:29:48.278] Browser WARN    Warning fetching systemStatus: Failed to fetch
+[01:29:48.278] Browser WARN    Warning fetching page1: Failed to fetch
+[01:29:48.278] Browser WARN    Warning fetching page2: Failed to fetch
+[01:29:48.278] Browser WARN    Warning fetching page3: Failed to fetch
+[01:29:48.278] Browser WARN    Warning fetching page4: Failed to fetch
+[01:29:48.278] Browser WARN    Warning fetching logStatus: Failed to fetch
+[01:33:49.484] Server  LOG     ✓ Compiled in 41ms
+[01:34:04.601] Server  LOG     ✓ Compiled in 48ms
+[01:34:06.595] Server  LOG     ✓ Compiled in 31ms
+[01:36:39.283] Browser WARN    Warning fetching page1: Failed to fetch
+[01:36:39.283] Browser WARN    Warning fetching page2: Failed to fetch
+[01:36:39.283] Browser WARN    Warning fetching page3: Failed to fetch
+[01:36:39.283] Browser WARN    Warning fetching page4: Failed to fetch
+[01:36:39.283] Browser WARN    Warning fetching logStatus: Failed to fetch
+[01:36:39.283] Browser WARN    Warning fetching systemStatus: Failed to fetch
+[01:36:41.284] Browser WARN    Warning fetching page1: Failed to fetch
+[01:36:41.284] Browser WARN    Warning fetching page2: Failed to fetch
+[01:36:41.284] Browser WARN    Warning fetching page3: Failed to fetch
+[01:36:41.284] Browser WARN    Warning fetching page4: Failed to fetch
+[01:36:41.284] Browser WARN    Warning fetching logStatus: Failed to fetch
+[01:40:27.435] Browser WARN    The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[01:40:27.435] Browser WARN    The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[01:40:27.435] Browser WARN    The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[01:40:27.435] Browser WARN    The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[01:40:56.288] Browser WARN    Warning fetching page1: Failed to fetch
+[01:40:56.288] Browser WARN    Warning fetching page2: Failed to fetch
+[01:40:56.288] Browser WARN    Warning fetching page3: Failed to fetch
+[01:40:56.288] Browser WARN    Warning fetching page4: Failed to fetch
+[01:40:56.288] Browser WARN    Warning fetching logStatus: Failed to fetch
+[01:40:56.288] Browser WARN    Warning fetching systemStatus: Failed to fetch
+[01:40:58.278] Browser WARN    Warning fetching page1: Failed to fetch
+[01:40:58.278] Browser WARN    Warning fetching page2: Failed to fetch
+[01:40:58.278] Browser WARN    Warning fetching page3: Failed to fetch
+[01:40:58.278] Browser WARN    Warning fetching page4: Failed to fetch
+[01:40:58.278] Browser WARN    Warning fetching logStatus: Failed to fetch
+[01:40:58.278] Browser WARN    Warning fetching systemStatus: Failed to fetch

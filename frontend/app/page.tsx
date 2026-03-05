@@ -15,6 +15,8 @@ import remarkGfm from 'remark-gfm';
 import remarkMath from 'remark-math';
 import rehypeKatex from 'rehype-katex';
 import 'katex/dist/katex.min.css';
+import { ChatPanel } from '@/components/common/ChatPanel';
+import { SimulatorControl } from '@/components/common/SimulatorControl';
 
 interface Page1Data {
   timestamp: string;
@@ -160,6 +162,33 @@ export default function Home() {
   const [logSizeKb, setLogSizeKb] = useState(0);
   const [faultRecordCount, setFaultRecordCount] = useState(0);
   const [isClearMenuOpen, setIsClearMenuOpen] = useState(false);
+  const [isInitialMount, setIsInitialMount] = useState(true);
+
+  // Load from sessionStorage on mount
+  useEffect(() => {
+    const savedSummary = sessionStorage.getItem('pm2000_ai_summary');
+    const savedExpanded = sessionStorage.getItem('pm2000_ai_expanded');
+
+    if (savedSummary) setAiSummary(savedSummary);
+    if (savedExpanded) setIsAiExpanded(savedExpanded === 'true');
+
+    setIsInitialMount(false);
+  }, []);
+
+  // Save to sessionStorage when state changes
+  useEffect(() => {
+    if (isInitialMount) return;
+    if (aiSummary) {
+      sessionStorage.setItem('pm2000_ai_summary', aiSummary);
+    } else {
+      sessionStorage.removeItem('pm2000_ai_summary');
+    }
+  }, [aiSummary, isInitialMount]);
+
+  useEffect(() => {
+    if (isInitialMount) return;
+    sessionStorage.setItem('pm2000_ai_expanded', String(isAiExpanded));
+  }, [isAiExpanded, isInitialMount]);
 
   // Automatic API Base URL:
   // - In development (npm run dev): Use absolute URL to the host (supports mobile on same Wi-Fi)
@@ -380,6 +409,7 @@ export default function Home() {
       const res = await fetch(`${API_BASE_URL}/ai-summary`, { method: 'DELETE' });
       if (res.ok) {
         setAiSummary(null);
+        sessionStorage.removeItem('pm2000_ai_summary');
         alert('ล้าง Cache สำเร็จแล้ว! คุณสามารถกดวิเคราะห์ใหม่ได้ทันที');
       }
     } catch (err) {
@@ -475,6 +505,7 @@ export default function Home() {
         setFaultRecordCount(0);
         refresh(false);
         setAiSummary(null);
+        sessionStorage.removeItem('pm2000_ai_summary');
         setIsClearMenuOpen(false);
       } catch (err) {
         console.error('Failed to clear fault log:', err);
@@ -492,6 +523,7 @@ export default function Home() {
         setFaultRecordCount(0);
         refresh(false);
         setAiSummary(null);
+        sessionStorage.removeItem('pm2000_ai_summary');
         setIsClearMenuOpen(false);
       } catch (err) {
         console.error('Failed to clear all logs:', err);
@@ -588,6 +620,9 @@ export default function Home() {
 
   return (
     <main className="min-h-screen bg-gradient-to-br from-gray-900 to-gray-800">
+      {/* AI Advisor Chat - Always mounted for persistence */}
+      <ChatPanel />
+
       {/* Header */}
       <header
         ref={headerRef}
@@ -741,8 +776,11 @@ export default function Home() {
                 {/* Status Indicator for both modes */}
                 <div className="flex items-center gap-1 sm:gap-2 pl-2 border-l border-gray-700">
                   {isSimulateMode ? (
-                    <div className="px-2 sm:px-3 py-1.5 rounded-lg bg-purple-500/10 border border-purple-500/20 text-purple-400 text-[10px] sm:text-sm font-medium whitespace-nowrap">
-                      ✅ SIMULATOR MODE
+                    <div className="flex items-center gap-2 pr-2">
+                      <div className="px-2 sm:px-3 py-1.5 rounded-lg bg-purple-500/10 border border-purple-500/20 text-purple-400 text-[10px] sm:text-sm font-medium whitespace-nowrap">
+                        ✅ SIMULATOR MODE
+                      </div>
+                      <SimulatorControl />
                     </div>
                   ) : isConnected ? (
                     <div className="px-2 sm:px-3 py-1.5 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-[10px] sm:text-sm font-medium whitespace-nowrap uppercase">
@@ -980,9 +1018,10 @@ export default function Home() {
         <div className="max-w-7xl mx-auto px-4 text-center text-gray-500 text-sm">
           PM2230 Dashboard
           <br />
-          copyright © 2026 โดย กลุ่ม 2 เฉลียว
+          COPYRIGHT© 2026 โดย กลุ่ม 2 เฉลียว
         </div>
       </footer>
+
     </main>
   );
 }

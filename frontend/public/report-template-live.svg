@@ -130,7 +130,7 @@
     <text class="body" x="22" y="82">L1 225.9V | 0.00A</text>
     <text class="body" x="22" y="138">L2 230.1V | 0.00A</text>
     <text class="body" x="22" y="194">L3 228.4V | 0.00A</text>
-    <text class="small" x="22" y="246">Current Imbalance: 0.00%</text>
+    <text class="small" x="22" y="246">Current Unbalance: 0.00%</text>
     <text class="small" x="22" y="270">Voltage Avg: 228.1V</text>
     <text class="small" x="22" y="294">Frequency: 50.03 Hz</text>
 

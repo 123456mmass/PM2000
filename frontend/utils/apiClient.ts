@@ -149,6 +149,21 @@ export interface LogStatusResponse {
 }
 
 /**
+ * Interface for Simulator Status response
+ */
+export interface SimulatorStatusResponse {
+  is_simulating: boolean;
+  state: {
+    voltage_sag: boolean;
+    voltage_swell: boolean;
+    phase_loss: boolean;
+    overload: boolean;
+    unbalance_high: boolean;
+    harmonics_high: boolean;
+  };
+}
+
+/**
  * Fetch Page 1 data (Power Parameters)
  */
 export async function fetchPage1(): Promise<Page1Data> {
@@ -275,6 +290,16 @@ export async function triggerLogDownload(
 }
 
 /**
+ * Send chat message to AI Advisor
+ */
+export async function postChat(messages: { role: string; content: string }[]): Promise<{ response: string }> {
+  return fetchWithHandling<{ response: string }>(`${API_BASE_URL}/chat`, {
+    method: 'POST',
+    body: JSON.stringify({ messages }),
+  });
+}
+
+/**
  * Interface for Alerts response
  */
 export interface AlertItem {
@@ -296,6 +321,32 @@ export async function fetchAlerts(): Promise<AlertsResponse> {
   return fetchWithHandling<AlertsResponse>(`${API_BASE_URL}/alerts`);
 }
 
+/**
+ * Fetch simulator status
+ */
+export async function fetchSimulatorStatus(): Promise<SimulatorStatusResponse> {
+  return fetchWithHandling<SimulatorStatusResponse>(`${API_BASE_URL}/simulator/status`);
+}
+
+/**
+ * Inject fault in simulator
+ */
+export async function injectFault(type: string, value?: boolean): Promise<{ status: string; state: any }> {
+  return fetchWithHandling<{ status: string; state: any }>(`${API_BASE_URL}/simulator/inject`, {
+    method: 'POST',
+    body: JSON.stringify({ type, value }),
+  });
+}
+
+/**
+ * Reset simulator faults
+ */
+export async function resetSimulator(): Promise<{ status: string; state: any }> {
+  return fetchWithHandling<{ status: string; state: any }>(`${API_BASE_URL}/simulator/reset`, {
+    method: 'POST',
+  });
+}
+
 
 /**
  * API client object with all methods
@@ -306,12 +357,17 @@ const apiClient = {
   fetchPage3,
   fetchPage4,
   fetchAiSummary,
+  fetchAiFaultSummary,
+  postChat,
   fetchLogStatus,
   startLogging,
   stopLogging,
   downloadLog,
   triggerLogDownload,
   fetchAlerts,
+  fetchSimulatorStatus,
+  injectFault,
+  resetSimulator,
 };
 
 export { API_BASE_URL };

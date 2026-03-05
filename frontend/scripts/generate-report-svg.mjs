@@ -316,7 +316,7 @@ function buildAnalysis(data, trendStats, dataRowsCount) {
   const thdi = avg([page3.THDi_L1, page3.THDi_L2, page3.THDi_L3]);
   const pf = Math.abs(page3.PF_Total || 0);
   const currentMean = avg([page1.I_L1, page1.I_L2, page1.I_L3]);
-  const currentImbalance = currentMean > 0
+  const currentUnbalance = currentMean > 0
     ? ((Math.max(page1.I_L1, page1.I_L2, page1.I_L3) - Math.min(page1.I_L1, page1.I_L2, page1.I_L3)) / currentMean) * 100
     : 0;
 
@@ -328,7 +328,7 @@ function buildAnalysis(data, trendStats, dataRowsCount) {
 
   const loadScore = avg([
     scoreForLower(pf, 0.95, 0.9),
-    scoreForUpper(currentImbalance, 10, 20),
+    scoreForUpper(currentUnbalance, 10, 20),
     scoreForUpper(Math.abs(page2.P_Total - trendStats.avgVal), 3.0, 6.0),
   ]);
 
@@ -352,13 +352,13 @@ function buildAnalysis(data, trendStats, dataRowsCount) {
   const alerts = [];
   if (pf < 0.9) alerts.push('PF ต่ำกว่ามาตรฐานช่วงโหลดสูง');
   if (thdi > 20) alerts.push('THDi สูงเกินเกณฑ์เฝ้าระวัง');
-  if (page3.I_unb > 10) alerts.push('Current unbalance สูง ควร balance phase');
+  if (page3.I_unb > 10) alerts.push('Current Unbalance สูง ควร balance phase');
   if (thdv > 5) alerts.push('THDv สูงกว่าค่าแนะนำ');
   if (!alerts.length) alerts.push('ไม่พบค่าที่เกินเกณฑ์วิกฤตในช่วงข้อมูลที่ใช้วิเคราะห์');
 
   const recommendations = [];
   if (thdi > 15) recommendations.push('ตรวจสอบโหลดไม่เชิงเส้น (VFD/rectifier) และพิจารณา harmonic filter');
-  if (currentImbalance > 8) recommendations.push('กระจายโหลดเฟสใหม่เพื่อลด I_unbalance และ neutral current');
+  if (currentUnbalance > 8) recommendations.push('กระจายโหลดเฟสใหม่เพื่อลด I_unbalance และ neutral current');
   if (pf < 0.95) recommendations.push('ปรับ step capacitor bank ให้ตอบสนอง reactive demand จริง');
   recommendations.push('ตั้ง alert อัตโนมัติ: PF<0.90, THDi>20%, I_unb>10%');
   recommendations.push('เก็บ trend 24 ชั่วโมงต่อเนื่องเพื่อยืนยันรูปแบบโหลดและช่วง peak');
@@ -372,7 +372,7 @@ function buildAnalysis(data, trendStats, dataRowsCount) {
     thdv,
     thdi,
     pf,
-    currentImbalance,
+    currentUnbalance,
     energyPf,
     reactiveRatio,
     scores: {
@@ -516,22 +516,22 @@ function buildSvg(data, trend, trendStats, analysis, dataRowsCount) {
     <text class="h3" x="792" y="36">Category Scores</text>
 
     ${scoreBars.map((row, idx) => {
-      const y = 66 + idx * 36;
-      const score = row[1];
-      return `<text class="small" x="792" y="${y}">${esc(row[0])}</text>
+    const y = 66 + idx * 36;
+    const score = row[1];
+    return `<text class="small" x="792" y="${y}">${esc(row[0])}</text>
       <rect x="792" y="${y + 6}" width="300" height="10" rx="5" fill="#e2e8f0"/>
       <rect x="792" y="${y + 6}" width="${(score * 3).toFixed(1)}" height="10" rx="5" fill="${scoreColor(score)}"/>
       <text class="small" x="1098" y="${y + 16}" text-anchor="end">${score}</text>`;
-    }).join('\n')}
+  }).join('\n')}
 
     <rect x="770" y="230" width="354" height="226" rx="20" fill="#fff" stroke="#d6e2ee"/>
     <text class="h3" x="792" y="266">Risk Matrix (Priority)</text>
 
     ${riskList.map((text, idx) => {
-      const y = 286 + idx * 38;
-      return `<rect x="792" y="${y}" width="300" height="28" rx="14" fill="${riskFill(idx)}"/>
+    const y = 286 + idx * 38;
+    return `<rect x="792" y="${y}" width="300" height="28" rx="14" fill="${riskFill(idx)}"/>
       <text style="font:700 13px 'Segoe UI'; fill:#fff" x="804" y="${y + 19}">${esc(text)}</text>`;
-    }).join('\n')}
+  }).join('\n')}
   </g>
 
   <g transform="translate(58,910)">
@@ -540,12 +540,12 @@ function buildSvg(data, trend, trendStats, analysis, dataRowsCount) {
 
     <text class="h3" x="22" y="36">Phase Balance (Voltage/Current)</text>
 
-    <text class="body" x="22" y="82">L1 ${fmt(data.page1.V_LN1,1)}V | ${fmt(data.page1.I_L1,2)}A</text>
-    <text class="body" x="22" y="138">L2 ${fmt(data.page1.V_LN2,1)}V | ${fmt(data.page1.I_L2,2)}A</text>
-    <text class="body" x="22" y="194">L3 ${fmt(data.page1.V_LN3,1)}V | ${fmt(data.page1.I_L3,2)}A</text>
-    <text class="small" x="22" y="246">Current Imbalance: ${fmt(analysis.currentImbalance,2)}%</text>
-    <text class="small" x="22" y="270">Voltage Avg: ${fmt(analysis.vAvg,1)}V</text>
-    <text class="small" x="22" y="294">Frequency: ${fmt(data.page1.Freq,2)} Hz</text>
+    <text class="body" x="22" y="82">L1 ${fmt(data.page1.V_LN1, 1)}V | ${fmt(data.page1.I_L1, 2)}A</text>
+    <text class="body" x="22" y="138">L2 ${fmt(data.page1.V_LN2, 1)}V | ${fmt(data.page1.I_L2, 2)}A</text>
+    <text class="body" x="22" y="194">L3 ${fmt(data.page1.V_LN3, 1)}V | ${fmt(data.page1.I_L3, 2)}A</text>
+    <text class="small" x="22" y="246">Current Unbalance: ${fmt(analysis.currentUnbalance, 2)}%</text>
+    <text class="small" x="22" y="270">Voltage Avg: ${fmt(analysis.vAvg, 1)}V</text>
+    <text class="small" x="22" y="294">Frequency: ${fmt(data.page1.Freq, 2)} Hz</text>
 
     <rect x="210" y="70" width="318" height="10" rx="5" fill="#e2e8f0"/><rect x="210" y="70" width="${(clamp(data.page1.V_LN1 / 250, 0, 1) * 318).toFixed(1)}" height="10" rx="5" fill="#0ea5e9"/>
     <rect x="210" y="86" width="318" height="10" rx="5" fill="#e2e8f0"/><rect x="210" y="86" width="${(clamp(data.page1.I_L1 / 8, 0, 1) * 318).toFixed(1)}" height="10" rx="5" fill="#6366f1"/>
@@ -555,10 +555,10 @@ function buildSvg(data, trend, trendStats, analysis, dataRowsCount) {
     <rect x="210" y="198" width="318" height="10" rx="5" fill="#e2e8f0"/><rect x="210" y="198" width="${(clamp(data.page1.I_L3 / 8, 0, 1) * 318).toFixed(1)}" height="10" rx="5" fill="#6366f1"/>
 
     <text class="h3" x="598" y="36">Power Quality Deep-Dive</text>
-    <text class="body" x="598" y="82">THDv Avg: ${fmt(analysis.thdv,2)}%</text>
-    <text class="body" x="598" y="128">THDi Avg: ${fmt(analysis.thdi,2)}%</text>
-    <text class="body" x="598" y="174">PF_Total: ${fmt(analysis.pf,3)}</text>
-    <text class="body" x="598" y="220">Reactive Ratio: ${fmt(analysis.reactiveRatio,2)}</text>
+    <text class="body" x="598" y="82">THDv Avg: ${fmt(analysis.thdv, 2)}%</text>
+    <text class="body" x="598" y="128">THDi Avg: ${fmt(analysis.thdi, 2)}%</text>
+    <text class="body" x="598" y="174">PF_Total: ${fmt(analysis.pf, 3)}</text>
+    <text class="body" x="598" y="220">Reactive Ratio: ${fmt(analysis.reactiveRatio, 2)}</text>
     <text class="small" x="598" y="264">Observation: metrics generated from latest API snapshot + trend log</text>
     <text class="small" x="598" y="286">Use this as printable one-page summary for operations review</text>
 
