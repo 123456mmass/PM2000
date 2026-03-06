@@ -22,3 +22,11 @@ jest.mock('next/image', () => ({
     return <img {...props} />;
   },
 }));
+
+if (!URL.createObjectURL) {
+  URL.createObjectURL = jest.fn(() => 'blob:mock-url');
+}
+
+if (!URL.revokeObjectURL) {
+  URL.revokeObjectURL = jest.fn();
+}

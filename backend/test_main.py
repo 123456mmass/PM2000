@@ -170,13 +170,13 @@ class TestCheckLimits:
 
     def test_check_limits_voltage_low(self):
         """Test check_limits detects low voltage."""
-        data = {"V_LN_avg": 200, "Freq": 50.0, "PF_Total": 0.95,
+        data = {"V_LN_avg": 180, "Freq": 50.0, "PF_Total": 0.95,
                 "THDv_L1": 2, "THDv_L2": 2, "THDv_L3": 2, "I_unb": 2}
         result = check_limits(data)
 
         assert result["status"] == "ALERT"
         assert result["count"] >= 1
-        assert any("Voltage" in alert["message"] for alert in result["alerts"])
+        assert any(alert["category"] == "voltage_sag" for alert in result["alerts"])
 
     def test_check_limits_voltage_high(self):
         """Test check_limits detects high voltage."""
@@ -189,30 +189,30 @@ class TestCheckLimits:
 
     def test_check_limits_frequency_low(self):
         """Test check_limits detects low frequency."""
-        data = {"V_LN_avg": 230, "Freq": 49.0, "PF_Total": 0.95,
+        data = {"V_LN_avg": 230, "Freq": 48.9, "PF_Total": 0.95,
                 "THDv_L1": 2, "THDv_L2": 2, "THDv_L3": 2, "I_unb": 2}
         result = check_limits(data)
 
         assert result["status"] == "ALERT"
-        assert any("Frequency" in alert["message"] for alert in result["alerts"])
+        assert any(alert["category"] == "frequency" for alert in result["alerts"])
 
     def test_check_limits_frequency_high(self):
         """Test check_limits detects high frequency."""
-        data = {"V_LN_avg": 230, "Freq": 51.0, "PF_Total": 0.95,
+        data = {"V_LN_avg": 230, "Freq": 51.1, "PF_Total": 0.95,
                 "THDv_L1": 2, "THDv_L2": 2, "THDv_L3": 2, "I_unb": 2}
         result = check_limits(data)
 
         assert result["status"] == "ALERT"
-        assert any("Frequency" in alert["message"] for alert in result["alerts"])
+        assert any(alert["category"] == "frequency" for alert in result["alerts"])
 
-    def test_check_limits_power_factor_low(self):
-        """Test check_limits detects low power factor."""
-        data = {"V_LN_avg": 230, "Freq": 50.0, "PF_Total": 0.85,
+    def test_check_limits_overload(self):
+        """Test check_limits detects overload when low voltage coincides with high current."""
+        data = {"V_LN_avg": 180, "I_avg": 50, "Freq": 50.0, "PF_Total": 0.95,
                 "THDv_L1": 2, "THDv_L2": 2, "THDv_L3": 2, "I_unb": 2}
         result = check_limits(data)
 
         assert result["status"] == "ALERT"
-        assert any("power factor" in alert["message"].lower() for alert in result["alerts"])
+        assert any(alert["category"] == "overload" for alert in result["alerts"])
 
     def test_check_limits_thdv_high(self):
         """Test check_limits detects high THD voltage."""
@@ -221,16 +221,16 @@ class TestCheckLimits:
         result = check_limits(data)
 
         assert result["status"] == "ALERT"
-        assert any("THDv" in alert["message"] for alert in result["alerts"])
+        assert any(alert["category"] == "harmonics" for alert in result["alerts"])
 
     def test_check_limits_current_unbalance_high(self):
-        """Test check_limits detects high current unbalance."""
-        data = {"V_LN_avg": 230, "Freq": 50.0, "PF_Total": 0.95,
-                "THDv_L1": 2, "THDv_L2": 2, "THDv_L3": 2, "I_unb": 15}
+        """Test check_limits detects phase voltage unbalance."""
+        data = {"V_LN1": 230, "V_LN2": 210, "V_LN3": 260, "V_LN_avg": 233.3, "Freq": 50.0,
+                "PF_Total": 0.95, "THDv_L1": 2, "THDv_L2": 2, "THDv_L3": 2, "I_unb": 15}
         result = check_limits(data)
 
         assert result["status"] == "ALERT"
-        assert any("unbalance" in alert["message"].lower() for alert in result["alerts"])
+        assert any(alert["category"] == "unbalance" for alert in result["alerts"])
 
     def test_check_limits_multiple_alerts(self):
         """Test check_limits returns multiple alerts."""
@@ -344,7 +344,7 @@ class TestDiscoverSerialPorts:
         with patch("main.glob.glob", return_value=["/dev/ttyUSB0"]):
             ports = discover_serial_ports()
             assert "/dev/ttyUSB0" in ports
-            assert "COM3" in ports  # Legacy default
+            assert "COM3" not in ports
 
 
 class TestHasLiveReading:
@@ -546,33 +546,37 @@ class TestAPIEndpoints:
         assert "total" in data
 
     def test_logging_status_endpoint(self, client):
-        """Test /api/v1/log/status endpoint."""
-        response = client.get("/api/v1/log/status")
+        """Test /api/v1/datalog/status endpoint."""
+        response = client.get("/api/v1/datalog/status")
         assert response.status_code == 200
         data = response.json()
         assert "is_logging" in data
         assert "file_size_kb" in data
 
     def test_start_logging_endpoint(self, client):
-        """Test /api/v1/log/start endpoint."""
-        response = client.post("/api/v1/log/start")
+        """Test /api/v1/datalog/start endpoint."""
+        response = client.post("/api/v1/datalog/start")
         assert response.status_code == 200
 
     def test_stop_logging_endpoint(self, client):
-        """Test /api/v1/log/stop endpoint."""
-        response = client.post("/api/v1/log/stop")
+        """Test /api/v1/datalog/stop endpoint."""
+        response = client.post("/api/v1/datalog/stop")
         assert response.status_code == 200
 
     def test_clear_log_endpoint(self, client):
-        """Test /api/v1/log/clear endpoint."""
-        response = client.delete("/api/v1/log/clear")
+        """Test /api/v1/datalog/clear endpoint."""
+        response = client.delete("/api/v1/datalog/clear")
         assert response.status_code == 200
 
     def test_ai_summary_endpoint(self, client, sample_data):
         """Test /api/v1/ai-summary endpoint."""
         with patch("main.cached_data", sample_data):
             with patch("main.generate_power_summary", new_callable=AsyncMock) as mock_ai:
-                mock_ai.return_value = "Test summary"
+                mock_ai.return_value = {
+                    "summary": "Test summary",
+                    "is_cached": False,
+                    "cache_key": "test_key",
+                }
                 response = client.post("/api/v1/ai-summary")
                 assert response.status_code == 200
                 data = response.json()
@@ -645,10 +649,31 @@ class TestLoggingEndpoints:
     """Tests for logging endpoints."""
 
     def test_download_log_not_found(self, client):
-        """Test /api/v1/log/download when file doesn't exist."""
+        """Test /api/v1/datalog/download when file doesn't exist."""
         with patch("main.os.path.exists", return_value=False):
-            response = client.get("/api/v1/log/download")
+            response = client.get("/api/v1/datalog/download")
             assert response.status_code == 404
+
+
+class TestRecentBugFixes:
+    """Regression tests for recently fixed endpoint bugs."""
+
+    @patch("main.SIMULATE_MODE", True)
+    def test_simulator_invalid_fault_returns_bad_request(self, client):
+        """Unknown simulator fault types should stay 400, not be wrapped as 500."""
+        response = client.post("/api/v1/simulator/inject", json={"type": "unknown_fault"})
+        assert response.status_code == 400
+        assert response.json()["detail"] == "Unknown fault type: unknown_fault"
+
+    def test_chat_invalid_json_does_not_raise_secondary_error(self, client):
+        """Invalid JSON should surface the parse failure, not an UnboundLocalError."""
+        response = client.post(
+            "/api/v1/chat",
+            data="{",
+            headers={"Content-Type": "application/json"},
+        )
+        assert response.status_code == 500
+        assert "body" not in response.json()["detail"].lower()
 
 
 class TestAPIErrorHandling:
@@ -710,15 +735,15 @@ class TestIntegration:
     def test_logging_flow(self, client):
         """Test complete logging flow."""
         # Start logging
-        response = client.post("/api/v1/log/start")
+        response = client.post("/api/v1/datalog/start")
         assert response.status_code == 200
 
         # Check status
-        response = client.get("/api/v1/log/status")
+        response = client.get("/api/v1/datalog/status")
         assert response.status_code == 200
 
         # Stop logging
-        response = client.post("/api/v1/log/stop")
+        response = client.post("/api/v1/datalog/stop")
         assert response.status_code == 200
 
 

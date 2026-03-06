@@ -167,9 +167,9 @@ class TestConvertValue:
 
     def test_convert_with_scale(self, scanner):
         """Test converting with scale factor."""
-        # Energy value with 0.001 scale
-        result = scanner.convert_value(1000000, 0.001, "kWh")
-        assert result == 1000.0
+        # Legacy 16-bit path should still apply the provided scale factor.
+        result = scanner.convert_value(1000, 0.001, "kWh")
+        assert result == 1.0
 
     def test_convert_negative_value(self, scanner):
         """Test converting negative value (two's complement)."""
@@ -584,17 +584,16 @@ class TestPM2230ClientWrapper:
 
     def test_client_read_all_parameters(self, mock_serial_client):
         """Test read_all_parameters returns flat dict."""
-        mock_scanner = mock_serial_client.return_value
-        mock_scanner.read_all_parameters.return_value = {
+        client = PM2230Client()
+        client._scanner.read_all_parameters = Mock(return_value={
             "timestamp": "2026-03-03T10:00:00",
             "status": "OK",
             "parameters": {
                 "V_LN1": {"value": 230.5},
                 "Freq": {"value": 50.0},
             }
-        }
+        })
 
-        client = PM2230Client()
         result = client.read_all_parameters()
 
         assert isinstance(result, dict)
@@ -604,17 +603,16 @@ class TestPM2230ClientWrapper:
 
     def test_client_read_all_parameters_handles_none(self, mock_serial_client):
         """Test read_all_parameters handles None values."""
-        mock_scanner = mock_serial_client.return_value
-        mock_scanner.read_all_parameters.return_value = {
+        client = PM2230Client()
+        client._scanner.read_all_parameters = Mock(return_value={
             "timestamp": "2026-03-03T10:00:00",
             "status": "OK",
             "parameters": {
                 "V_LN1": {"value": None},
                 "Freq": {"value": 50.0},
             }
-        }
+        })
 
-        client = PM2230Client()
         result = client.read_all_parameters()
 
         # None values should be converted to 0.0
@@ -623,10 +621,8 @@ class TestPM2230ClientWrapper:
 
     def test_client_read_all_parameters_empty_response(self, mock_serial_client):
         """Test read_all_parameters handles empty response."""
-        mock_scanner = mock_serial_client.return_value
-        mock_scanner.read_all_parameters.return_value = {}
-
         client = PM2230Client()
+        client._scanner.read_all_parameters = Mock(return_value={})
         result = client.read_all_parameters()
 
         assert result["status"] == "ERROR"

@@ -3,8 +3,8 @@ const getApiBaseUrl = () => {
   // Always use relative path in production (works with any domain including tunnels)
   if (process.env.NODE_ENV === 'production') return '/api/v1';
   if (typeof window !== 'undefined') {
-    // Use current hostname:port (works with tunnels and local network)
-    return `${window.location.origin}/api/v1`;
+    // Match the main dashboard behavior: frontend dev server on 3000, backend on 8003.
+    return `http://${window.location.hostname}:8003/api/v1`;
   }
   return 'http://localhost:8003/api/v1';
 };
@@ -26,7 +26,7 @@ async function fetchWithHandling<T>(url: string, options?: RequestInit): Promise
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
       throw new Error(
-        errorData.message || `HTTP error! status: ${response.status}`
+        errorData.detail || errorData.message || `HTTP error! status: ${response.status}`
       );
     }
 
@@ -197,7 +197,7 @@ export async function fetchPage4(): Promise<Page4Data> {
  * Fetch AI Summary
  */
 export async function fetchAiSummary(): Promise<AiSummaryResponse> {
-  return fetchWithHandling<AiSummaryResponse>(`${API_BASE_URL}/ai/summary`, {
+  return fetchWithHandling<AiSummaryResponse>(`${API_BASE_URL}/ai-summary`, {
     method: 'POST',
   });
 }
@@ -215,7 +215,7 @@ export async function fetchAiFaultSummary(): Promise<AiSummaryResponse> {
  * Fetch current logging status
  */
 export async function fetchLogStatus(): Promise<LogStatusResponse> {
-  return fetchWithHandling<LogStatusResponse>(`${API_BASE_URL}/log/status`);
+  return fetchWithHandling<LogStatusResponse>(`${API_BASE_URL}/datalog/status`);
 }
 
 /**
@@ -223,7 +223,7 @@ export async function fetchLogStatus(): Promise<LogStatusResponse> {
  */
 export async function startLogging(): Promise<{ success: boolean; message: string }> {
   return fetchWithHandling<{ success: boolean; message: string }>(
-    `${API_BASE_URL}/log/start`,
+    `${API_BASE_URL}/datalog/start`,
     {
       method: 'POST',
     }
@@ -235,7 +235,7 @@ export async function startLogging(): Promise<{ success: boolean; message: strin
  */
 export async function stopLogging(): Promise<{ success: boolean; message: string }> {
   return fetchWithHandling<{ success: boolean; message: string }>(
-    `${API_BASE_URL}/log/stop`,
+    `${API_BASE_URL}/datalog/stop`,
     {
       method: 'POST',
     }
@@ -249,14 +249,19 @@ export async function stopLogging(): Promise<{ success: boolean; message: string
  * @returns Blob URL for download
  */
 export async function downloadLog(format: string = 'csv', logType: string = 'normal'): Promise<string> {
-  const response = await fetch(`${API_BASE_URL}/log/download?format=${format}&type=${logType}`, {
+  const params = new URLSearchParams({ format });
+  if (logType !== 'normal') {
+    params.set('type', logType);
+  }
+
+  const response = await fetch(`${API_BASE_URL}/datalog/download?${params.toString()}`, {
     method: 'GET',
   });
 
   if (!response.ok) {
     const errorData = await response.json().catch(() => ({}));
     throw new Error(
-      errorData.message || `HTTP error! status: ${response.status}`
+      errorData.detail || errorData.message || `HTTP error! status: ${response.status}`
     );
   }
 
@@ -272,14 +277,17 @@ export async function downloadLog(format: string = 'csv', logType: string = 'nor
  */
 export async function triggerLogDownload(
   format: string = 'csv',
-  logType: string = 'normal',
+  logTypeOrFilename: string = 'normal',
   filename?: string
 ): Promise<void> {
-  const blobUrl = await downloadLog(format, logType);
+  const looksLikeFilename = filename === undefined && logTypeOrFilename.includes('.');
+  const resolvedLogType = looksLikeFilename ? 'normal' : logTypeOrFilename;
+  const resolvedFilename = looksLikeFilename ? logTypeOrFilename : filename;
+  const blobUrl = await downloadLog(format, resolvedLogType);
 
   const link = document.createElement('a');
   link.href = blobUrl;
-  link.download = filename || `power-${logType}-log-${new Date().toISOString().split('T')[0]}.${format}`;
+  link.download = resolvedFilename || `power-${resolvedLogType}-log-${new Date().toISOString().split('T')[0]}.${format}`;
   document.body.appendChild(link);
   link.click();
   document.body.removeChild(link);

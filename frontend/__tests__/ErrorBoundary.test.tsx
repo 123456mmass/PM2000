@@ -41,9 +41,7 @@ describe('ErrorBoundary', () => {
     );
 
     expect(screen.getByText('เกิดข้อผิดพลาด')).toBeInTheDocument();
-    expect(
-      screen.getByText(/เกิดข้อผิดพลาดที่ไม่คาดคิด กรุณาลองใหม่อีกครั้ง/i)
-    ).toBeInTheDocument();
+    expect(screen.getByText('Test error')).toBeInTheDocument();
   });
 
   it('should display error message', () => {
@@ -74,14 +72,15 @@ describe('ErrorBoundary', () => {
       </ErrorBoundary>
     );
 
-    const retryButton = screen.getByRole('button', { name: /ลองอีกครั้ง/i });
-    fireEvent.click(retryButton);
 
     rerender(
       <ErrorBoundary>
         <ThrowError throwError={false} />
       </ErrorBoundary>
     );
+
+    const retryButton = screen.getByRole('button', { name: /ลองอีกครั้ง/i });
+    fireEvent.click(retryButton);
 
     expect(screen.getByText('No error')).toBeInTheDocument();
   });

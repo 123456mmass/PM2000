@@ -7,8 +7,9 @@ const nextConfig: NextConfig = {
   images: {
     unoptimized: true,
   },
-  // In production: use './' so Electron can load assets from file://
-  // In dev: use '' (empty) so next/font and dev server work correctly
+  // Use relative asset paths in exported builds so the static site can be
+  // copied into backend/dist/frontend_web and served from the backend.
+  // In dev: use '' so next/font and dev server work correctly.
   assetPrefix: isProd ? './' : '',
   // allowedDevOrigins allows mobile devices on local network to connect
   // Note: this is a dev-only feature, no effect in production builds

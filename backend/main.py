@@ -712,10 +712,16 @@ def parse_allowed_origins() -> List[str]:
     Expected format: comma-separated list of origins
     Example: "http://localhost:3000,http://localhost:3002,https://example.com"
 
-    Returns list of origins, or ["*"] if empty (for backward compatibility).
+    Returns a deduplicated list of origins.
+    Falls back to wildcard when unset.
     """
-    # "null" is the origin sent by Electron when loading from file://
-    origins = ["*", "null", "file://"]
+    configured_origins = [
+        origin.strip()
+        for origin in ALLOWED_ORIGINS_ENV.split(",")
+        if origin.strip()
+    ]
+    origins = configured_origins if configured_origins else ["*"]
+    origins = _unique_order(origins)
     logger.info(f"Allowed origins configured: {origins}")
     return origins
 
@@ -2029,7 +2035,8 @@ async def ai_chat(request: Request):
     """
     from ai_analyzer import generate_chat_response
     global cached_data, fault_log_filename
-    
+
+    body = None
     try:
         body = await request.json()
         messages = body.get("messages", [])
@@ -2057,10 +2064,11 @@ async def ai_chat(request: Request):
         response_text = await generate_chat_response(messages, current_context, recent_faults)
         
         return {"response": response_text}
-        
+
     except Exception as e:
         logger.error(f"Error in ai_chat: {e}", exc_info=True)
-        logger.error(f"Request body: {body}")
+        if body is not None:
+            logger.error(f"Request body: {body}")
         raise HTTPException(status_code=500, detail=str(e))
 
 
@@ -2099,6 +2107,8 @@ async def inject_fault(request: Request):
             
         logger.info(f"Simulator Fault Updated: {fault_type} = {simulator_state[fault_type]}")
         return {"status": "success", "state": simulator_state}
+    except HTTPException:
+        raise
     except Exception as e:
         logger.error(f"Simulator injection error: {e}")
         raise HTTPException(status_code=500, detail=str(e))

@@ -150,8 +150,9 @@ python build.py
 
 สคริปต์จะ:
 1. ถามหา API Keys
-2. Build Next.js frontend
-3. Pack ทุกอย่างเป็น `backend-server.exe`
+2. Build `backend-server` สำหรับ API
+3. Export Next.js frontend
+4. Copy frontend ไปไว้ที่ `backend/dist/frontend_web`
 
 ---
 

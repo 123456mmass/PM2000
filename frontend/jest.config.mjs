@@ -1,6 +1,4 @@
-import type { JestConfigWithTsJest } from 'ts-jest';
-
-const config: JestConfigWithTsJest = {
+const config = {
   // The root of your source code, typically /src
   rootDir: '.',
 
@@ -33,7 +31,7 @@ const config: JestConfigWithTsJest = {
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node'],
 
   // Setup files
-  setupFilesAfterEnv: ['<rootDir>/__tests__/setup.ts'],
+  setupFilesAfterEnv: ['<rootDir>/__tests__/setup.tsx'],
 
   // Collect coverage
   collectCoverageFrom: [
@@ -54,7 +52,7 @@ const config: JestConfigWithTsJest = {
   },
 
   // Ignore node_modules
-  testPathIgnorePatterns: ['<rootDir>/node_modules/'],
+  testPathIgnorePatterns: ['<rootDir>/node_modules/', '<rootDir>/__tests__/setup.tsx'],
 
   // Coverage directory
   coverageDirectory: 'coverage',

@@ -984,8 +984,8 @@ FORMATTING: Use Markdown syntax (##, **, -, 1.) for formatting. DO NOT use HTML 
         if result["success"]:
             content = result["content"]
             
-            # Save to cache
-            save_to_cache(data_hash, content)
+            # Save under the same key we read above so cache hits work.
+            save_to_cache(cache_key, content)
             
             # Add parallel metadata to summary
             parallel_info = f"\n\n---\n*🤖 AI Analysis: {result['provider']} selected (score: {result.get('quality_score', 0):.1f}/100, latency: {result.get('latency', 0):.2f}s)*"

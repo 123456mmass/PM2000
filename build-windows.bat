@@ -11,7 +11,7 @@ for /f "tokens=5" %%a in ('netstat -aon ^| findstr :8003') do taskkill /f /pid %
 for /f "tokens=5" %%a in ('netstat -aon ^| findstr :3000') do taskkill /f /pid %%a >nul 2>&1
 
 :: 0. Setup Environment Files
-echo [0/4] Checking environment files...
+echo [0/3] Checking environment files...
 if not exist backend\.env (
     echo Creating backend\.env from example...
     copy backend\.env.example backend\.env
@@ -21,23 +21,34 @@ if not exist frontend\.env.local (
     copy frontend\.env.example frontend\.env.local
 )
 
-:: Always Prompt for API Key
+:: Always Prompt for AI Keys
 echo.
 echo ==============================================
-echo  DashScope AI API Key Configuration
+echo  AI API Key Configuration
 echo  (Leave blank to keep existing key)
 echo ==============================================
-set /p api_key="Please enter your DashScope API Key: "
-if not "!api_key!"=="" (
-    :: Extract the current key and replace it
-    powershell -Command "$content = Get-Content backend\.env; $newContent = $content -replace 'DASHSCOPE_API_KEY=.*', ('DASHSCOPE_API_KEY=' + '!api_key!'); Set-Content backend\.env $newContent"
-    echo [OK] API Key updated in backend\.env
+set "api_key="
+set /p api_key="Please enter your Mistral API Key: "
+set "trimmed_api_key=!api_key: =!"
+if defined api_key if not "!trimmed_api_key!"=="" (
+    powershell -Command "$content = Get-Content backend\.env; $newContent = $content -replace 'MISTRAL_API_KEY=.*', ('MISTRAL_API_KEY=' + '!api_key!'); Set-Content backend\.env $newContent"
+    echo [OK] MISTRAL_API_KEY updated in backend\.env
 ) else (
-    echo [INFO] Keeping existing API Key.
+    echo [INFO] Keeping existing MISTRAL_API_KEY.
+)
+
+set "api_key="
+set /p api_key="Please enter your DashScope API Key: "
+set "trimmed_api_key=!api_key: =!"
+if defined api_key if not "!trimmed_api_key!"=="" (
+    powershell -Command "$content = Get-Content backend\.env; $newContent = $content -replace 'DASHSCOPE_API_KEY=.*', ('DASHSCOPE_API_KEY=' + '!api_key!'); Set-Content backend\.env $newContent"
+    echo [OK] DASHSCOPE_API_KEY updated in backend\.env
+) else (
+    echo [INFO] Keeping existing DASHSCOPE_API_KEY.
 )
 
 :: 1. Setup Backend
-echo [1/4] Setting up Python Backend...
+echo [1/3] Setting up Python Backend...
 cd backend
 if not exist .venv (
     echo Creating virtual environment...
@@ -61,27 +72,18 @@ cd ..
 
 :: 2. Setup Frontend
 echo.
-echo [2/4] Setting up Frontend Dependencies...
+echo [2/3] Setting up Frontend Dependencies...
 cd frontend
 echo Installing Node.js packages (this may take a while)...
 call npm install --legacy-peer-deps
 
 :: 3. Build Static Frontend
 echo.
-echo [3/4] Building Frontend (Next.js Export)...
+echo [3/3] Building Frontend (Next.js Export)...
 call npm run build
-
-:: 4. Package Electron
-echo.
-echo [4/4] Packaging Desktop Application (EXE)...
-echo Clearing electron-builder cache to avoid symlink errors...
-if exist "%LOCALAPPDATA%\electron-builder\Cache\winCodeSign" (
-    rmdir /s /q "%LOCALAPPDATA%\electron-builder\Cache\winCodeSign" >nul 2>&1
-)
-call npm run electron-dist
 cd ..
 
-:: 5. Copy frontend into backend/dist for Web Mode (AFTER frontend is built!)
+:: 4. Copy frontend into backend/dist for Web Mode (AFTER frontend is built!)
 echo.
 echo [+] Preparing Web Mode package...
 if exist backend\dist\frontend_web (rmdir /s /q backend\dist\frontend_web)
@@ -92,7 +94,6 @@ echo.
 echo ======================================================
 echo BUILD COMPLETED!
 echo.
-echo   Electron App : frontend\dist\   (.exe)
 echo   Web Package  : backend\dist\    (ZIP to share)
 echo ======================================================
 pause

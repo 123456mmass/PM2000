@@ -10,21 +10,37 @@ echo "[*] Cleaning up ports 8003 and 3000..."
 sudo fuser -k 8003/tcp 3000/tcp || true
 
 # 0. Setup Environment Files
-echo "[0/4] Checking environment files..."
+echo "[0/3] Checking environment files..."
 if [ ! -f backend/.env ]; then
     echo "Creating backend/.env from example..."
     cp backend/.env.example backend/.env
 fi
 
-# Prompt for API Key if not set
-if grep -q "DASHSCOPE_API_KEY=sk-your-api-key-here" backend/.env || ! grep -q "DASHSCOPE_API_KEY=" backend/.env; then
-    echo ""
-    echo "⚠️  DashScope AI API Key not found!"
-    read -p "Please enter your DashScope API Key: " api_key
-    if [ ! -z "$api_key" ]; then
-        sed -i "s/DASHSCOPE_API_KEY=.*/DASHSCOPE_API_KEY=$api_key/" backend/.env
-        echo "✅ API Key updated in backend/.env"
-    fi
+# Prompt for AI keys
+echo ""
+echo "=============================================="
+echo " AI API Key Configuration"
+echo " (Leave blank to keep existing key)"
+echo "=============================================="
+
+api_key=""
+IFS= read -r -p "Please enter your Mistral API Key: " api_key
+trimmed_api_key="$(printf '%s' "$api_key" | tr -d '[:space:]')"
+if [ -n "$trimmed_api_key" ]; then
+    sed -i "s/MISTRAL_API_KEY=.*/MISTRAL_API_KEY=$api_key/" backend/.env
+    echo "[OK] MISTRAL_API_KEY updated in backend/.env"
+else
+    echo "[INFO] Keeping existing MISTRAL_API_KEY."
+fi
+
+api_key=""
+IFS= read -r -p "Please enter your DashScope API Key: " api_key
+trimmed_api_key="$(printf '%s' "$api_key" | tr -d '[:space:]')"
+if [ -n "$trimmed_api_key" ]; then
+    sed -i "s/DASHSCOPE_API_KEY=.*/DASHSCOPE_API_KEY=$api_key/" backend/.env
+    echo "[OK] DASHSCOPE_API_KEY updated in backend/.env"
+else
+    echo "[INFO] Keeping existing DASHSCOPE_API_KEY."
 fi
 
 if [ ! -f frontend/.env.local ]; then
@@ -33,7 +49,7 @@ if [ ! -f frontend/.env.local ]; then
 fi
 
 # 1. Setup Backend & Build Sidecar
-echo "[1/4] Setting up Python Backend..."
+echo "[1/3] Setting up Python Backend..."
 cd backend
 if [ ! -d .venv ]; then
     echo "Creating virtual environment..."
@@ -52,23 +68,18 @@ cd ..
 
 # 2. Setup Frontend
 echo ""
-echo "[2/4] Setting up Frontend Dependencies..."
+echo "[2/3] Setting up Frontend Dependencies..."
 cd frontend
 echo "Installing Node.js packages..."
 npm install --legacy-peer-deps
 
 # 3. Build Static Frontend
 echo ""
-echo "[3/4] Building Frontend (Next.js Export)..."
+echo "[3/3] Building Frontend (Next.js Export)..."
 npm run build
-
-# 4. Package Electron App
-echo ""
-echo "[4/4] Packaging Desktop Application..."
-npm run electron-dist
 cd ..
 
-# 5. Copy frontend into backend/dist for Web Mode (AFTER frontend is built!)
+# 4. Copy frontend into backend/dist for Web Mode (AFTER frontend is built!)
 echo ""
 echo "[+] Preparing Web Mode package..."
 rm -rf backend/dist/frontend_web
@@ -82,7 +93,8 @@ echo ""
 echo "======================================================"
 echo "BUILD COMPLETED!"
 echo ""
-echo "📱 Electron App : frontend/dist/PM2230*.AppImage"
-echo "🌐 Web Package  : backend/dist/  ← ZIP this to share"
+echo "Web Package  : backend/dist/  (ZIP to share)"
 echo "======================================================"
 read -p "Press [Enter] to exit..."
+
+

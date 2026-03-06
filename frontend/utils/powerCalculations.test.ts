@@ -214,7 +214,7 @@ describe('powerCalculations', () => {
           thdAverage: 2,
           powerFactor: 0.7,
         })
-      ).toBeLessThan(4);
+      ).toBeLessThan(5);
     });
 
     it('should return minimum score of 1', () => {

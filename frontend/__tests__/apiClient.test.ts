@@ -227,7 +227,8 @@ describe('API Client', () => {
 
       const result = await fetchAiSummary();
 
-      expect(mockFetch).toHaveBeenCalledWith(`${API_BASE_URL}/ai/summary`, {
+      expect(mockFetch).toHaveBeenCalledWith(`${API_BASE_URL}/ai-summary`, {
+        method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
@@ -246,7 +247,7 @@ describe('API Client', () => {
 
       const data = await fetchLogStatus();
       expect(data).toEqual(mockStatusData);
-      expect(global.fetch).toHaveBeenCalledWith(`${API_BASE_URL}/log/status`, expect.any(Object));
+      expect(global.fetch).toHaveBeenCalledWith(`${API_BASE_URL}/datalog/status`, expect.any(Object));
     });
   });
 
@@ -261,7 +262,7 @@ describe('API Client', () => {
 
       const result = await startLogging();
 
-      expect(mockFetch).toHaveBeenCalledWith(`${API_BASE_URL}/log/start`, {
+      expect(mockFetch).toHaveBeenCalledWith(`${API_BASE_URL}/datalog/start`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -282,7 +283,7 @@ describe('API Client', () => {
 
       const result = await stopLogging();
 
-      expect(mockFetch).toHaveBeenCalledWith(`${API_BASE_URL}/log/stop`, {
+      expect(mockFetch).toHaveBeenCalledWith(`${API_BASE_URL}/datalog/stop`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -304,7 +305,7 @@ describe('API Client', () => {
       const result = await downloadLog('csv');
 
       expect(mockFetch).toHaveBeenCalledWith(
-        `${API_BASE_URL}/log/download?format=csv`,
+        `${API_BASE_URL}/datalog/download?format=csv`,
         {
           method: 'GET',
         }
@@ -325,6 +326,7 @@ describe('API Client', () => {
 
   describe('triggerLogDownload', () => {
     it('should create and click download link', async () => {
+      jest.useFakeTimers();
       const mockBlob = new Blob(['test data'], { type: 'text/csv' });
       const mockUrl = 'blob:test-url';
 
@@ -339,29 +341,35 @@ describe('API Client', () => {
         .mockReturnValue(mockUrl);
       const revokeObjectURLSpy = jest.spyOn(URL, 'revokeObjectURL');
 
-      // Mock document.createElement
-      const mockLink = {
-        href: '',
-        download: '',
-        click: jest.fn(),
-      };
+      // Mock document.createElement with a real anchor element so jsdom accepts appendChild.
+      const originalCreateElement = document.createElement.bind(document);
+      const mockLink = originalCreateElement('a');
+      const clickSpy = jest.spyOn(mockLink, 'click').mockImplementation(() => { });
       const createElementSpy = jest
         .spyOn(document, 'createElement')
-        .mockReturnValue(mockLink as unknown as HTMLAnchorElement);
+        .mockImplementation(((tagName: string) => {
+          if (tagName === 'a') {
+            return mockLink;
+          }
+          return originalCreateElement(tagName);
+        }) as typeof document.createElement);
 
       await triggerLogDownload('csv', 'test-file.csv');
+      jest.runAllTimers();
 
       expect(createObjectURLSpy).toHaveBeenCalledWith(mockBlob);
       expect(createElementSpy).toHaveBeenCalledWith('a');
       expect(mockLink.href).toBe(mockUrl);
       expect(mockLink.download).toBe('test-file.csv');
-      expect(mockLink.click).toHaveBeenCalled();
+      expect(clickSpy).toHaveBeenCalled();
       expect(revokeObjectURLSpy).toHaveBeenCalledWith(mockUrl);
 
       // Cleanup spies
       createObjectURLSpy.mockRestore();
       revokeObjectURLSpy.mockRestore();
       createElementSpy.mockRestore();
+      clickSpy.mockRestore();
+      jest.useRealTimers();
     });
   });
 

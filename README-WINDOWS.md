@@ -7,6 +7,7 @@
 ```
 📁 PM2230-Dashboard/
   ├── backend-server.exe   ← ตัวโปรแกรมหลัก
+  ├── frontend_web/        ← เว็บ dashboard แบบ static
   └── start-web.bat        ← ไฟล์เริ่มต้นโปรแกรม
 ```
 
