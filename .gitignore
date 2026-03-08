@@ -25,3 +25,7 @@ backend/.env.local
 
 *.csv
 *.json
+*.zip
+*.pkl
+backup.ps1
+__codex_root_test.tmp
