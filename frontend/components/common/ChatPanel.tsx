@@ -8,6 +8,9 @@ interface Message {
     content: string;
 }
 
+const CHAT_HISTORY_LIMIT = 8;
+const trimMessagesForRequest = (items: Message[]) => items.slice(-CHAT_HISTORY_LIMIT);
+
 export const ChatPanel = () => {
     const [isOpen, setIsOpen] = useState(false);
     const [messages, setMessages] = useState<Message[]>([
@@ -59,41 +62,95 @@ export const ChatPanel = () => {
     const messagesRef = useRef(messages);
     messagesRef.current = messages;
 
+    const appendAssistantChunk = (chunk: string) => {
+        setMessages(prev => {
+            const next = [...prev];
+            const last = next[next.length - 1];
+
+            if (!last || last.role !== 'assistant') {
+                next.push({ role: 'assistant', content: chunk });
+                return next;
+            }
+
+            next[next.length - 1] = {
+                ...last,
+                content: `${last.content}${chunk}`,
+            };
+            return next;
+        });
+    };
+
+    const finalizeAssistantMessage = () => {
+        setMessages(prev => {
+            const next = [...prev];
+            const last = next[next.length - 1];
+            if (last?.role === 'assistant' && !last.content.trim()) {
+                next[next.length - 1] = {
+                    role: 'assistant',
+                    content: 'ขออภัยครับ ไม่ได้รับคำตอบจาก AI ในครั้งนี้',
+                };
+            }
+            return next;
+        });
+    };
+
+    const setAssistantError = (message: string) => {
+        setMessages(prev => {
+            const next = [...prev];
+            const last = next[next.length - 1];
+
+            if (last?.role === 'assistant' && !last.content.trim()) {
+                next[next.length - 1] = { role: 'assistant', content: message };
+                return next;
+            }
+
+            next.push({ role: 'assistant', content: message });
+            return next;
+        });
+    };
+
+    const streamAssistantReply = async (baseMessages: Message[]) => {
+        const pendingMessages: Message[] = [...baseMessages, { role: 'assistant', content: '' }];
+        messagesRef.current = pendingMessages;
+        setMessages(pendingMessages);
+        setIsLoading(true);
+
+        try {
+            await apiClient.postChatStream(trimMessagesForRequest(baseMessages), {
+                onChunk: appendAssistantChunk,
+                onDone: finalizeAssistantMessage,
+            });
+        } catch (err) {
+            console.error('Chat stream error:', err);
+            setAssistantError('ขออภัยครับ เกิดข้อผิดพลาดในการเชื่อมต่อระบบวิเคราะห์ AI');
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
     // Listen for external events to open chat with context
     useEffect(() => {
         const handleOpenChat = async (event: CustomEvent) => {
             const { context, source } = event.detail || {};
-            
+
             // Open chat
             setIsOpen(true);
-            
+
             // Add context message from user
             if (context) {
-                const contextMsg: Message = { 
-                    role: 'user', 
+                const contextMsg: Message = {
+                    role: 'user',
                     content: `[จากผลวิเคราะห์${source || 'AI'}]\n${context}\n\nขอสอบถามเพิ่มเติมเกี่ยวกับผลวิเคราะห์นี้ครับ`
                 };
                 const currentMessages = messagesRef.current;
                 const newMessages = [...currentMessages, contextMsg];
-                setMessages(newMessages);
-                
-                // Auto send to AI
-                setIsLoading(true);
-                try {
-                    const response = await apiClient.postChat(newMessages);
-                    setMessages(prev => [...prev, { role: 'assistant', content: response.response }]);
-                } catch (err) {
-                    console.error('Chat error:', err);
-                    setMessages(prev => [...prev, { role: 'assistant', content: 'ขออภัยครับ เกิดข้อผิดพลาดในการเชื่อมต่อระบบวิเคราะห์ AI' }]);
-                } finally {
-                    setIsLoading(false);
-                }
+                await streamAssistantReply(newMessages);
             }
         };
 
         // @ts-ignore - CustomEvent listener
         window.addEventListener('open-chat-with-context', handleOpenChat);
-        
+
         // @ts-ignore
         return () => window.removeEventListener('open-chat-with-context', handleOpenChat);
     }, []);  // Empty dependency array - use ref instead
@@ -103,19 +160,8 @@ export const ChatPanel = () => {
 
         const userMsg: Message = { role: 'user', content: input };
         const newMessages = [...messages, userMsg];
-        setMessages(newMessages);
         setInput('');
-        setIsLoading(true);
-
-        try {
-            const response = await apiClient.postChat(newMessages);
-            setMessages(prev => [...prev, { role: 'assistant', content: response.response }]);
-        } catch (err) {
-            console.error('Chat error:', err);
-            setMessages(prev => [...prev, { role: 'assistant', content: 'ขออภัยครับ เกิดข้อผิดพลาดในการเชื่อมต่อระบบวิเคราะห์ AI' }]);
-        } finally {
-            setIsLoading(false);
-        }
+        await streamAssistantReply(newMessages);
     };
 
     const handleClearChat = () => {
@@ -127,6 +173,13 @@ export const ChatPanel = () => {
             sessionStorage.removeItem('pm2000_chat_messages');
         }
     };
+
+    const lastMessage = messages[messages.length - 1];
+    const showTypingIndicator =
+        isLoading &&
+        (!lastMessage ||
+            lastMessage.role !== 'assistant' ||
+            lastMessage.content.trim().length === 0);
 
     return (
         <div className="fixed bottom-6 left-6 z-50 flex flex-col items-start transition-all duration-300">
@@ -162,21 +215,26 @@ export const ChatPanel = () => {
 
                     {/* Messages Container */}
                     <div ref={scrollRef} className="flex-1 overflow-y-auto p-4 space-y-4 scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent">
-                        {messages.map((m, i) => (
-                            <div key={i} className={`flex ${m.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-                                <div className={`max-w-[85%] rounded-2xl px-3 py-2 text-sm ${m.role === 'user'
-                                    ? 'bg-indigo-600 text-white rounded-tr-none'
-                                    : 'bg-white/10 text-slate-100 rounded-tl-none border border-white/5'
-                                    }`}>
-                                    <div className="markdown-content prose prose-invert prose-sm max-w-none text-slate-100">
-                                        <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                                            {m.content}
-                                        </ReactMarkdown>
+                        {messages.map((m, i) => {
+                            // Do not render empty AI messages (prevents orphaned "..." literal bubbles)
+                            if (m.role === 'assistant' && !m.content.trim()) return null;
+
+                            return (
+                                <div key={i} className={`flex ${m.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+                                    <div className={`max-w-[85%] rounded-2xl px-3 py-2 text-sm ${m.role === 'user'
+                                        ? 'bg-indigo-600 text-white rounded-tr-none'
+                                        : 'bg-white/10 text-slate-100 rounded-tl-none border border-white/5'
+                                        }`}>
+                                        <div className="markdown-content prose prose-invert prose-sm max-w-none text-slate-100">
+                                            <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                                                {m.content}
+                                            </ReactMarkdown>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                        ))}
-                        {isLoading && (
+                            );
+                        })}
+                        {showTypingIndicator && (
                             <div className="flex justify-start">
                                 <div className="bg-white/10 rounded-2xl px-4 py-3 rounded-tl-none border border-white/5 flex gap-1 items-center">
                                     <div className="w-1 h-1 bg-white/40 rounded-full animate-bounce [animation-delay:-0.3s]" />

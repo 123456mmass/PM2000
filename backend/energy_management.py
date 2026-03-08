@@ -693,6 +693,13 @@ class EnergyManagement:
             "tips": tips
         }
     
+    async def close(self) -> None:
+        """Release the underlying HTTP client. Called by the lifespan shutdown hook."""
+        try:
+            await self.client.aclose()
+        except Exception as e:
+            logger.warning(f"EnergyManagement.close(): {e}")
+
     def update_config(self, new_config: Dict) -> Dict:
         """
         Update configuration

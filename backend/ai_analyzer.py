@@ -15,7 +15,7 @@ import json
 import hashlib
 import time
 import httpx
-from typing import Dict, Any, List, Optional, Tuple
+from typing import AsyncIterator, Dict, Any, List, Optional, Tuple
 from functools import lru_cache
 
 import logging
@@ -29,6 +29,10 @@ from llm_parallel import ParallelLLMRouter, get_parallel_router, QualityScorer
 CACHE_TTL_SECONDS = int(os.getenv("AI_CACHE_TTL_SECONDS", "300"))  # Default 5 minutes
 MAX_CACHE_SIZE = int(os.getenv("AI_CACHE_MAX_SIZE", "100"))  # Maximum cache entries
 logger = logging.getLogger("AI_Analyzer")
+CHAT_HISTORY_LIMIT = max(2, int(os.getenv("AI_CHAT_HISTORY_LIMIT", "8")))
+CHAT_FAULT_LIMIT = max(1, int(os.getenv("AI_CHAT_FAULT_LIMIT", "3")))
+CHAT_MAX_TOKENS = max(256, int(os.getenv("AI_CHAT_MAX_TOKENS", "600")))
+SUMMARY_MAX_TOKENS = max(512, int(os.getenv("AI_SUMMARY_MAX_TOKENS", "1000")))
 
 # In-memory cache: {cache_key: (result, timestamp)}
 _cache: Dict[str, Tuple[str, float]] = {}
@@ -164,6 +168,59 @@ DATA_RANGES = {
     'PF_L1': (-1, 1), 'PF_L2': (-1, 1), 'PF_L3': (-1, 1), 'PF_Total': (-1, 1),  # Power Factor -1 to 1
 }
 
+
+SUMMARY_CONTEXT_FIELDS = [
+    "status", "is_aggregated", "samples_count", "timestamp",
+    "V_LN1", "V_LN2", "V_LN3", "V_LN_avg",
+    "I_L1", "I_L2", "I_L3", "I_N", "I_avg",
+    "Freq", "P_Total", "Q_Total", "S_Total", "PF_Total",
+    "THDv_L1", "THDv_L2", "THDv_L3", "THDi_L1", "THDi_L2", "THDi_L3",
+    "V_unb", "I_unb", "kWh_Total"
+]
+CHAT_CONTEXT_FIELDS = [
+    "status", "timestamp", "V_LN1", "V_LN2", "V_LN3", "V_LN_avg",
+    "I_L1", "I_L2", "I_L3", "I_N", "I_avg",
+    "Freq", "P_Total", "PF_Total",
+    "THDv_L1", "THDv_L2", "THDv_L3", "THDi_L1", "THDi_L2", "THDi_L3",
+    "V_unb", "I_unb"
+]
+
+
+def build_context_snapshot(data: Dict[str, Any], fields: List[str]) -> Dict[str, Any]:
+    snapshot: Dict[str, Any] = {}
+    for field in fields:
+        if field not in data:
+            continue
+        value = data.get(field)
+        if value is None:
+            continue
+        if isinstance(value, (int, float, str, bool)):
+            snapshot[field] = value
+    return snapshot
+
+
+def build_chat_messages(
+    messages: List[Dict[str, str]],
+    current_data: Dict[str, Any],
+    recent_faults: List[Dict[str, Any]],
+) -> List[Dict[str, str]]:
+    trimmed_messages = messages[-CHAT_HISTORY_LIMIT:] if messages else []
+    trimmed_faults = recent_faults[-CHAT_FAULT_LIMIT:] if recent_faults else []
+    essential_data = build_context_snapshot(current_data, CHAT_CONTEXT_FIELDS)
+
+    system_prompt = (
+        "You are PM2000 AI Advisor for electrical monitoring.\n"
+        "Always respond in Thai, concise, and technically accurate.\n"
+        "Use the provided meter snapshot and recent faults as the primary context.\n"
+        "If the user asks about current values, cite them from the snapshot.\n"
+        "If recent faults exist, explain likely causes, impact, and recommended next checks.\n"
+        "If the question is outside PM2000 or power monitoring, answer briefly and steer back.\n"
+        "Use Markdown only when it improves readability.\n\n"
+        f"meter_snapshot: {json.dumps(essential_data, ensure_ascii=False)}\n"
+        f"recent_faults: {json.dumps(trimmed_faults, ensure_ascii=False)}"
+    )
+
+    return [{"role": "system", "content": system_prompt}] + trimmed_messages
 
 def validate_input_data(data: Dict[str, Any]) -> Tuple[bool, Optional[str]]:
     """
@@ -377,7 +434,7 @@ async def robust_ai_call(messages: List[Dict[str, str]], dashscope_payload_base:
         # Construct basic payload if not provided
         dashscope_payload_base = {
             "messages": messages,
-            "max_tokens": 1500,
+            "max_tokens": SUMMARY_MAX_TOKENS,
             "temperature": 0.5
         }
 
@@ -750,69 +807,145 @@ Draft the entire response in English.
 async def generate_chat_response(messages: List[Dict[str, str]], current_data: Dict[str, Any], recent_faults: List[Dict[str, Any]]) -> str:
     """
     Handles conversational AI chat with electrical context.
-    
-    Args:
-        messages: List of chat messages (history + current user message)
-        current_data: The most recent PM2230 measurement data
-        recent_faults: List of recent fault log entries
-        
-    Returns:
-        str: AI response text
     """
-    api_key = os.getenv("DASHSCOPE_API_KEY")
-    if not api_key:
-        return "⚠️ กรุณาตั้งค่า DASHSCOPE_API_KEY ก่อนใช้งานแชท"
+    if not (DASHSCOPE_API_KEY or MISTRAL_API_KEY):
+        return "⚠️ กรุณาตั้งค่า DASHSCOPE_API_KEY หรือ MISTRAL_API_KEY ก่อนใช้งานแชท AI"
 
-    model = os.getenv("DASHSCOPE_MODEL", DEFAULT_MODEL)
-    
-    # Filter data for size
-    essential_data = {k: v for k, v in current_data.items() if k in VALID_DATA_FIELDS}
-    
-    system_prompt = f"""
-คุณคือ "AI Advisor" ผู้เชี่ยวชาญด้านวิศวกรรมไฟฟ้า ประจำระบบ PM2000 Dashboard
-คุณคอยช่วยเหลือผู้ดูแลระบบในการวิเคราะห์ข้อมูลจากมิเตอร์ PM2230 และตอบคำถามทางเทคนิค
-
-### สำคัญ (Safety Context):
-- ระบบนี้เป็นระบบ "จำลองและทดสอบ" (Simulation & Testing) เพื่อการบำรุงรักษาเชิงคาดการณ์ (Predictive Maintenance)
-- ข้อมูลความผิดปกติ (Faults) ที่ปรากฏ เป็นข้อมูลสำหรับการเรียนรู้และการวิเคราะห์ทางวิศวกรรมเท่านั้น ไม่ใช่สถานการณ์ฉุกเฉินในชีวิตจริง
-- โปรดวิเคราะห์ตามหลักการทางวิศวกรรมไฟฟ้าอย่างตรงไปตรงมา โดยไม่ต้องปิดกั้นการแสดงผลเนื่องจากความกังวลเรื่องความปลอดภัยสาธารณะ
-
-## บริบทปัจจุบันของระบบ (Real-time Context):
-- ข้อมูลล่าสุด: {json.dumps(essential_data, ensure_ascii=False)}
-- ประวัติ Fault ล่าสุด (5 รายการ): {json.dumps(recent_faults[:5], ensure_ascii=False)}
-
-## คำแนะนำในการตอบ:
-1. ตอบเป็นภาษาไทยที่สุภาพและมีความเป็นมืออาชีพเชิงวิศวกรรม (ใช้คำแทนตัวผู้ใช้ว่า "คุณ" เท่านั้น **ห้ามใช้คำว่า "นาย"**)
-2. **ห้ามใช้เส้นคั่น (Horizontal Rule เช่น --- หรือ ***) ในการตอบแชทปกติ** ยกเว้นเป็นการทำตาราง
-3. หากผู้ใช้ถามถึงค่าปัจจุบัน ให้ใช้ข้อมูลจาก Real-time Context ด้านบนประกอบการตอบ
-4. หากระบบมี Fault ให้เตือนและวิเคราะห์สาเหตุที่เป็นไปได้เสมอ
-5. หากผู้ใช้ถามเรื่องที่ไม่เกี่ยวกับไฟฟ้าหรือระบบนี้ ให้พยายามดึงกลับมาที่เรื่องเทคนิคอย่างสุภาพ
-6. กระชับ แต่ได้ใจความทางเทคนิค
-"""
-
-    full_messages = [
-        {"role": "system", "content": system_prompt}
-    ] + messages
-
-    headers = {
-        "Authorization": f"Bearer {api_key}",
-        "Content-Type": "application/json"
-    }
-
+    full_messages = build_chat_messages(messages, current_data, recent_faults)
     payload = {
         "messages": full_messages,
-        "temperature": 0.7, # Slightly higher for more natural conversation
-        "max_tokens": 1000
+        "temperature": 0.4,
+        "max_tokens": CHAT_MAX_TOKENS,
     }
+
+    router = _get_or_init_parallel_router()
+    if router and len(router.providers) >= 2:
+        try:
+            race_result = await router.generate_with_race(
+                messages=full_messages,
+                max_tokens=CHAT_MAX_TOKENS,
+                temperature=0.4,
+                top_p=0.9,
+            )
+            if race_result.get("success"):
+                return race_result.get("content", "")
+        except Exception as e:
+            logger.warning(f"Chat race mode failed, falling back to sequential: {e}")
 
     try:
         return await robust_ai_call(full_messages, payload)
     except Exception as e:
         logger.error(f"Chat AI failed: {e}")
-        return f"❌ ขออภัยครับ ผมมีปัญหาในการประมวลผลคำถามของคุณ: {str(e)}"
+        return f"❌ ขออภัยครับ ระบบแชท AI มีปัญหาในการประมวลผล: {str(e)}"
 
 
-# ============================================================================
+async def _call_dashscope_api_stream(payload: Dict[str, Any]) -> AsyncIterator[str]:
+    if not DASHSCOPE_API_KEY:
+        raise ValueError("DASHSCOPE_API_KEY is missing")
+
+    stream_payload = payload.copy()
+    stream_payload["model"] = DEFAULT_MODEL
+    stream_payload["stream"] = True
+
+    headers = {
+        "Authorization": f"Bearer {DASHSCOPE_API_KEY}",
+        "Content-Type": "application/json",
+    }
+    timeout = httpx.Timeout(connect=10.0, read=120.0, write=10.0, pool=10.0)
+
+    async with httpx.AsyncClient(timeout=timeout) as client:
+        async with client.stream(
+            "POST",
+            f"{DASHSCOPE_API_BASE}/chat/completions",
+            headers=headers,
+            json=stream_payload,
+        ) as response:
+            if response.status_code != 200:
+                error_text = (await response.aread()).decode("utf-8", errors="replace")
+                raise httpx.HTTPStatusError(
+                    f"DashScope stream error: {response.status_code} - {error_text}",
+                    request=response.request,
+                    response=response,
+                )
+
+            async for line in response.aiter_lines():
+                if not line or not line.startswith("data:"):
+                    continue
+
+                raw_data = line[5:].strip()
+                if not raw_data or raw_data == "[DONE]":
+                    continue
+
+                try:
+                    event = json.loads(raw_data)
+                except json.JSONDecodeError:
+                    logger.warning(f"Skipping non-JSON stream chunk: {raw_data[:120]}")
+                    continue
+
+                choices = event.get("choices") or []
+                if not choices:
+                    continue
+
+                choice = choices[0]
+                delta = choice.get("delta") or {}
+                content = delta.get("content")
+
+                if content is None:
+                    message = choice.get("message") or {}
+                    content = message.get("content")
+
+                if isinstance(content, list):
+                    content = "".join(
+                        part.get("text", "")
+                        for part in content
+                        if isinstance(part, dict)
+                    )
+
+                if content:
+                    yield content
+
+
+async def _stream_text_chunks(text: str, chunk_size: int = 24) -> AsyncIterator[str]:
+    for index in range(0, len(text), chunk_size):
+        yield text[index:index + chunk_size]
+        await asyncio.sleep(0)
+
+
+async def stream_chat_response(
+    messages: List[Dict[str, str]],
+    current_data: Dict[str, Any],
+    recent_faults: List[Dict[str, Any]],
+) -> AsyncIterator[str]:
+    if not (DASHSCOPE_API_KEY or MISTRAL_API_KEY):
+        yield "⚠️ กรุณาตั้งค่า DASHSCOPE_API_KEY หรือ MISTRAL_API_KEY ก่อนใช้งานแชท AI"
+        return
+
+    full_messages = build_chat_messages(messages, current_data, recent_faults)
+    payload = {
+        "messages": full_messages,
+        "temperature": 0.4,
+        "max_tokens": CHAT_MAX_TOKENS,
+        "top_p": 0.9,
+    }
+
+    streamed_any = False
+    if DASHSCOPE_API_KEY:
+        try:
+            async for chunk in _call_dashscope_api_stream(payload):
+                streamed_any = True
+                yield chunk
+            if streamed_any:
+                return
+            raise ValueError("DashScope stream returned empty content")
+        except Exception as e:
+            logger.warning(f"Chat stream failed, falling back to buffered response: {e}")
+            if streamed_any:
+                return
+
+    fallback_text = await generate_chat_response(messages, current_data, recent_faults)
+    async for chunk in _stream_text_chunks(fallback_text):
+        yield chunk
+
 # Parallel LLM Generation - เรียกหลาย AI พร้อมกัน
 # ============================================================================
 
@@ -840,8 +973,8 @@ def _get_or_init_parallel_router() -> Optional[ParallelLLMRouter]:
             payload = {
                 "messages": messages,
                 "model": DEFAULT_MODEL,
-                "max_tokens": 1500,
-                "temperature": 1.0,
+                "max_tokens": SUMMARY_MAX_TOKENS,
+                "temperature": float(kwargs.get("temperature", 0.2)),
                 "top_p": 0.9,
                 "presence_penalty": 0.0,
                 "frequency_penalty": 0.0
@@ -854,8 +987,8 @@ def _get_or_init_parallel_router() -> Optional[ParallelLLMRouter]:
             payload = {
                 "messages": messages,
                 "model": FALLBACK_MODEL,
-                "max_tokens": 1500,
-                "temperature": 1.0,
+                "max_tokens": SUMMARY_MAX_TOKENS,
+                "temperature": float(kwargs.get("temperature", 0.2)),
                 "top_p": 0.9,
                 "presence_penalty": 0.0,
                 "frequency_penalty": 0.0
@@ -877,20 +1010,11 @@ async def generate_power_summary_parallel(
     selection_strategy: str = "quality"
 ) -> Dict[str, Any]:
     """
-    วิเคราะห์ข้อมูลด้วย AI หลายตัวพร้อมกัน (Parallel Mode)
-    
-    Args:
-        data: ข้อมูล PM2230
-        selection_strategy: "quality", "fastest", หรือ "ensemble"
-    
-    Returns:
-        Dict พร้อม metadata ว่าใช้ provider ไหน และคะแนนคุณภาพ
+    เธงเธดเน€เธเธฃเธฒเธฐเธซเนเธเนเธญเธกเธนเธฅเธ”เนเธงเธข AI เธซเธฅเธฒเธขเธ•เธฑเธงเธเธฃเนเธญเธกเธเธฑเธ (Parallel Mode)
     """
-    # Create cache key
     data_hash = create_data_hash(data)
     cache_key = f"ai_par_{data_hash[:8]}"
-    
-    # Check cache
+
     cached_result = get_from_cache(cache_key)
     if cached_result is not None:
         return {
@@ -900,122 +1024,91 @@ async def generate_power_summary_parallel(
             "provider": "cache",
             "parallel_info": None
         }
-    
-    # Validate input
+
     is_valid, error_msg = validate_input_data(data)
     if not is_valid:
         return {
-            "summary": f"❌ ข้อมูลไม่ถูกต้อง: {error_msg}",
+            "summary": f"โ เธเนเธญเธกเธนเธฅเนเธกเนเธ–เธนเธเธ•เนเธญเธ: {error_msg}",
             "is_cached": False,
             "cache_key": cache_key
         }
-    
-    # Initialize router
+
     router = _get_or_init_parallel_router()
-    
     if not router or len(router.providers) < 2:
-        # Fallback to sequential mode
         logger.info("Not enough providers for parallel, using sequential mode")
         return await generate_power_summary(data)
-    
-    # Prepare prompt (reuse same logic as generate_power_summary)
+
     anomalies = check_anomalies(data)
-    anomaly_text = "\n".join(anomalies) if anomalies else "✅ ปกติ (ไม่มี Anomaly Alert)"
-    
-    # Filter essential data
-    essential_data = {
-        "status": data.get("status"),
-        "is_aggregated": data.get("is_aggregated"),
-        "samples_count": data.get("samples_count"),
-        "timestamp": data.get("timestamp")
-    }
-    for field in VALID_DATA_FIELDS:
-        if field in data and isinstance(data[field], (int, float)):
-            essential_data[field] = data[field]
-    
+    anomaly_text = "\n".join(anomalies) if anomalies else "โ… เธเธเธ•เธด (เนเธกเนเธกเธต Anomaly Alert)"
+    essential_data = build_context_snapshot(data, SUMMARY_CONTEXT_FIELDS)
+
     prompt = f"""
-คุณคือผู้เชี่ยวชาญด้านวิศวกรรมไฟฟ้าที่คอยวิเคราะห์ข้อมูลจาก Power Meter (รุ่น PM2230)
+เธเธธเธ“เธเธทเธญเธงเธดเธจเธงเธเธฃเธเธฃเธฐเธ¥เนเธเธเนเธฒเธ—เธตเนเธเนเธงเธขเธชเธฃเธธเธเธชเธ–เธฒเธเธฐเธฃเธฐเธเธเธเธฒเธ PM2230 เธเธฒเธเธเนเธญเธกเธนเธฅเธ”เนเธฒเธเธฅเนเธฒเธ
 
-โปรดวิเคราะห์ข้อมูลด้านล่างและเขียนรายงานสรุปประเมินสถานภาพทางไฟฟ้า **โดยอ้างอิงตามมาตรฐานสากล (เช่น IEEE 519 สำหรับ Harmonics และ IEEE 1159 สำหรับ Power Quality)** ให้มีโครงสร้างชัดเจนและกระชับ เป็นภาษาไทย
-
-## หัวข้อรายงาน:
-รายงานฉบับนี้วิเคราะห์จากข้อมูลค่าเฉลี่ยของ Power Meter รุ่น PM2230
-วันที่-เวลา: {data.get('timestamp', 'N/A')}
-
----
-
-## รูปแบบที่ต้องการ:
-1. **สรุปภาพรวม** (สั้น กระชับ)
-2. **ตารางค่าสำคัญ** (Average/Total values เท่านั้น)
-3. **การประเมินสถานะ** (แรงดัน, Harmonic, Power Factor)
-4. **ข้อเสนอแนะ** (ระบุลำดับความสำคัญ 1, 2, 3...)
-***
-
-## รายการแจ้งเตือนเบื้องต้นจากระบบ (Anomaly Detection):
+Anomalies:
 {anomaly_text}
 
-## ข้อมูลปัจจุบัน (สรุปค่าเฉลี่ย):
-{json.dumps(essential_data, indent=2)}
+Snapshot:
+{json.dumps(essential_data, ensure_ascii=False, indent=2)}
 
-## ข้อกำหนดสำคัญในการวิเคราะห์:
-- หากค่า "status" ไม่ใช่ "OK" (เช่น "NOT_CONNECTED" หรือ "ERROR") ให้ระบุชัดเจนว่า "ไม่มีการเชื่อมต่อกับมิเตอร์" และไม่ควรวิเคราะห์ค่าทางไฟฟ้าว่าผิดปกติ
-- เกณฑ์ประเมิน: Voltage Unbalance ปกติ < 2%, Harmonics THDv < 5%, Power Factor ดี > 0.9
-
-เขียนรายงานให้ละเอียด ครบถ้วน เหมือนวิศวกรมืออาชีพ
+เธฃเธนเธเนเธเธเธเธณเธ•เธญเธ:
+1. เธชเธฃเธธเธเธ เธฒเธเธฃเธงเธกเธชเธฑเนเธๆ
+2. เธเธธเธ”เธ—เธตเนเธ•เนเธญเธเธฃเธฐเธงเธฑเธ
+3. เธเธณเนเธเธฐเธเธณเธ—เธตเนเธเธงเธฃเธ—เธณเธ•เนเธญ
+4. เธ•เธญเธเน€เธเนเธเธ เธฒเธฉเธฒเนเธ—เธข เธเธฃเธฐเธเธฑเธ เนเธ•เนเธขเธฑเธเธเธเธเธงเธฒเธกเธถเธเธ—เธฒเธเน€เธ—เธเธเธดเธ
 """
 
     messages = [
-        {"role": "system", "content": """You are a helpful electrical engineering assistant specializing in power quality analysis.
-IMPORTANT: Only analyze the provided PM2230 power meter data.
-Always respond in Thai language with technical accuracy.
-FORMATTING: Use Markdown syntax (##, **, -, 1.) for formatting. DO NOT use HTML tags like <br>, <b>, <i>. Use proper line breaks instead."""},
-        {"role": "user", "content": prompt}
+        {
+            "role": "system",
+            "content": "You are a helpful electrical engineering assistant specializing in power quality analysis. Always respond in Thai with concise technical accuracy using Markdown.",
+        },
+        {"role": "user", "content": prompt},
     ]
-    
+
+    request_kwargs = {
+        "max_tokens": SUMMARY_MAX_TOKENS,
+        "temperature": 0.2,
+        "top_p": 0.9,
+    }
+
     try:
-        # Call parallel LLM
         logger.info(f"Starting parallel LLM generation with strategy: {selection_strategy}")
-        result = await router.generate_parallel(
-            messages=messages,
-            task_type="power_analysis",
-            selection_strategy=selection_strategy
-        )
-        
+        if selection_strategy == "race":
+            result = await router.generate_with_race(messages=messages, **request_kwargs)
+        else:
+            result = await router.generate_parallel(
+                messages=messages,
+                task_type="power_analysis",
+                selection_strategy=selection_strategy,
+                **request_kwargs,
+            )
+
         if result["success"]:
             content = result["content"]
-            
-            # Save under the same key we read above so cache hits work.
             save_to_cache(cache_key, content)
-            
-            # Add parallel metadata to summary
-            parallel_info = f"\n\n---\n*🤖 AI Analysis: {result['provider']} selected (score: {result.get('quality_score', 0):.1f}/100, latency: {result.get('latency', 0):.2f}s)*"
-            
-            # Log all providers performance
-            if result.get("all_results"):
-                logger.info("Parallel LLM Results:")
-                for r in result["all_results"]:
-                    if r["success"]:
-                        logger.info(f"  - {r['provider']}: score={r.get('quality_score', 0):.1f}, time={r['latency']:.2f}s")
-            
-            return {
-                "summary": content + parallel_info,
+
+            metadata_note = f"\n\n*AI provider: {result['provider']} | latency: {result.get('latency', 0):.2f}s*"
+            response = {
+                "summary": content + metadata_note,
                 "is_cached": False,
                 "cache_key": cache_key,
                 "provider": result["provider"],
-                "quality_score": result.get("quality_score"),
                 "latency": result.get("latency"),
-                "all_providers": result.get("all_results", []),
-                "parallel_mode": True
+                "parallel_mode": True,
             }
-        else:
-            # Parallel failed, fallback to sequential
-            logger.warning("Parallel generation failed, falling back to sequential")
-            return await generate_power_summary(data)
-            
+            if result.get("quality_score") is not None:
+                response["quality_score"] = result.get("quality_score")
+            if result.get("all_results"):
+                response["all_providers"] = result.get("all_results", [])
+            return response
+
+        logger.warning("Parallel generation failed, falling back to sequential")
+        return await generate_power_summary(data)
+
     except Exception as e:
         logger.error(f"Parallel generation error: {e}")
         return await generate_power_summary(data)
-
 
 # Alias for easy import
 generate_power_summary_parallel_mode = generate_power_summary_parallel

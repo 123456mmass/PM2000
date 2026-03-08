@@ -17,6 +17,8 @@ import rehypeKatex from 'rehype-katex';
 import 'katex/dist/katex.min.css';
 import { ChatPanel } from '@/components/common/ChatPanel';
 import { SimulatorControl } from '@/components/common/SimulatorControl';
+import { useAiAdvisor } from '@/hooks/useAiAdvisor';
+import { AiInsightsPanel } from '@/components/report/AiInsightsPanel';
 
 interface Page1Data {
   timestamp: string;
@@ -145,22 +147,6 @@ export default function Home() {
   const [viewMode3, setViewMode3] = useState<'cards' | 'charts'>('cards');
   const [viewMode4, setViewMode4] = useState<'cards' | 'charts'>('cards');
 
-  const [aiSummaryLoading, setAiSummaryLoading] = useState(false);
-  const [aiFaultLoading, setAiFaultLoading] = useState(false);
-  const [aiSummary, setAiSummary] = useState<string | null>(null);
-  const [isAiExpanded, setIsAiExpanded] = useState(false);
-  const [aiCountdown, setAiCountdown] = useState(0);
-  const [isAiProcessing, setIsAiProcessing] = useState(false);
-  const [isPrintingAiReport, setIsPrintingAiReport] = useState(false);
-  const [pdfLoading, setPdfLoading] = useState(false);
-  
-  // Predictive Maintenance & Energy Management states
-  const [predictiveLoading, setPredictiveLoading] = useState(false);
-  const [predictiveResult, setPredictiveResult] = useState<any>(null);
-  const [isPredictiveExpanded, setIsPredictiveExpanded] = useState(false);
-  const [energyLoading, setEnergyLoading] = useState(false);
-  const [energyResult, setEnergyResult] = useState<any>(null);
-  const [isEnergyExpanded, setIsEnergyExpanded] = useState(false);
   const [isSimulateMode, setIsSimulateMode] = useState(false);
   const [isConnected, setIsConnected] = useState(false);
   const [activePort, setActivePort] = useState<string | null>(null);
@@ -171,33 +157,6 @@ export default function Home() {
   const [logSizeKb, setLogSizeKb] = useState(0);
   const [faultRecordCount, setFaultRecordCount] = useState(0);
   const [isClearMenuOpen, setIsClearMenuOpen] = useState(false);
-  const [isInitialMount, setIsInitialMount] = useState(true);
-
-  // Load from sessionStorage on mount
-  useEffect(() => {
-    const savedSummary = sessionStorage.getItem('pm2000_ai_summary');
-    const savedExpanded = sessionStorage.getItem('pm2000_ai_expanded');
-
-    if (savedSummary) setAiSummary(savedSummary);
-    if (savedExpanded) setIsAiExpanded(savedExpanded === 'true');
-
-    setIsInitialMount(false);
-  }, []);
-
-  // Save to sessionStorage when state changes
-  useEffect(() => {
-    if (isInitialMount) return;
-    if (aiSummary) {
-      sessionStorage.setItem('pm2000_ai_summary', aiSummary);
-    } else {
-      sessionStorage.removeItem('pm2000_ai_summary');
-    }
-  }, [aiSummary, isInitialMount]);
-
-  useEffect(() => {
-    if (isInitialMount) return;
-    sessionStorage.setItem('pm2000_ai_expanded', String(isAiExpanded));
-  }, [isAiExpanded, isInitialMount]);
 
   // Automatic API Base URL:
   // - In development (npm run dev): Use absolute URL to the host (supports mobile on same Wi-Fi)
@@ -207,6 +166,9 @@ export default function Home() {
     ? (process.env.NEXT_PUBLIC_API_URL || `http://${typeof window !== 'undefined' ? window.location.hostname : 'localhost'}:8003/api/v1`)
     : '/api/v1';
 
+  const aiAdvisor = useAiAdvisor(API_BASE_URL);
+  const [pdfLoading, setPdfLoading] = useState(false);
+
   const {
     data,
     loading,
@@ -215,47 +177,7 @@ export default function Home() {
     startPolling,
     stopPolling,
     isPolling,
-  } = useDashboardData(
-    {
-      fetchPage1: async () => {
-        const res = await fetch(`${API_BASE_URL}/page1?t=${Date.now()}`, { cache: 'no-store' });
-        if (!res.ok) throw new Error('Failed to fetch page1');
-        return res.json();
-      },
-      fetchPage2: async () => {
-        const res = await fetch(`${API_BASE_URL}/page2?t=${Date.now()}`, { cache: 'no-store' });
-        if (!res.ok) throw new Error('Failed to fetch page2');
-        return res.json();
-      },
-      fetchPage3: async () => {
-        const res = await fetch(`${API_BASE_URL}/page3?t=${Date.now()}`, { cache: 'no-store' });
-        if (!res.ok) throw new Error('Failed to fetch page3');
-        return res.json();
-      },
-      fetchPage4: async () => {
-        const res = await fetch(`${API_BASE_URL}/page4?t=${Date.now()}`, { cache: 'no-store' });
-        if (!res.ok) throw new Error('Failed to fetch page4');
-        return res.json();
-      },
-      fetchLogStatus: async () => {
-        const res = await fetch(`${API_BASE_URL}/datalog/status?t=${Date.now()}`, { cache: 'no-store' });
-        if (!res.ok) throw new Error('Failed to fetch log status');
-        const data = await res.json();
-        return {
-          isLogging: data.is_logging,
-          lastUpdate: data.last_update,
-          logSizeKb: data.file_size_kb,
-          faultRecordCount: data.fault_record_count,
-        };
-      },
-      fetchSystemStatus: async () => {
-        const res = await fetch(`${API_BASE_URL}/status?t=${Date.now()}`, { cache: 'no-store' });
-        if (!res.ok) throw new Error('Failed to fetch system status');
-        return res.json();
-      },
-    },
-    { autoStart: true, initialFetch: true }
-  );
+  } = useDashboardData(API_BASE_URL);
 
   // Update history when data changes
   useEffect(() => {
@@ -335,228 +257,11 @@ export default function Home() {
     }
   }, [data]);
 
-  // Polling every 1 second
-  useEffect(() => {
-    startPolling();
-    return () => {
-      stopPolling();
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  // Polling is natively handled via SWR configuration in useDashboardData
 
-  const fetchAiSummary = useCallback(async () => {
-    setAiSummaryLoading(true);
-    setAiSummary(null);
-    setAiCountdown(6);
-    setIsAiProcessing(false);
 
-    // Start local countdown
-    const timer = setInterval(() => {
-      setAiCountdown((prev) => {
-        if (prev <= 1) {
-          clearInterval(timer);
-          setIsAiProcessing(true);
-          return 0;
-        }
-        return prev - 1;
-      });
-    }, 1000);
 
-    try {
-      const res = await fetch(`${API_BASE_URL}/ai-summary-parallel`, { method: 'POST' });
-      if (res.ok) {
-        const data = await res.json();
-        setAiSummary(data.summary);
-      } else {
-        throw new Error(`API Error: ${res.status} ${res.statusText}`);
-      }
-    } catch (err) {
-      setAiSummary('❌ เกิดข้อผิดพลาดในการเชื่อมต่อ AI: ' + err);
-    } finally {
-      clearInterval(timer);
-      setAiSummaryLoading(false);
-      setAiCountdown(0);
-      setIsAiProcessing(false);
-      setIsAiExpanded(true); // Auto expand when new summary arrives
-    }
-  }, [API_BASE_URL]);
 
-  const fetchAiFaultSummary = useCallback(async () => {
-    setAiFaultLoading(true);
-    setAiSummary(null);
-    setAiCountdown(0);
-    setIsAiProcessing(true); // Show directly processing for faults
-
-    try {
-      const res = await fetch(`${API_BASE_URL}/ai-fault-summary`, { method: 'POST' });
-      if (res.ok) {
-        const data = await res.json();
-        setAiSummary(data.summary);
-      } else {
-        throw new Error(`API Error: ${res.status} ${res.statusText}`);
-      }
-    } catch (err) {
-      setAiSummary('❌ เกิดข้อผิดพลาดในการเชื่อมต่อ AI (Fault): ' + err);
-    } finally {
-      setAiFaultLoading(false);
-      setIsAiProcessing(false);
-      setIsAiExpanded(true); // Auto expand
-    }
-  }, [API_BASE_URL]);
-
-  // Predictive Maintenance
-  const fetchPredictiveMaintenance = useCallback(async () => {
-    setPredictiveLoading(true);
-    try {
-      const res = await fetch(`${API_BASE_URL}/external-predictive-maintenance`);
-      if (res.ok) {
-        const data = await res.json();
-        setPredictiveResult(data);
-      } else {
-        throw new Error(`API Error: ${res.status}`);
-      }
-    } catch (err) {
-      setPredictiveResult({ error: '❌ ไม่สามารถเชื่อมต่อ AI ได้' });
-    } finally {
-      setPredictiveLoading(false);
-      setIsPredictiveExpanded(true); // Auto expand when result arrives
-    }
-  }, [API_BASE_URL]);
-
-  // Energy Management AI
-  const fetchEnergyEfficiencyAI = useCallback(async () => {
-    setEnergyLoading(true);
-    try {
-      const res = await fetch(`${API_BASE_URL}/energy-efficiency-ai`);
-      if (res.ok) {
-        const data = await res.json();
-        setEnergyResult(data);
-      } else {
-        throw new Error(`API Error: ${res.status}`);
-      }
-    } catch (err) {
-      setEnergyResult({ error: '❌ ไม่สามารถเชื่อมต่อ AI ได้' });
-    } finally {
-      setEnergyLoading(false);
-      setIsEnergyExpanded(true); // Auto expand when result arrives
-    }
-  }, [API_BASE_URL]);
-
-  useEffect(() => {
-    const handleAfterPrint = () => {
-      setIsPrintingAiReport(false);
-    };
-    window.addEventListener('afterprint', handleAfterPrint);
-    return () => window.removeEventListener('afterprint', handleAfterPrint);
-  }, []);
-
-  const handleClearAiCache = useCallback(async () => {
-    if (!confirm('คุณแน่ใจหรือไม่ว่าต้องการล้าง Cache ทั้งหมดของ AI?')) return;
-    try {
-      const res = await fetch(`${API_BASE_URL}/ai-summary`, { method: 'DELETE' });
-      if (res.ok) {
-        setAiSummary(null);
-        sessionStorage.removeItem('pm2000_ai_summary');
-        alert('ล้าง Cache สำเร็จแล้ว! คุณสามารถกดวิเคราะห์ใหม่ได้ทันที');
-      }
-    } catch (err) {
-      alert('เกิดข้อผิดพลาดในการล้าง Cache: ' + err);
-    }
-  }, [API_BASE_URL]);
-
-  const handleExportPdf = useCallback(() => {
-    setIsPrintingAiReport(false); // Ensure we're printing the dashboard
-    setTimeout(() => {
-      window.print();
-    }, 100);
-  }, []);
-
-  const handleExportAiReport = useCallback(() => {
-    if (!aiSummary) return;
-    setIsPrintingAiReport(true);
-    setTimeout(() => {
-      window.print();
-    }, 100);
-  }, [aiSummary]);
-
-  const handleDownloadAiTxt = useCallback(() => {
-    if (!aiSummary) return;
-    const blob = new Blob([aiSummary], { type: 'text/plain' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `PM2230_Analysis_${new Date().toISOString().split('T')[0]}.txt`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-  }, [aiSummary]);
-
-  // Predictive Maintenance handlers
-  const handleExportPredictiveTxt = useCallback(() => {
-    if (!predictiveResult?.message) return;
-    const content = `Predictive Maintenance Report\n\nStatus: ${predictiveResult.maintenance_needed ? 'Maintenance Required' : 'Normal'}\nConfidence: ${(predictiveResult.confidence * 100).toFixed(1)}%\n\n${predictiveResult.message}`;
-    const blob = new Blob([content], { type: 'text/plain' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `PM2230_Predictive_${new Date().toISOString().split('T')[0]}.txt`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-  }, [predictiveResult]);
-
-  const handleClearPredictive = useCallback(() => {
-    if (!confirm('คุณแน่ใจหรือไม่ว่าต้องการล้างผลลัพธ์นี้?')) return;
-    setPredictiveResult(null);
-    setIsPredictiveExpanded(false);
-  }, []);
-
-  // Energy Management handlers
-  const handleExportEnergyTxt = useCallback(() => {
-    if (!energyResult?.analysis) return;
-    const content = `Energy Management Report\n\n${energyResult.analysis}`;
-    const blob = new Blob([content], { type: 'text/plain' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `PM2230_Energy_${new Date().toISOString().split('T')[0]}.txt`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-  }, [energyResult]);
-
-  const handleClearEnergy = useCallback(() => {
-    if (!confirm('คุณแน่ใจหรือไม่ว่าต้องการล้างผลลัพธ์นี้?')) return;
-    setEnergyResult(null);
-    setIsEnergyExpanded(false);
-  }, []);
-
-  // Ask AI Advisor handlers
-  const askAiAdvisor = useCallback((context: string, source: string) => {
-    // Dispatch custom event to open chat with context
-    const event = new CustomEvent('open-chat-with-context', {
-      detail: { context, source }
-    });
-    window.dispatchEvent(event);
-  }, []);
-
-  const handleAskAiAboutSummary = useCallback(() => {
-    if (!aiSummary) return;
-    askAiAdvisor(aiSummary, 'AI Power Analysis');
-  }, [aiSummary, askAiAdvisor]);
-
-  const handleAskAiAboutPredictive = useCallback(() => {
-    if (!predictiveResult?.message) return;
-    askAiAdvisor(predictiveResult.message, 'Predictive Maintenance');
-  }, [predictiveResult, askAiAdvisor]);
-
-  const handleAskAiAboutEnergy = useCallback(() => {
-    if (!energyResult?.analysis) return;
-    askAiAdvisor(energyResult.analysis, 'Energy Management');
-  }, [energyResult, askAiAdvisor]);
 
   const handleStartLogging = useCallback(async (e?: React.MouseEvent) => {
     if (e) e.preventDefault();
@@ -617,7 +322,7 @@ export default function Home() {
         await fetch(`${API_BASE_URL}/datalog/clear?type=fault`, { method: 'DELETE' });
         setFaultRecordCount(0);
         refresh(false);
-        setAiSummary(null);
+        aiAdvisor.setAiSummary(null);
         sessionStorage.removeItem('pm2000_ai_summary');
         setIsClearMenuOpen(false);
       } catch (err) {
@@ -635,7 +340,7 @@ export default function Home() {
         ]);
         setFaultRecordCount(0);
         refresh(false);
-        setAiSummary(null);
+        aiAdvisor.setAiSummary(null);
         sessionStorage.removeItem('pm2000_ai_summary');
         setIsClearMenuOpen(false);
       } catch (err) {
@@ -653,11 +358,21 @@ export default function Home() {
       } else {
         alert('❌ ส่งไม่สำเร็จ: ' + (data.message || 'Unknown error'));
       }
-      setIsClearMenuOpen(false);
     } catch (err) {
-      alert('⚠️ เกิดข้อผิดพลาดในการเชื่อมต่อ: ' + err);
+      alert('⚠️ เชื่อมต่อ API ล้มเหลว: ' + err);
     }
   }, [API_BASE_URL]);
+
+  const handleExportPdf = useCallback(() => {
+    setPdfLoading(true);
+    aiAdvisor.setIsPrintingAiReport(true);
+
+    // Allow React state to update before printing
+    setTimeout(() => {
+      window.print();
+      setPdfLoading(false);
+    }, 800);
+  }, [aiAdvisor]);
 
   const handleToggleSimulateMode = async () => {
     try {
@@ -977,237 +692,14 @@ export default function Home() {
       <div className="max-w-7xl mx-auto px-4 py-6">
         {activeTab === 1 && page1 && (
           <div className="space-y-6">
-            <div className={`bg-gradient-to-r from-blue-900/40 to-indigo-900/40 p-5 rounded-xl border border-blue-700/50 shadow-lg ${isPrintingAiReport ? 'no-print' : ''}`}>
-              <div className="flex items-center justify-between flex-wrap gap-4">
-                <div>
-                  <h3 className="text-lg font-bold text-white flex items-center gap-2">
-                    ✨ AI Power Analysis <span className="text-xs bg-blue-600 text-white px-2 py-0.5 rounded-full">Beta</span>
-                  </h3>
-                  <p className="text-sm text-blue-200 mt-1">
-                    {(aiSummaryLoading || aiFaultLoading) ? (
-                      <span className="flex items-center gap-2">
-                        {aiSummaryLoading && aiCountdown > 0 ? (
-                          <span className="animate-pulse">🕒 กำลังรวบรวมข้อมูล ({aiCountdown} วินาที)...</span>
-                        ) : (
-                          <span className="animate-bounce">🧠 AI กำลังวิเคราะห์ข้อมูล...</span>
-                        )}
-                      </span>
-                    ) : (
-                      <>
-                        วิเคราะห์แนวโน้มและข้อเสนอแนะด้านพลังงาน
-                        <br className="sm:hidden" />แบบเรียลไทม์ด้วย AI
-                      </>
-                    )}
-                  </p>
-                </div>
-                <div className="flex flex-wrap gap-2 justify-end">
-                  {aiSummary && (
-                    <div className="flex gap-2">
-                      <button
-                        type="button"
-                        onClick={handleClearAiCache}
-                        title="ล้าง Cache ของ AI"
-                        className="px-3 py-2 bg-rose-900/40 hover:bg-rose-900/60 text-rose-400 border border-rose-500/30 rounded-lg text-sm transition"
-                      >
-                        🗑️
-                      </button>
-                      <button
-                        type="button"
-                        onClick={handleDownloadAiTxt}
-                        title="ดาวน์โหลดเป็นไฟล์ Text"
-                        className="px-3 py-2 bg-emerald-900/40 hover:bg-emerald-900/60 text-emerald-400 border border-emerald-500/30 rounded-lg text-sm transition flex items-center gap-2"
-                      >
-                        📄 TXT
-                      </button>
-                      <button
-                        type="button"
-                        onClick={handleExportAiReport}
-                        title="Export PDF ผลวิเคราะห์"
-                        className="px-3 py-2 bg-indigo-900/40 hover:bg-indigo-900/60 text-indigo-400 border border-indigo-500/30 rounded-lg text-sm transition flex items-center gap-2"
-                      >
-                        📥 PDF
-                      </button>
-                      <button
-                        type="button"
-                        onClick={handleAskAiAboutSummary}
-                        title="ถามต่อ AI Advisor"
-                        className="px-3 py-2 bg-purple-900/40 hover:bg-purple-900/60 text-purple-400 border border-purple-500/30 rounded-lg text-sm transition flex items-center gap-2"
-                      >
-                        💬 ถามต่อ
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => setIsAiExpanded(!isAiExpanded)}
-                        className="px-3 py-2 bg-gray-800 hover:bg-gray-700 text-gray-300 border border-gray-600 rounded-lg text-sm transition font-medium"
-                      >
-                        {isAiExpanded ? '🔼 ซ่อน' : '🔽 แสดง'}
-                      </button>
-                    </div>
-                  )}
-                  {/* Main AI Button */}
-                  <div className="flex flex-col sm:flex-row gap-3 mt-4 sm:mt-0">
-                    <button
-                      type="button"
-                      onClick={fetchAiSummary}
-                      disabled={aiSummaryLoading || aiFaultLoading}
-                      className="px-4 py-2 bg-blue-600 hover:bg-blue-500 disabled:bg-gray-600 disabled:cursor-not-allowed text-white font-medium rounded-lg shadow transition flex items-center gap-2 text-sm max-w-fit"
-                    >
-                      {aiSummaryLoading && aiCountdown > 0 ? (
-                        <>
-                          <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-                          <span>เก็บข้อมูล {aiCountdown}s...</span>
-                        </>
-                      ) : aiSummaryLoading && isAiProcessing ? (
-                        <>
-                          <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-                          <span className="animate-pulse">AI กำลังวิเคราะห์...</span>
-                        </>
-                      ) : (
-                        <>
-                          🚀 วิเคราะห์ด้วย AI
-                        </>
-                      )}
-                    </button>
+            <AiInsightsPanel faultRecordCount={faultRecordCount} aiAdvisor={aiAdvisor} panelType="power" />
+            <AiInsightsPanel faultRecordCount={faultRecordCount} aiAdvisor={aiAdvisor} panelType="predictive" />
 
-                    {/* AI Fault Button (Conditionally Rendered) */}
-                    {faultRecordCount > 0 && (
-                      <button
-                        type="button"
-                        onClick={fetchAiFaultSummary}
-                        disabled={aiSummaryLoading || aiFaultLoading}
-                        className="px-4 py-2 bg-rose-600 hover:bg-rose-500 disabled:bg-gray-600 disabled:cursor-not-allowed text-white font-medium rounded-lg shadow transition flex items-center gap-2 text-sm max-w-fit"
-                      >
-                        {aiFaultLoading && isAiProcessing ? (
-                          <>
-                            <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-                            <span className="animate-pulse">กำลังวิเคราะห์ Fault...</span>
-                          </>
-                        ) : (
-                          <>
-                            🚨 วิเคราะห์ Fault ด้วย AI
-                            <span className="ml-1 px-1.5 py-0.5 bg-rose-800 rounded-full text-[10px] font-bold">{faultRecordCount}</span>
-                          </>
-                        )}
-                      </button>
-                    )}
-                  </div>
-                </div>
-              </div>
-
-              {aiSummary && isAiExpanded && (
-                <div className="mt-4 p-5 bg-gray-900/60 border border-gray-700 rounded-lg text-gray-200 text-sm leading-relaxed overflow-x-auto">
-                  <div className="prose prose-invert prose-sm max-w-none prose-blue">
-                    <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                      {aiSummary}
-                    </ReactMarkdown>
-                  </div>
-                </div>
-              )}
-            </div>
-
-            {/* Predictive Maintenance Panel */}
-            <div className="bg-gradient-to-r from-emerald-900/40 to-teal-900/40 p-5 rounded-xl border border-emerald-700/50 shadow-lg">
-              <div className="flex items-center justify-between flex-wrap gap-4">
-                <div>
-                  <h3 className="text-lg font-bold text-white flex items-center gap-2">
-                    🔮 Predictive Maintenance <span className="text-xs bg-emerald-600 text-white px-2 py-0.5 rounded-full">AI</span>
-                  </h3>
-                  <p className="text-sm text-emerald-200 mt-1">
-                    ทำนายความต้องการบำรุงรักษาล่วงหน้าด้วย AI
-                  </p>
-                </div>
-                <div className="flex flex-wrap gap-2 justify-end">
-                  {predictiveResult && !predictiveResult.error && (
-                    <div className="flex gap-2">
-                      <button
-                        type="button"
-                        onClick={handleClearPredictive}
-                        title="ล้างผลลัพธ์"
-                        className="px-3 py-2 bg-rose-900/40 hover:bg-rose-900/60 text-rose-400 border border-rose-500/30 rounded-lg text-sm transition"
-                      >
-                        🗑️
-                      </button>
-                      <button
-                        type="button"
-                        onClick={handleExportPredictiveTxt}
-                        title="ดาวน์โหลดเป็นไฟล์ Text"
-                        className="px-3 py-2 bg-emerald-900/40 hover:bg-emerald-900/60 text-emerald-400 border border-emerald-500/30 rounded-lg text-sm transition flex items-center gap-2"
-                      >
-                        📄 TXT
-                      </button>
-                      <button
-                        type="button"
-                        onClick={handleAskAiAboutPredictive}
-                        title="ถามต่อ AI Advisor"
-                        className="px-3 py-2 bg-purple-900/40 hover:bg-purple-900/60 text-purple-400 border border-purple-500/30 rounded-lg text-sm transition flex items-center gap-2"
-                      >
-                        💬 ถามต่อ
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => setIsPredictiveExpanded(!isPredictiveExpanded)}
-                        className="px-3 py-2 bg-gray-800 hover:bg-gray-700 text-gray-300 border border-gray-600 rounded-lg text-sm transition font-medium"
-                      >
-                        {isPredictiveExpanded ? '🔼 ซ่อน' : '🔽 แสดง'}
-                      </button>
-                    </div>
-                  )}
-                  <button
-                    type="button"
-                    onClick={fetchPredictiveMaintenance}
-                    disabled={predictiveLoading}
-                    className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 disabled:bg-gray-600 disabled:cursor-not-allowed text-white font-medium rounded-lg shadow transition flex items-center gap-2 text-sm"
-                  >
-                    {predictiveLoading ? (
-                      <>
-                        <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-                        <span>กำลังวิเคราะห์...</span>
-                      </>
-                    ) : (
-                      <>
-                        🔮 ทำนายการบำรุงรักษา
-                      </>
-                    )}
-                  </button>
-                </div>
-              </div>
-
-              {predictiveResult && isPredictiveExpanded && (
-                <div className="mt-4 p-4 bg-gray-900/60 border border-emerald-700/30 rounded-lg">
-                  {predictiveResult.error ? (
-                    <p className="text-rose-400">{predictiveResult.error}</p>
-                  ) : (
-                    <div className="space-y-2">
-                      <div className="flex items-center gap-2">
-                        <span className="text-gray-400">สถานะ:</span>
-                        <span className={`font-medium ${predictiveResult.maintenance_needed ? 'text-rose-400' : 'text-emerald-400'}`}>
-                          {predictiveResult.maintenance_needed ? '⚠️ ต้องการบำรุงรักษา' : '✅ ปกติ'}
-                        </span>
-                      </div>
-                      {predictiveResult.confidence > 0 && (
-                        <div className="flex items-center gap-2">
-                          <span className="text-gray-400">ความมั่นใจ:</span>
-                          <span className="text-blue-400">{(predictiveResult.confidence * 100).toFixed(1)}%</span>
-                        </div>
-                      )}
-                      {predictiveResult.message && (
-                        <div className="mt-2 prose prose-invert prose-sm max-w-none">
-                          <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                            {predictiveResult.message}
-                          </ReactMarkdown>
-                        </div>
-                      )}
-                    </div>
-                  )}
-                </div>
-              )}
-            </div>
-
-            <div className={isPrintingAiReport ? 'no-print' : ''}>
+            <div className={aiAdvisor.isPrintingAiReport ? 'no-print' : ''}>
               <Page1 data={page1} history={history} viewMode={viewMode1} setViewMode={setViewMode1} />
             </div>
             {page2 && page3 && page4 && (
-              <div className={isPrintingAiReport ? 'no-print' : ''}>
+              <div className={aiAdvisor.isPrintingAiReport ? 'no-print' : ''}>
                 <OnePageReport
                   data1={page1}
                   data2={page2}
@@ -1220,9 +712,9 @@ export default function Home() {
               </div>
             )}
 
-            {isPrintingAiReport && aiSummary && (
+            {aiAdvisor.isPrintingAiReport && aiAdvisor.aiSummary && (
               <div className="print-only">
-                <ReportTemplate markdownContent={aiSummary} />
+                <ReportTemplate markdownContent={aiAdvisor.aiSummary} />
               </div>
             )}
           </div>
@@ -1230,103 +722,13 @@ export default function Home() {
         {activeTab === 2 && page2 && <Page2 data={page2} history={history} viewMode={viewMode2} setViewMode={setViewMode2} />}
         {activeTab === 3 && page3 && <Page3 data={{ ...page3, Q_L1: page2?.Q_L1, Q_L2: page2?.Q_L2, Q_L3: page2?.Q_L3, Q_Total: page2?.Q_Total }} history={history} viewMode={viewMode3} setViewMode={setViewMode3} />}
         {activeTab === 4 && page4 && (
-              <div className="space-y-6">
-                {/* Energy Management AI Panel */}
-                <div className="bg-gradient-to-r from-amber-900/40 to-orange-900/40 p-5 rounded-xl border border-amber-700/50 shadow-lg">
-                  <div className="flex items-center justify-between flex-wrap gap-4">
-                    <div>
-                      <h3 className="text-lg font-bold text-white flex items-center gap-2">
-                        ⚡ Energy Management <span className="text-xs bg-amber-600 text-white px-2 py-0.5 rounded-full">AI</span>
-                      </h3>
-                      <p className="text-sm text-amber-200 mt-1">
-                        วิเคราะห์ประสิทธิภาพพลังงานและแนะนำวิธีประหยัดไฟ
-                      </p>
-                    </div>
-                    <div className="flex flex-wrap gap-2 justify-end">
-                      {energyResult && !energyResult.error && (
-                        <div className="flex gap-2">
-                          <button
-                            type="button"
-                            onClick={handleClearEnergy}
-                            title="ล้างผลลัพธ์"
-                            className="px-3 py-2 bg-rose-900/40 hover:bg-rose-900/60 text-rose-400 border border-rose-500/30 rounded-lg text-sm transition"
-                          >
-                            🗑️
-                          </button>
-                          <button
-                            type="button"
-                            onClick={handleExportEnergyTxt}
-                            title="ดาวน์โหลดเป็นไฟล์ Text"
-                            className="px-3 py-2 bg-emerald-900/40 hover:bg-emerald-900/60 text-emerald-400 border border-emerald-500/30 rounded-lg text-sm transition flex items-center gap-2"
-                          >
-                            📄 TXT
-                          </button>
-                          <button
-                            type="button"
-                            onClick={handleAskAiAboutEnergy}
-                            title="ถามต่อ AI Advisor"
-                            className="px-3 py-2 bg-purple-900/40 hover:bg-purple-900/60 text-purple-400 border border-purple-500/30 rounded-lg text-sm transition flex items-center gap-2"
-                          >
-                            💬 ถามต่อ
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => setIsEnergyExpanded(!isEnergyExpanded)}
-                            className="px-3 py-2 bg-gray-800 hover:bg-gray-700 text-gray-300 border border-gray-600 rounded-lg text-sm transition font-medium"
-                          >
-                            {isEnergyExpanded ? '🔼 ซ่อน' : '🔽 แสดง'}
-                          </button>
-                        </div>
-                      )}
-                      <button
-                        type="button"
-                        onClick={fetchEnergyEfficiencyAI}
-                        disabled={energyLoading}
-                        className="px-4 py-2 bg-amber-600 hover:bg-amber-500 disabled:bg-gray-600 disabled:cursor-not-allowed text-white font-medium rounded-lg shadow transition flex items-center gap-2 text-sm"
-                      >
-                        {energyLoading ? (
-                          <>
-                            <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-                            <span>กำลังวิเคราะห์...</span>
-                          </>
-                        ) : (
-                          <>
-                            ⚡ วิเคราะห์ประสิทธิภาพพลังงาน
-                          </>
-                        )}
-                      </button>
-                    </div>
-                  </div>
+          <div className="space-y-6">
+            {/* Energy Management AI Panel */}
+            <AiInsightsPanel faultRecordCount={faultRecordCount} aiAdvisor={aiAdvisor} panelType="energy" />
 
-                  {energyResult && isEnergyExpanded && (
-                    <div className="mt-4 p-4 bg-gray-900/60 border border-amber-700/30 rounded-lg">
-                      {energyResult.error ? (
-                        <p className="text-rose-400">{energyResult.error}</p>
-                      ) : energyResult.status === 'success' ? (
-                        <div className="space-y-4">
-                          {energyResult.analysis && (
-                            <div className="prose prose-invert prose-sm max-w-none">
-                              <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                                {energyResult.analysis}
-                              </ReactMarkdown>
-                            </div>
-                          )}
-                          {energyResult.is_cached && (
-                            <p className="text-xs text-gray-500">
-                              * ผลลัพธ์จาก Cache (key: {energyResult.cache_key})
-                            </p>
-                          )}
-                        </div>
-                      ) : (
-                        <p className="text-gray-400">ไม่สามารถวิเคราะห์ได้</p>
-                      )}
-                    </div>
-                  )}
-                </div>
-
-                <Page4 data={page4} history={history} viewMode={viewMode4} setViewMode={setViewMode4} />
-              </div>
-            )}
+            <Page4 data={page4} history={history} viewMode={viewMode4} setViewMode={setViewMode4} />
+          </div>
+        )}
       </div>
 
       {/* Footer */}

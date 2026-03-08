@@ -1,31 +1,19 @@
-import { useState, useEffect } from 'react';
-import apiClient, { SimulatorStatusResponse } from '@/utils/apiClient';
+import { useState } from 'react';
+import apiClient from '@/utils/apiClient';
+import useDashboardData from '@/hooks/useDashboardData';
+import { API_BASE_URL } from '@/utils/apiClient';
 
 export const SimulatorControl = () => {
-    const [status, setStatus] = useState<SimulatorStatusResponse | null>(null);
+    const { data, refresh } = useDashboardData(API_BASE_URL);
+    const status = data?.simulatorStatus;
     const [isExpanded, setIsExpanded] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
-
-    const fetchStatus = async () => {
-        try {
-            const data = await apiClient.fetchSimulatorStatus();
-            setStatus(data);
-        } catch (err) {
-            console.error('Failed to fetch simulator status', err);
-        }
-    };
-
-    useEffect(() => {
-        fetchStatus();
-        const interval = setInterval(fetchStatus, 5000);
-        return () => clearInterval(interval);
-    }, []);
 
     const handleToggle = async (type: string) => {
         setIsLoading(true);
         try {
             await apiClient.injectFault(type);
-            await fetchStatus();
+            await refresh(); // Force SWR to revalidate immediately
         } catch (err) {
             alert('Failed to inject fault');
         } finally {
@@ -37,7 +25,7 @@ export const SimulatorControl = () => {
         setIsLoading(true);
         try {
             await apiClient.resetSimulator();
-            await fetchStatus();
+            await refresh(); // Force SWR to revalidate immediately
         } catch (err) {
             alert('Failed to reset simulator');
         } finally {
@@ -74,8 +62,8 @@ export const SimulatorControl = () => {
                                 onClick={() => handleToggle(f.key)}
                                 disabled={isLoading}
                                 className={`flex w-full items-center justify-between rounded-lg px-3 py-1.5 text-[11px] transition-colors ${status.state[f.key as keyof typeof status.state]
-                                        ? `${f.color} text-white`
-                                        : 'bg-white/5 text-slate-300 hover:bg-white/10'
+                                    ? `${f.color} text-white`
+                                    : 'bg-white/5 text-slate-300 hover:bg-white/10'
                                     }`}
                             >
                                 <span>{f.label}</span>

@@ -1,7 +1,8 @@
 'use client';
 
 import React, { useEffect, useState, useRef, useCallback } from 'react';
-import { fetchAlerts } from '@/utils/apiClient';
+import useDashboardData from '@/hooks/useDashboardData';
+import { API_BASE_URL } from '@/utils/apiClient';
 
 interface AlertItem {
     id: string; // Unique ID for each spawned alert
@@ -11,7 +12,6 @@ interface AlertItem {
     timestamp: string;
 }
 
-const ALERT_POLL_INTERVAL_MS = 1000;
 const ALERT_REPEAT_INTERVAL_MS = 2000;
 
 // Helper to play a short beep sound
@@ -39,78 +39,76 @@ const playBeep = () => {
 export function AlertToaster() {
     const [alerts, setAlerts] = useState<AlertItem[]>([]);
     const lastNotifiedAtRef = useRef<Map<string, number>>(new Map());
+    const { data } = useDashboardData(API_BASE_URL);
 
     const dismissAlert = useCallback((idToRemove: string) => {
         setAlerts(prev => prev.filter(a => a.id !== idToRemove));
     }, []);
 
     useEffect(() => {
-        let isMounted = true;
+        if (!data || !data.alerts) return;
 
-        const checkAlerts = async () => {
-            try {
-                const response: any = await fetchAlerts();
-                if (!isMounted) return;
+        const response = data.alerts;
 
-                if (response?.status === 'ALERT' && Array.isArray(response?.alerts)) {
-                    let hasNewAlert = false;
-                    const newAlerts: AlertItem[] = [];
-                    const nowMs = Date.now();
-                    const now = new Date(nowMs).toLocaleTimeString('th-TH', { hour12: false });
-                    const isRetainedAlert = response?.retained === true;
+        if (response.status === 'ALERT' && Array.isArray(response.alerts)) {
+            let hasNewAlert = false;
+            const newAlerts: AlertItem[] = [];
+            const nowMs = Date.now();
+            const now = new Date(nowMs).toLocaleTimeString('th-TH', { hour12: false });
+            const isRetainedAlert = response.retained === true;
 
-                    response.alerts.forEach((incoming: any) => {
-                        const categoryKey = String(incoming.category || 'unknown');
-                        const lastNotifiedAt = lastNotifiedAtRef.current.get(categoryKey) ?? 0;
-                        const shouldNotify = isRetainedAlert
-                            ? lastNotifiedAt === 0
-                            : (nowMs - lastNotifiedAt) >= ALERT_REPEAT_INTERVAL_MS;
+            response.alerts.forEach((incoming: any) => {
+                const categoryKey = String(incoming.category || 'unknown');
+                const lastNotifiedAt = lastNotifiedAtRef.current.get(categoryKey) ?? 0;
+                const shouldNotify = isRetainedAlert
+                    ? lastNotifiedAt === 0
+                    : (nowMs - lastNotifiedAt) >= ALERT_REPEAT_INTERVAL_MS;
 
-                        if (!shouldNotify) return;
+                if (!shouldNotify) return;
 
-                        hasNewAlert = true;
-                        lastNotifiedAtRef.current.set(categoryKey, nowMs);
-                        newAlerts.push({
-                            id: `${categoryKey}-${nowMs}`,
-                            category: incoming.category,
-                            severity: incoming.severity,
-                            message: incoming.message,
-                            timestamp: now
-                        });
-                    });
+                hasNewAlert = true;
+                lastNotifiedAtRef.current.set(categoryKey, nowMs);
+                newAlerts.push({
+                    id: `${categoryKey}-${nowMs}`,
+                    category: incoming.category,
+                    severity: incoming.severity,
+                    message: incoming.message,
+                    timestamp: now
+                });
+            });
 
-                    if (hasNewAlert) {
-                        playBeep();
-                        setAlerts(prev => [...prev, ...newAlerts]);
-                    }
-                } else if (response?.status === 'OK') {
-                    // No active alerts according to server.
-                    // If faults go away, we DO NOT automatically clear the UI.
-                    // The user requested that alerts do not disappear until they click close.
-                    // So we do not clear the `alerts` array. 
-
-                    // Clear the cooldown map so a new fault burst notifies immediately.
-                    lastNotifiedAtRef.current.clear();
-                }
-
-            } catch (error) {
-                console.warn('Alert polling failed:', error);
+            if (hasNewAlert) {
+                playBeep();
+                setAlerts(prev => [...prev, ...newAlerts]);
             }
-        };
+        } else if (response.status === 'OK') {
+            // No active alerts according to server.
+            // If faults go away, we DO NOT automatically clear the UI.
+            // The user requested that alerts do not disappear until they click close.
+            // So we do not clear the `alerts` array. 
 
-        const interval = setInterval(checkAlerts, ALERT_POLL_INTERVAL_MS);
-        checkAlerts();
-
-        return () => {
-            isMounted = false;
-            clearInterval(interval);
-        };
-    }, []);
+            // Clear the cooldown map so a new fault burst notifies immediately.
+            lastNotifiedAtRef.current.clear();
+        }
+    }, [data?.alerts]);
 
     if (alerts.length === 0) return null;
 
     return (
         <div className="fixed bottom-6 right-6 z-[9999] flex flex-col gap-3 max-w-sm pointer-events-none">
+            {alerts.length > 1 && (
+                <div className="flex justify-end pointer-events-auto animate-slide-in-right">
+                    <button
+                        onClick={() => setAlerts([])}
+                        className="px-3 py-1.5 bg-gray-800/80 hover:bg-gray-700 text-gray-200 text-xs font-medium rounded-lg shadow-lg backdrop-blur-sm border border-gray-600 transition-colors flex items-center gap-1.5"
+                    >
+                        <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                        Close All ({alerts.length})
+                    </button>
+                </div>
+            )}
             {alerts.slice(-5).map((alert) => ( // Show at most 5 at a time
                 <div
                     key={alert.id}

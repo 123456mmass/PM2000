@@ -309,6 +309,85 @@ export async function postChat(messages: { role: string; content: string }[]): P
   });
 }
 
+export async function postChatStream(
+  messages: { role: string; content: string }[],
+  handlers: {
+    onChunk: (chunk: string) => void;
+    onDone?: () => void;
+  }
+): Promise<void> {
+  const response = await fetch(`${API_BASE_URL}/chat/stream`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Accept: 'text/event-stream',
+    },
+    body: JSON.stringify({ messages }),
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({}));
+    throw new Error(
+      errorData.detail || errorData.message || `HTTP error! status: ${response.status}`
+    );
+  }
+
+  if (!response.body) {
+    throw new Error('Streaming response body is unavailable');
+  }
+
+  const reader = response.body.getReader();
+  const decoder = new TextDecoder();
+  let buffer = '';
+
+  while (true) {
+    const { done, value } = await reader.read();
+    buffer += decoder.decode(value || new Uint8Array(), { stream: !done });
+
+    let delimiterIndex = buffer.indexOf('\n\n');
+    while (delimiterIndex !== -1) {
+      const rawEvent = buffer.slice(0, delimiterIndex).trim();
+      buffer = buffer.slice(delimiterIndex + 2);
+
+      if (rawEvent) {
+        const dataLines = rawEvent
+          .split('\n')
+          .filter((line) => line.startsWith('data:'))
+          .map((line) => line.slice(5).trim());
+
+        if (dataLines.length > 0) {
+          const payload = JSON.parse(dataLines.join('\n')) as {
+            delta?: string;
+            done?: boolean;
+            error?: string;
+          };
+
+          if (payload.error) {
+            throw new Error(payload.error);
+          }
+
+          if (payload.delta) {
+            handlers.onChunk(payload.delta);
+          }
+
+          if (payload.done) {
+            handlers.onDone?.();
+            return;
+          }
+        }
+      }
+
+      delimiterIndex = buffer.indexOf('\n\n');
+    }
+
+    if (done) {
+      break;
+    }
+  }
+
+  handlers.onDone?.();
+}
+
 /**
  * Interface for Alerts response
  */
@@ -369,6 +448,7 @@ const apiClient = {
   fetchAiSummary,
   fetchAiFaultSummary,
   postChat,
+  postChatStream,
   fetchLogStatus,
   startLogging,
   stopLogging,
