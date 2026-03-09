@@ -305,6 +305,7 @@ def generate_simulated_data():
         "THDi_L1": round(thdi1, 2), "THDi_L2": round(thdi2, 2), "THDi_L3": round(thdi3, 2),
         "V_unb": round(v_unb, 2), "U_unb": round(v_unb*0.8, 2), "I_unb": round(i_unb, 2),
         "PF_L1": 0.95, "PF_L2": 0.95, "PF_L3": 0.95, "PF_Total": 0.95,
+        "PF_L1_type": "Lag", "PF_L2_type": "Lag", "PF_L3_type": "Lag", "PF_Total_type": "Lag",
         "kWh_Total": round(sim_energy_kwh, 2), "kVAh_Total": round(sim_energy_kvah, 2), "kvarh_Total": round(sim_energy_kvarh, 2)
     }
 
@@ -383,6 +384,10 @@ def get_latest_data() -> Dict:
         'PF_L2': data.get('PF_L2', 0),
         'PF_L3': data.get('PF_L3', 0),
         'PF_Total': data.get('PF_Total', pf_total),
+        'PF_L1_type': data.get('PF_L1_type', 'Lag'),
+        'PF_L2_type': data.get('PF_L2_type', 'Lag'),
+        'PF_L3_type': data.get('PF_L3_type', 'Lag'),
+        'PF_Total_type': data.get('PF_Total_type', 'Lag'),
         'kWh_Total': data.get('kWh_Total', 0),
         'kVAh_Total': data.get('kVAh_Total', 0),
         'kvarh_Total': data.get('kvarh_Total', 0),
@@ -446,9 +451,10 @@ def _read_fast_block(client) -> dict:
         offset = address - 2999
         if quantity == 2 and offset + 2 <= len(r1.registers):
             val = _decode_f32(r1.registers[offset:offset + 2])
-            # PM2230 PF lead/lag
-            if param_name.startswith("PF_") and val > 1.0:
-                val = round(2.0 - val, 4)
+            # PM2230 4-Quadrant PF conversion
+            if param_name.startswith("PF_"):
+                val, pf_type = PM2230Scanner._decode_pf_quadrant(val)
+                result[f"{param_name}_type"] = pf_type
             result[param_name] = val
 
     return result

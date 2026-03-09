@@ -68,23 +68,23 @@ class PM2230Scanner:
         'P_L3': (3057, 2, 1.0, 'kW', 'Active Power L3'),
         'P_Total': (3059, 2, 1.0, 'kW', 'Total Active Power'),
 
-        # Apparent Power (kVA)
-        'S_L1': (3061, 2, 1.0, 'kVA', 'Apparent Power L1'),
-        'S_L2': (3063, 2, 1.0, 'kVA', 'Apparent Power L2'),
-        'S_L3': (3065, 2, 1.0, 'kVA', 'Apparent Power L3'),
-        'S_Total': (3067, 2, 1.0, 'kVA', 'Total Apparent Power'),
-
         # Reactive Power (kvar)
-        'Q_L1': (3069, 2, 1.0, 'kvar', 'Reactive Power L1'),
-        'Q_L2': (3071, 2, 1.0, 'kvar', 'Reactive Power L2'),
-        'Q_L3': (3073, 2, 1.0, 'kvar', 'Reactive Power L3'),
-        'Q_Total': (3075, 2, 1.0, 'kvar', 'Total Reactive Power'),
+        'Q_L1': (3061, 2, 1.0, 'kvar', 'Reactive Power L1'),
+        'Q_L2': (3063, 2, 1.0, 'kvar', 'Reactive Power L2'),
+        'Q_L3': (3065, 2, 1.0, 'kvar', 'Reactive Power L3'),
+        'Q_Total': (3067, 2, 1.0, 'kvar', 'Total Reactive Power'),
+
+        # Apparent Power (kVA)
+        'S_L1': (3069, 2, 1.0, 'kVA', 'Apparent Power L1'),
+        'S_L2': (3071, 2, 1.0, 'kVA', 'Apparent Power L2'),
+        'S_L3': (3073, 2, 1.0, 'kVA', 'Apparent Power L3'),
+        'S_Total': (3075, 2, 1.0, 'kVA', 'Total Apparent Power'),
 
         # Power Factor
-        'PF_L1': (3077, 2, 1.0, '', 'Power Factor L1'),
-        'PF_L2': (3079, 2, 1.0, '', 'Power Factor L2'),
-        'PF_L3': (3081, 2, 1.0, '', 'Power Factor L3'),
-        'PF_Total': (3083, 2, 1.0, '', 'Total Power Factor'),
+        'PF_L1': (3077, 2, 1.0, 'PF', 'Power Factor L1'),
+        'PF_L2': (3079, 2, 1.0, 'PF', 'Power Factor L2'),
+        'PF_L3': (3081, 2, 1.0, 'PF', 'Power Factor L3'),
+        'PF_Total': (3083, 2, 1.0, 'PF', 'Total Power Factor'),
 
         # THD Voltage (Phase L1, L2, L3)
         'THDv_L1': (21329, 2, 1.0, '%', 'THD Voltage L1'),
@@ -96,7 +96,7 @@ class PM2230Scanner:
 
         # Unbalance (using Worst Phase registers)
         'V_unb': (3051, 2, 1.0, '%', 'Voltage Unbalance L-N (Worst)'),
-        'U_unb': (3039, 2, 1.0, '%', 'Voltage Unbalance L-L (Worst)'),
+        'U_unb': (3043, 2, 1.0, '%', 'Voltage Unbalance L-L (Worst)'),
         'I_unb': (3017, 2, 1.0, '%', 'Current Unbalance (Worst)'),
 
         # Energy (Int64 -> scaled to match meter display in kWh/kVAh/kvarh)
@@ -212,6 +212,29 @@ class PM2230Scanner:
             raw_value = raw_value - 65536
         return round(raw_value * scale, 3)
     
+    @staticmethod
+    def _decode_pf_quadrant(raw_pf: float):
+        """
+        PM2230 4-Quadrant Power Factor Encoding:
+          Quadrant 1:  0   to +1  → Lagging (Inductive), Import  → PF = val
+          Quadrant 4: +1   to +2  → Leading (Capacitive), Import → PF = 2.0 - val
+          Quadrant 3: -1   to  0  → Leading (Capacitive), Export → PF = abs(val)
+          Quadrant 2: -2   to -1  → Lagging (Inductive), Export  → PF = abs((-2.0) - val)
+        Returns: (pf_magnitude: float 0-1, pf_type: 'Lag' | 'Lead')
+        """
+        if raw_pf > 1.0:
+            # Quadrant 4: Leading Import
+            return round(2.0 - raw_pf, 4), 'Lead'
+        elif raw_pf < -1.0:
+            # Quadrant 2: Lagging Export
+            return round(abs((-2.0) - raw_pf), 4), 'Lag'
+        elif raw_pf < 0.0:
+            # Quadrant 3: Leading Export
+            return round(abs(raw_pf), 4), 'Lead'
+        else:
+            # Quadrant 1: Lagging Import (0 to +1)
+            return round(raw_pf, 4), 'Lag'
+
     def _decode_float32(self, registers: List[int]) -> float:
         """Decode two 16-bit registers as Big Endian IEEE 754 float."""
         import struct
@@ -273,13 +296,12 @@ class PM2230Scanner:
             raw_value = registers[0]
             scaled_value = self.convert_value(raw_value, scale, unit)
         
-        # PM2230 PF lead/lag conversion:
-        # PF > 1.0 means leading (capacitive), actual PF = 2.0 - stored_value
-        # PF <= 1.0 means lagging (inductive), value is direct
-        if param_name.startswith('PF_') and scaled_value > 1.0:
-            scaled_value = round(2.0 - scaled_value, 4)
+        # PM2230 4-Quadrant PF conversion
+        pf_type = None
+        if param_name.startswith('PF_'):
+            scaled_value, pf_type = self._decode_pf_quadrant(scaled_value)
         
-        return {
+        result = {
             'name': param_name,
             'value': scaled_value,
             'unit': unit,
@@ -287,6 +309,9 @@ class PM2230Scanner:
             'address': address,
             'raw_value': raw_value
         }
+        if pf_type:
+            result['pf_type'] = pf_type
+        return result
     
     def read_all_parameters(self) -> Dict:
         """
@@ -395,11 +420,12 @@ class PM2230Scanner:
                     raw_value = registers[0]
                     scaled_value = self.convert_value(raw_value, scale, unit)
                 
-                # PM2230 PF lead/lag conversion
-                if param_name.startswith('PF_') and scaled_value > 1.0:
-                    scaled_value = round(2.0 - scaled_value, 4)
+                # PM2230 4-Quadrant PF conversion
+                pf_type = None
+                if param_name.startswith('PF_'):
+                    scaled_value, pf_type = self._decode_pf_quadrant(scaled_value)
                     
-                data['parameters'][param_name] = {
+                param_entry = {
                     'name': param_name,
                     'value': scaled_value,
                     'unit': unit,
@@ -407,6 +433,9 @@ class PM2230Scanner:
                     'address': address,
                     'raw_value': raw_value
                 }
+                if pf_type:
+                    param_entry['pf_type'] = pf_type
+                data['parameters'][param_name] = param_entry
             else:
                 errors.append(param_name)
                 data['parameters'][param_name] = {
@@ -594,5 +623,9 @@ class PM2230Client:
             param_data = parameters.get(param_name, {})
             value = param_data.get('value') if isinstance(param_data, dict) else None
             flat[param_name] = value if value is not None else 0.0
+            # Include PF type (Lead/Lag) for PF parameters
+            if param_name.startswith('PF_') and isinstance(param_data, dict):
+                pf_type = param_data.get('pf_type', 'Lag')
+                flat[f"{param_name}_type"] = pf_type
 
         return flat

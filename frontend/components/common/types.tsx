@@ -108,9 +108,10 @@ interface PFRowProps {
   label: string;
   value: number;
   qValue?: number;
+  pfType?: string; // 'Lead' | 'Lag' from backend
 }
 
-export function PFRow({ label, value, qValue }: PFRowProps) {
+export function PFRow({ label, value, qValue, pfType }: PFRowProps) {
   let color = 'text-green-400';
   const absPf = Math.abs(value);
 
@@ -119,25 +120,27 @@ export function PFRow({ label, value, qValue }: PFRowProps) {
     else if (absPf < 0.9) color = 'text-yellow-400';
   }
 
-  // Determine LAGGING / LEADING from reactive power sign
-  // Q > 0 → inductive → LAGGING; Q < 0 → capacitive → LEADING
-  let pfType: 'LAGGING' | 'LEADING' | null = null;
-  if (qValue !== undefined && value !== 0) {
-    pfType = qValue >= 0 ? 'LAGGING' : 'LEADING';
+  // Use pfType from backend (4-quadrant decode) if available,
+  // otherwise fallback to Q sign inference
+  let displayType: 'LAGGING' | 'LEADING' | null = null;
+  if (pfType && value !== 0) {
+    displayType = pfType === 'Lead' ? 'LEADING' : 'LAGGING';
+  } else if (qValue !== undefined && value !== 0) {
+    displayType = qValue >= 0 ? 'LAGGING' : 'LEADING';
   }
 
   return (
     <div className="flex justify-between items-center">
       <span className="text-gray-300">{label}</span>
       <span className="flex items-center gap-2">
-        {pfType && (
+        {displayType && (
           <span
-            className={`text-[10px] font-bold px-1.5 py-0.5 rounded tracking-wide ${pfType === 'LAGGING'
-                ? 'bg-orange-900/50 text-orange-400 border border-orange-600/40'
-                : 'bg-cyan-900/50 text-cyan-400 border border-cyan-600/40'
+            className={`text-[10px] font-bold px-1.5 py-0.5 rounded tracking-wide ${displayType === 'LAGGING'
+              ? 'bg-orange-900/50 text-orange-400 border border-orange-600/40'
+              : 'bg-cyan-900/50 text-cyan-400 border border-cyan-600/40'
               }`}
           >
-            {pfType}
+            {displayType}
           </span>
         )}
         <span className={`text-xl font-bold ${color}`}>

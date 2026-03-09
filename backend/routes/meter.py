@@ -99,7 +99,11 @@ async def get_page3(request: Request):
             'PF_L1': data.get('PF_L1', 0),
             'PF_L2': data.get('PF_L2', 0),
             'PF_L3': data.get('PF_L3', 0),
-            'PF_Total': data.get('PF_Total', 0)
+            'PF_Total': data.get('PF_Total', 0),
+            'PF_L1_type': data.get('PF_L1_type', 'Lag'),
+            'PF_L2_type': data.get('PF_L2_type', 'Lag'),
+            'PF_L3_type': data.get('PF_L3_type', 'Lag'),
+            'PF_Total_type': data.get('PF_Total_type', 'Lag'),
         }
     except Exception as e:
         logger.error(f"Error in get_page3: {e}")
@@ -227,6 +231,10 @@ async def get_snapshot(request: Request):
                 "PF_L2":      data.get("PF_L2", 0),
                 "PF_L3":      data.get("PF_L3", 0),
                 "PF_Total":   data.get("PF_Total", 0),
+                "PF_L1_type": data.get("PF_L1_type", "Lag"),
+                "PF_L2_type": data.get("PF_L2_type", "Lag"),
+                "PF_L3_type": data.get("PF_L3_type", "Lag"),
+                "PF_Total_type": data.get("PF_Total_type", "Lag"),
             },
             "page4": {
                 "timestamp":  data.get("timestamp"),

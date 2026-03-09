@@ -28,7 +28,7 @@ echo [1/3] Setting up Python Backend...
 cd backend
 if not exist .venv (
     echo Creating virtual environment...
-    py -3.12.4 -m venv .venv
+    python -m venv .venv
     if errorlevel 1 (
         echo [ERROR] Failed to create virtual environment. Is Python 3.12 installed?
         echo Download from: https://www.python.org/downloads/release/python-3121/
