@@ -386,8 +386,8 @@ class TestLifespanShutdown:
         with (
             # Don't try real serial ports
             patch("services.modbus_service.auto_connect", return_value=(None, [])),
-            # Don't start the polling coroutine
-            patch("asyncio.create_task", return_value=mock_polling_task),
+            # Don't start the polling coroutine, but close the coroutine to avoid RuntimeWarning
+            patch("asyncio.create_task", side_effect=lambda c: (c.close(), mock_polling_task)[1]),
             # Don't start Cloudflare tunnel thread
             patch("threading.Thread"),
             # Patch constructors in main's namespace so lifespan

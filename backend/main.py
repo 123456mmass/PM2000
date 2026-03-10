@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-PM2230 Dashboard Backend API
-FastAPI server สำหรับอ่านค่าจาก PM2230 และส่งให้ Dashboard (Modular Structure)
+PM2200 Dashboard Backend API
+FastAPI server สำหรับอ่านค่าจาก PM2200 และส่งให้ Dashboard (Modular Structure)
 """
 
 from fastapi import FastAPI, Request
@@ -33,7 +33,7 @@ logging.basicConfig(
     level=getattr(logging, LOG_LEVEL, logging.INFO),
     format=LOG_FORMAT
 )
-logger = logging.getLogger("PM2230_API")
+logger = logging.getLogger("PM2200_API")
 
 # ============================================================================
 # Import Core modules and Routers
@@ -50,7 +50,7 @@ from energy_management import EnergyManagement
 # ============================================================================
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    """Auto-connect PM2230 and start background polling."""
+    """Auto-connect PM2200 and start background polling."""
     # Initialize Predictive Maintenance model
     state.pm_model = PredictiveMaintenance()
     logger.info("🤖 Predictive Maintenance model initialized")
@@ -67,7 +67,7 @@ async def lifespan(app: FastAPI):
     if state.RUST_AVAILABLE and state.USE_RUST:
         logger.info("🦀 Engine: Python + Rust (pm2000_core loaded)")
     elif state.RUST_AVAILABLE and not state.USE_RUST:
-        logger.info("🐍 Engine: Python Only (Rust available but disabled via PM2230_NO_RUST)")
+        logger.info("🐍 Engine: Python Only (Rust available but disabled via PM2200_NO_RUST)")
     else:
         logger.info("🐍 Engine: Python Only (pm2000_core not found)")
 
@@ -103,7 +103,7 @@ async def lifespan(app: FastAPI):
     threading.Thread(target=_start_tunnel, daemon=True).start()
 
     logger.info(
-        f"Auto-connecting PM2230 (baud={state.DEFAULT_BAUDRATE}, "
+        f"Auto-connecting PM2200 (baud={state.DEFAULT_BAUDRATE}, "
         f"slave={state.DEFAULT_SLAVE_ID}, parity={state.DEFAULT_PARITY})..."
     )
     client, attempts = auto_connect(validate_reading=True)
@@ -137,8 +137,8 @@ async def lifespan(app: FastAPI):
 # FastAPI Application setup
 # ============================================================================
 app = FastAPI(
-    title="PM2230 Dashboard API",
-    description="API สำหรับอ่านค่าจาก PM2230 Digital Meter (Modular)",
+    title="PM2200 Dashboard API",
+    description="API สำหรับอ่านค่าจาก PM2200 Digital Meter (Modular)",
     version="1.0.0",
     lifespan=lifespan
 )

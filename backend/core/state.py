@@ -2,7 +2,7 @@ from typing import Dict, Any, List, Optional
 import asyncio
 import os
 
-from pm2230_client import PM2230Client
+from pm2200_client import PM2200Client
 from predictive_maintenance import PredictiveMaintenance
 from predictive_maintenance_external import ExternalPredictiveMaintenance
 from energy_management import EnergyManagement
@@ -14,15 +14,15 @@ try:
 except ImportError:
     RUST_AVAILABLE = False
 
-# If PM2230_NO_RUST=1 is set (e.g. from start-web.bat), disable Rust even if available
-USE_RUST: bool = RUST_AVAILABLE and os.getenv("PM2230_NO_RUST", "0") != "1"
+# If PM2200_NO_RUST=1 is set (e.g. from start-web.bat), disable Rust even if available
+USE_RUST: bool = RUST_AVAILABLE and os.getenv("PM2200_NO_RUST", "0") != "1"
 
 def has_rust_core() -> bool:
     """Central check: is Rust core both available AND enabled?"""
     return RUST_AVAILABLE and USE_RUST
 
 # === Global State Variables ===
-real_client: Optional[PM2230Client] = None
+real_client: Optional[PM2200Client] = None
 cached_data: Dict = {}
 # Fast track: V/I/P/PF/Freq — updated every ~300ms
 fast_data: Dict = {}
@@ -44,8 +44,8 @@ ALERT_RETENTION_SECONDS: float = float(os.getenv("ALERT_RETENTION_SECONDS", "10"
 
 # === Logging State ===
 is_logging: bool = False
-log_filename: str = "pm2230_log.csv"
-fault_log_filename: str = "pm2230_fault_log.csv"
+log_filename: str = "pm2200_log.csv"
+fault_log_filename: str = "pm2200_fault_log.csv"
 log_headers = [
     "timestamp", "status", "V_LN1", "V_LN2", "V_LN3", "V_LN_avg", "V_LL12", "V_LL23", "V_LL31", "V_LL_avg",
     "I_L1", "I_L2", "I_L3", "I_N", "I_avg", "Freq",
@@ -58,12 +58,12 @@ log_headers = [
 ]
 
 # === Configuration & Defaults ===
-DEFAULT_BAUDRATE: int = int(os.getenv("PM2230_BAUDRATE", "9600"))
-DEFAULT_SLAVE_ID: int = int(os.getenv("PM2230_SLAVE_ID", "1"))
-DEFAULT_PARITY: str = os.getenv("PM2230_PARITY", "E").upper()
-DEFAULT_PORT: Optional[str] = os.getenv("PM2230_PORT", "").strip() or None
-DEFAULT_API_PORT: int = int(os.getenv("PM2230_API_PORT", "8003"))
-SIMULATE_MODE: bool = os.getenv("PM2230_SIMULATE", "0") == "1"
+DEFAULT_BAUDRATE: int = int(os.getenv("PM2200_BAUDRATE", "9600"))
+DEFAULT_SLAVE_ID: int = int(os.getenv("PM2200_SLAVE_ID", "1"))
+DEFAULT_PARITY: str = os.getenv("PM2200_PARITY", "E").upper()
+DEFAULT_PORT: Optional[str] = os.getenv("PM2200_PORT", "").strip() or None
+DEFAULT_API_PORT: int = int(os.getenv("PM2200_API_PORT", "8003"))
+SIMULATE_MODE: bool = os.getenv("PM2200_SIMULATE", "0") == "1"
 
 simulator_state = {
     "voltage_sag": False,

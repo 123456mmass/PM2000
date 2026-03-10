@@ -16,7 +16,7 @@ from tenacity import retry, stop_after_attempt, wait_exponential, retry_if_excep
 import hashlib
 import time
 
-if os.getenv("PM2230_NO_RUST", "0") != "1":
+if os.getenv("PM2200_NO_RUST", "0") != "1":
     try:
         import pm2000_core
         HAS_RUST_CORE = True
@@ -340,12 +340,12 @@ class ExternalPredictiveMaintenance:
         
         # เตรียมข้อมูลสำหรับส่งไปยัง AI API
         prompt = f"""
-คุณคือผู้เชี่ยวชาญด้านวิศวกรรมไฟฟ้าที่คอยวิเคราะห์ข้อมูลจาก Power Meter (รุ่น PM2230)
+คุณคือผู้เชี่ยวชาญด้านวิศวกรรมไฟฟ้าที่คอยวิเคราะห์ข้อมูลจาก Power Meter (รุ่น PM2200)
 
 โปรดวิเคราะห์ข้อมูลด้านล่างและทำนายความต้องการในการบำรุงรักษา (Predictive Maintenance) โดยอ้างอิงตามมาตรฐานสากล (เช่น IEEE 519 สำหรับ Harmonics และ IEEE 1159 สำหรับ Power Quality) ให้มีโครงสร้างชัดเจนและกระชับ เป็นภาษาไทย
 
 ## หัวข้อรายงาน:
-รายงานฉบับนี้วิเคราะห์จากข้อมูลค่าเฉลี่ยของ Power Meter รุ่น PM2230
+รายงานฉบับนี้วิเคราะห์จากข้อมูลค่าเฉลี่ยของ Power Meter รุ่น PM2200
 วันที่-เวลา: {datetime.now().strftime('%d/%m/%Y เวลา %H:%M:%S น.')}
 
 --- (ใช้เส้นคั่น)

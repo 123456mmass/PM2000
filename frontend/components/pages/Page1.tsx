@@ -4,6 +4,7 @@ import React from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 import { CustomTooltip } from '../common/CustomTooltip';
 import { VoltageRow, CurrentRow } from '../common';
+import { OscilloscopeChart } from '../common/OscilloscopeChart';
 
 interface Page1Data {
   timestamp: string;
@@ -65,6 +66,8 @@ export function Page1({
   viewMode: 'cards' | 'charts';
   setViewMode: (mode: 'cards' | 'charts') => void;
 }) {
+  const [chartType, setChartType] = React.useState<'trend' | 'oscilloscope'>('oscilloscope');
+
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center bg-gray-900/40 p-3 rounded-xl border border-gray-700/50">
@@ -122,60 +125,95 @@ export function Page1({
           </div>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="bg-gray-800 rounded-xl p-6 border border-gray-700">
-            <h3 className="text-gray-200 font-medium mb-4">📈 กราฟแนวโน้มแรงดันไฟฟ้า 3 เฟส (V)</h3>
-            <div className="h-64 w-full">
-              <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={history}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#374151" vertical={false} />
-                  <XAxis
-                    dataKey="timestamp"
-                    stroke="#9ca3af"
-                    tickFormatter={(val) => {
-                      if (!val) return '';
-                      try { return new Date(val).toLocaleTimeString('th-TH'); }
-                      catch { return ''; }
-                    }}
-                    tick={{ fontSize: 12 }}
-                    axisLine={false}
-                  />
-                  <YAxis stroke="#9ca3af" domain={['auto', 'auto']} tickFormatter={(v) => Number(v).toFixed(0)} />
-                  <Tooltip content={<CustomTooltip />} />
-                  <Legend />
-                  <Line type="monotone" name="L1" dataKey="V_LN1" stroke="#ef4444" strokeWidth={2} dot={false} isAnimationActive={false} />
-                  <Line type="monotone" name="L2" dataKey="V_LN2" stroke="#eab308" strokeWidth={2} dot={false} isAnimationActive={false} />
-                  <Line type="monotone" name="L3" dataKey="V_LN3" stroke="#3b82f6" strokeWidth={2} dot={false} isAnimationActive={false} />
-                </LineChart>
-              </ResponsiveContainer>
+        <div className="space-y-4">
+          <div className="flex justify-end pr-2">
+            <div className="flex bg-gray-800 rounded-lg p-1 border border-gray-700">
+              <button
+                onClick={() => setChartType('oscilloscope')}
+                className={`px-4 py-1.5 rounded-md text-sm font-medium transition flex items-center gap-2 ${chartType === 'oscilloscope' ? 'bg-green-600/20 text-green-400 border border-green-500/50 shadow' : 'text-gray-400 hover:text-white border border-transparent'}`}
+              >
+                〰️ Oscilloscope
+              </button>
+              <button
+                onClick={() => setChartType('trend')}
+                className={`px-4 py-1.5 rounded-md text-sm font-medium transition flex items-center gap-2 ${chartType === 'trend' ? 'bg-blue-600/20 text-blue-400 border border-blue-500/50 shadow' : 'text-gray-400 hover:text-white border border-transparent'}`}
+              >
+                📈 Trend (RMS)
+              </button>
             </div>
           </div>
 
-          <div className="bg-gray-800 rounded-xl p-6 border border-gray-700">
-            <h3 className="text-gray-200 font-medium mb-4">📈 กราฟแนวโน้มกระแสไฟฟ้า 3 เฟส (I)</h3>
-            <div className="h-64 w-full">
-              <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={history}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#374151" vertical={false} />
-                  <XAxis
-                    dataKey="timestamp"
-                    stroke="#9ca3af"
-                    tickFormatter={(val) => {
-                      if (!val) return '';
-                      try { return new Date(val).toLocaleTimeString('th-TH'); }
-                      catch { return ''; }
-                    }}
-                    tick={{ fontSize: 12 }}
-                    axisLine={false}
-                  />
-                  <YAxis stroke="#9ca3af" domain={['auto', 'auto']} tickFormatter={(v) => Number(v).toFixed(2)} />
-                  <Tooltip content={<CustomTooltip />} />
-                  <Legend />
-                  <Line type="monotone" name="L1" dataKey="I_L1" stroke="#ef4444" strokeWidth={2} dot={false} isAnimationActive={false} />
-                  <Line type="monotone" name="L2" dataKey="I_L2" stroke="#eab308" strokeWidth={2} dot={false} isAnimationActive={false} />
-                  <Line type="monotone" name="L3" dataKey="I_L3" stroke="#3b82f6" strokeWidth={2} dot={false} isAnimationActive={false} />
-                </LineChart>
-              </ResponsiveContainer>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="bg-gray-800 rounded-xl p-6 border border-gray-700 flex flex-col">
+              <h3 className="text-gray-200 font-medium mb-4 flex-none">
+                {chartType === 'oscilloscope' ? '〰️ รูปคลื่นแรงดันไฟฟ้า 3 เฟส (V)' : '📈 กราฟแนวโน้มแรงดันไฟฟ้า 3 เฟส (V)'}
+              </h3>
+              {chartType === 'oscilloscope' ? (
+                <div className="flex-1 w-full relative">
+                  <OscilloscopeChart l1={data.V_LN1} l2={data.V_LN2} l3={data.V_LN3} freq={data.Freq} unit="V" />
+                </div>
+              ) : (
+                <div className="h-64 w-full flex-none">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <LineChart data={history}>
+                      <CartesianGrid strokeDasharray="3 3" stroke="#374151" vertical={false} />
+                      <XAxis
+                        dataKey="timestamp"
+                        stroke="#9ca3af"
+                        tickFormatter={(val) => {
+                          if (!val) return '';
+                          try { return new Date(val).toLocaleTimeString('th-TH'); }
+                          catch { return ''; }
+                        }}
+                        tick={{ fontSize: 12 }}
+                        axisLine={false}
+                      />
+                      <YAxis stroke="#9ca3af" domain={['auto', 'auto']} tickFormatter={(v) => Number(v).toFixed(0)} />
+                      <Tooltip content={<CustomTooltip />} />
+                      <Legend />
+                      <Line type="monotone" name="L1" dataKey="V_LN1" stroke="#ef4444" strokeWidth={2} dot={false} isAnimationActive={false} />
+                      <Line type="monotone" name="L2" dataKey="V_LN2" stroke="#eab308" strokeWidth={2} dot={false} isAnimationActive={false} />
+                      <Line type="monotone" name="L3" dataKey="V_LN3" stroke="#3b82f6" strokeWidth={2} dot={false} isAnimationActive={false} />
+                    </LineChart>
+                  </ResponsiveContainer>
+                </div>
+              )}
+            </div>
+
+            <div className="bg-gray-800 rounded-xl p-6 border border-gray-700 flex flex-col">
+              <h3 className="text-gray-200 font-medium mb-4 flex-none">
+                {chartType === 'oscilloscope' ? '〰️ รูปคลื่นกระแสไฟฟ้า 3 เฟส (I)' : '📈 กราฟแนวโน้มกระแสไฟฟ้า 3 เฟส (I)'}
+              </h3>
+              {chartType === 'oscilloscope' ? (
+                <div className="flex-1 w-full relative">
+                  <OscilloscopeChart l1={data.I_L1} l2={data.I_L2} l3={data.I_L3} freq={data.Freq} unit="A" />
+                </div>
+              ) : (
+                <div className="h-64 w-full flex-none">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <LineChart data={history}>
+                      <CartesianGrid strokeDasharray="3 3" stroke="#374151" vertical={false} />
+                      <XAxis
+                        dataKey="timestamp"
+                        stroke="#9ca3af"
+                        tickFormatter={(val) => {
+                          if (!val) return '';
+                          try { return new Date(val).toLocaleTimeString('th-TH'); }
+                          catch { return ''; }
+                        }}
+                        tick={{ fontSize: 12 }}
+                        axisLine={false}
+                      />
+                      <YAxis stroke="#9ca3af" domain={['auto', 'auto']} tickFormatter={(v) => Number(v).toFixed(2)} />
+                      <Tooltip content={<CustomTooltip />} />
+                      <Legend />
+                      <Line type="monotone" name="L1" dataKey="I_L1" stroke="#ef4444" strokeWidth={2} dot={false} isAnimationActive={false} />
+                      <Line type="monotone" name="L2" dataKey="I_L2" stroke="#eab308" strokeWidth={2} dot={false} isAnimationActive={false} />
+                      <Line type="monotone" name="L3" dataKey="I_L3" stroke="#3b82f6" strokeWidth={2} dot={false} isAnimationActive={false} />
+                    </LineChart>
+                  </ResponsiveContainer>
+                </div>
+              )}
             </div>
           </div>
         </div>

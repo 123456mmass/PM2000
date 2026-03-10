@@ -15,7 +15,7 @@ from core.security import rate_limit
 from services.modbus_service import get_latest_data
 
 router = APIRouter(prefix="/api/v1")
-logger = logging.getLogger("PM2230_API")
+logger = logging.getLogger("PM2200_API")
 
 @router.get("/data", response_model=ParameterData)
 @rate_limit
@@ -129,7 +129,7 @@ async def get_page4(request: Request):
 @router.get("/parameters")
 @rate_limit
 async def get_parameters_list(request: Request):
-    from pm2230_client import REGISTER_MAP
+    from pm2200_client import REGISTER_MAP
     params = []
     for i, (name, info) in enumerate(REGISTER_MAP.items(), 1):
         params.append({

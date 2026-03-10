@@ -16,7 +16,7 @@ from services.modbus_service import (
 from core.security import rate_limit
 
 router = APIRouter(prefix="/api/v1")
-logger = logging.getLogger("PM2230_API")
+logger = logging.getLogger("PM2200_API")
 
 @router.get("/tunnel-url")
 async def get_tunnel_url():
@@ -66,7 +66,7 @@ async def logging_status(request: Request):
 async def download_log(request: Request, type: str = "normal"):
     """Download the generated CSV file (normal or fault)"""
     target_file = state.fault_log_filename if type == "fault" else state.log_filename
-    target_name = "PM2230_Fault_Log.csv" if type == "fault" else "PM2230_Data_Log.csv"
+    target_name = "PM2200_Fault_Log.csv" if type == "fault" else "PM2200_Data_Log.csv"
     
     if os.path.exists(target_file):
         return FileResponse(path=target_file, filename=target_name, media_type='text/csv')
@@ -93,7 +93,7 @@ async def clear_log(request: Request, type: str = "normal"):
 @router.get("/ports")
 @rate_limit
 async def get_serial_ports(request: Request):
-    """List serial port candidates for PM2230 connection."""
+    """List serial port candidates for PM2200 connection."""
     return {
         "ports": discover_serial_ports(),
         "defaults": {
@@ -154,6 +154,7 @@ async def toggle_simulate_mode(request: Request):
         client, attempts = auto_connect(validate_reading=True)
         if client:
              logger.info(f"Auto-connected to {client.port} after switching mode.")
+             state.real_client = client
              return {"message": f"Switched to Real Mode. Connected to {client.port}", "simulate_mode": False}
         else:
              logger.warning("Auto-connect failed after switching to Real Mode.")
@@ -237,7 +238,7 @@ async def reset_simulator(request: Request):
 @router.get("/auto-connect")
 @rate_limit
 async def auto_connect_real_device(request: Request, validate: bool = True):
-    """Try all discovered serial ports and connect to the first working PM2230."""
+    """Try all discovered serial ports and connect to the first working PM2200."""
     if state.real_client:
         try:
             state.real_client.disconnect()
@@ -248,7 +249,7 @@ async def auto_connect_real_device(request: Request, validate: bool = True):
     client, attempts = auto_connect(validate_reading=validate)
     if client:
         state.real_client = client
-        logger.info(f"Connected to PM2230 on {state.real_client.port}")
+        logger.info(f"Connected to PM2200 on {state.real_client.port}")
         return {
             "status": "connected",
             "port": state.real_client.port,
@@ -258,7 +259,7 @@ async def auto_connect_real_device(request: Request, validate: bool = True):
             "mode": "real",
             "validated": validate,
             "attempts": attempts,
-            "message": f"Connected to PM2230 on {state.real_client.port}",
+            "message": f"Connected to PM2200 on {state.real_client.port}",
         }
 
     logger.error(f"Auto-connect failed. Attempts: {attempts}")
@@ -281,7 +282,7 @@ async def connect_real_device(
     parity: str = "E",
     validate: bool = True,
 ):
-    """เชื่อมต่อ PM2230 จริงผ่าน RS485"""
+    """เชื่อมต่อ PM2200 จริงผ่าน RS485"""
     try:
         connect_params = ConnectRequest(
             port=port,
@@ -309,7 +310,7 @@ async def connect_real_device(
     )
     if client:
         state.real_client = client
-        logger.info(f"Connected to PM2230 on {state.real_client.port}")
+        logger.info(f"Connected to PM2200 on {state.real_client.port}")
         return {
             "status": "connected",
             "port": state.real_client.port,
@@ -319,20 +320,20 @@ async def connect_real_device(
             "mode": "real",
             "validated": validate,
             "probe_result": reason,
-            "message": f"Connected to PM2230 on {state.real_client.port}"
+            "message": f"Connected to PM2200 on {state.real_client.port}"
         }
 
-    logger.error(f"Cannot connect to PM2230 on {port}: {reason}")
+    logger.error(f"Cannot connect to PM2200 on {port}: {reason}")
     raise HTTPException(
         status_code=500,
-        detail=f"Cannot connect to PM2230 on {port} ({reason}). Check wiring, parity, slave ID.",
+        detail=f"Cannot connect to PM2200 on {port} ({reason}). Check wiring, parity, slave ID.",
     )
 
 
 @router.get("/disconnect")
 @rate_limit
 async def disconnect_real_device(request: Request):
-    """Disconnect PM2230"""
+    """Disconnect PM2200"""
     if state.real_client:
         state.real_client.disconnect()
         state.real_client = None
@@ -341,5 +342,87 @@ async def disconnect_real_device(request: Request):
         "status": "NOT_CONNECTED",
     }
     state.last_poll_error = None
-    logger.info("Disconnected from PM2230")
-    return {"status": "disconnected", "message": "Disconnected from PM2230."}
+    logger.info("Disconnected from PM2200")
+@router.get("/config/thresholds")
+@rate_limit
+async def get_thresholds(request: Request):
+    """Get current anomaly thresholds from config file"""
+    try:
+        config_path = "energy_config.json"
+        if os.path.exists(config_path):
+            import json
+            with open(config_path, "r", encoding="utf-8") as f:
+                cfg = json.load(f)
+                return cfg.get("anomaly_thresholds", {})
+        else:
+            raise HTTPException(status_code=404, detail="Config file not found")
+    except Exception as e:
+        logger.error(f"Error reading thresholds config: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@router.post("/config/thresholds")
+@rate_limit
+async def update_thresholds(request: Request):
+    """Update anomaly thresholds in config file"""
+    try:
+        body = await request.json()
+        config_path = "energy_config.json"
+        
+        # Load existing config
+        cfg = {}
+        if os.path.exists(config_path):
+            import json
+            with open(config_path, "r", encoding="utf-8") as f:
+                cfg = json.load(f)
+                
+        # Update thresholds section
+        if "anomaly_thresholds" not in cfg:
+            cfg["anomaly_thresholds"] = {}
+            
+        # Update only keys that exist in the request body
+        for key, value in body.items():
+            try:
+                # Store as float for consistency
+                cfg["anomaly_thresholds"][key] = float(value)
+            except (ValueError, TypeError):
+                logger.warning(f"Invalid value for threshold {key}: {value}")
+                
+        # Save back to file
+        import json
+        with open(config_path, "w", encoding="utf-8") as f:
+            json.dump(cfg, f, indent=4)
+            
+        logger.info("Anomaly thresholds updated successfully")
+        return {
+            "status": "success",
+            "message": "Thresholds updated",
+            "anomaly_thresholds": cfg["anomaly_thresholds"]
+        }
+    except Exception as e:
+        logger.error(f"Error updating thresholds config: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@router.post("/test-line-notify")
+@rate_limit
+async def test_line_notify(request: Request):
+    """Send a test message via LINE Notify to verify connectivity"""
+    try:
+        from services.modbus_service import send_line_message
+        
+        test_msg = (
+            "\n🟢 [TEST] ระบบแจ้งเตือน PM2000\n"
+            "ข้อความนี้ถูกส่งจากการกดปุ่มทดสอบระบบที่หน้าเว็บ\n"
+            f"⏰ เวลา: {datetime.now().strftime('%H:%M:%S')}\n"
+            "✅ การเชื่อมต่อ LINE ทำงานได้สมบูรณ์"
+        )
+        
+        await send_line_message(test_msg)
+        logger.info("Test LINE notification sent successfully")
+        
+        return {
+            "status": "success",
+            "message": "Test notification sent"
+        }
+    except Exception as e:
+        logger.error(f"Error sending test LINE notification: {e}")
+        raise HTTPException(status_code=500, detail=str(e))

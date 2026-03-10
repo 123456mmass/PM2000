@@ -90,8 +90,8 @@ pub fn diagnose_faults<'py>(py: Python<'py>, data: Bound<'py, PyDict>) -> PyResu
         alerts.push(Alert {
             category: "phase_loss".into(),
             severity: "critical".into(),
-            message: format!("Phase Loss Detected: {} disconnected", phase_str),
-            detail: "Possible fuse blown or primary side failure.".into(),
+            message: format!("ตรวจพบเฟสหลุด: {} — แรงดันต่ำกว่า 50V ต้องตัดโหลดมอเตอร์ 3 เฟสทันที", phase_str),
+            detail: "สาเหตุ: ฟิว์ขาด, สายหลุด, หรือหม้อแปลงชำรุด — ต้องตัดโหลดมอเตอร์ 3 เฟสทันที".into(),
         });
     }
 
@@ -150,8 +150,8 @@ pub fn diagnose_faults<'py>(py: Python<'py>, data: Bound<'py, PyDict>) -> PyResu
         alerts.push(Alert {
             category: "harmonics".into(),
             severity: "medium".into(),
-            message: format!("High Harmonics Distortion: {:.1}%", max_thd),
-            detail: "May cause electronic equipment malfunction.".into(),
+            message: format!("ค่าเพี้ยนฮาร์มอนิกแรงดัน (THDv) สูง {:.1}% เกินมาตรฐาน วสท. หม้อแปลงเสี่ยงร้อนจัด", max_thd),
+            detail: "ตรวจสอบ VSD/Inverter, UPS, อุปกรณ์ Non-linear — ต้องติดตั้ง Harmonic Filter".into(),
         });
     }
 
@@ -160,18 +160,25 @@ pub fn diagnose_faults<'py>(py: Python<'py>, data: Bound<'py, PyDict>) -> PyResu
         alerts.push(Alert {
             category: "frequency".into(),
             severity: "high".into(),
-            message: format!("Frequency Anomaly: {:.2} Hz", freq),
-            detail: "Grid instability detected.".into(),
+            message: format!("ความถี่ผิดปกติ {:.2} Hz นอกช่วง 49.0-51.0 Hz อาจเกิดจากระบบไฟฟ้าไม่เสถียร", freq),
+            detail: "เฝ้าระวังสถานการณ์ — อาจส่งผลต่อ PLC, นาฬิกา, มอเตอร์".into(),
         });
     }
 
-    // 7. Short Circuit
+    // 7. Short Circuit & Overload
     if i_avg > 100.0 {
         alerts.push(Alert {
             category: "short_circuit".into(),
             severity: "critical".into(),
-            message: format!("Short Circuit Detected: {:.1}A", i_avg),
-            detail: "Immediate action required to prevent damage.".into(),
+            message: format!("กระแสเกินวิกฤต {:.1}A (เกิน 100A) สงสัยลัดวงจร — ต้องตัดไฟทันที!", i_avg),
+            detail: "ตรวจสอบจุดลัดวงจร, เบรกเกอร์, และฉนวนสายไฟ".into(),
+        });
+    } else if i_avg > 40.0 {
+        alerts.push(Alert {
+            category: "overload".into(),
+            severity: "high".into(),
+            message: format!("กระแสไฟเกินพิกัด {:.1}A เสี่ยงต่อสายไฟร้อนจัดและเบรกเกอร์ทริป", i_avg),
+            detail: "ตรวจสอบและลดโหลดการใช้งาน เพื่อป้องกันเบรกเกอร์ตัดวงจร".into(),
         });
     }
 
@@ -181,8 +188,8 @@ pub fn diagnose_faults<'py>(py: Python<'py>, data: Bound<'py, PyDict>) -> PyResu
         alerts.push(Alert {
             category: "ground_fault".into(),
             severity: "critical".into(),
-            message: format!("Ground Fault Detected: {:.1}A", i_n),
-            detail: "Immediate action required to prevent damage.".into(),
+            message: format!("กระแส Neutral สูง {:.1}A (>5.0A) สงสัย Ground Fault — ตัดไฟทันที!", i_n),
+            detail: "ตรวจสอบฉนวนสายไฟ, จุดรั่วไหลลงดิน, อุปกรณ์ชำรุด".into(),
         });
     }
 

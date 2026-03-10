@@ -16,7 +16,7 @@ from core import state
 from ai_analyzer import generate_line_chat_response
 
 router = APIRouter(prefix="/api/line", tags=["LINE Webhook"])
-logger = logging.getLogger("PM2230_API")
+logger = logging.getLogger("PM2200_API")
 
 LINE_CHANNEL_SECRET = os.getenv("LINE_CHANNEL_SECRET", "")
 LINE_CHANNEL_ACCESS_TOKEN = os.getenv("LINE_CHANNEL_ACCESS_TOKEN", "")

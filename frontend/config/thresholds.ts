@@ -1,5 +1,5 @@
 /**
- * PM2230 Dashboard Threshold Configuration
+ * PM2200 Dashboard Threshold Configuration
  *
  * Defines warning and critical thresholds for power quality monitoring.
  * Values are based on typical electrical standards (IEC 61000, IEEE 519).
@@ -42,7 +42,7 @@ export interface ThresholdConfig {
 }
 
 /**
- * Default threshold values for PM2230 power monitoring
+ * Default threshold values for PM2200 power monitoring
  * Adjust these values based on your specific installation requirements
  */
 export const defaultThresholds: ThresholdConfig = {

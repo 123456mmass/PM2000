@@ -1,7 +1,7 @@
 #!/bin/bash
 
 echo "======================================================"
-echo "PM2230 Dashboard - Linux Build Automation Tool"
+echo "PM2200 Dashboard - Linux Build Automation Tool"
 echo "======================================================"
 echo ""
 
@@ -37,7 +37,7 @@ pip install -r requirements.txt
 pip install pyinstaller
 
 echo "Bundling Python backend into executable (Sidecar)..."
-pyinstaller --noconfirm --onefile --console --name "backend-server" main.py
+pyinstaller --noconfirm backend-server-linux.spec
 cp .env dist/ 2>/dev/null || true
 cd ..
 

@@ -1,9 +1,9 @@
 #!/bin/bash
-# PM2230 Dashboard - Linux/Mac Launcher
+# PM2200 Dashboard - Linux/Mac Launcher
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 echo "======================================================"
-echo " PM2230 Dashboard - Web Mode Launcher"
+echo " PM2200 Dashboard - Web Mode Launcher"
 echo "======================================================"
 
 # Clear port 8003 if in use

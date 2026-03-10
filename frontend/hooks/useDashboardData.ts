@@ -2,16 +2,14 @@ import useSWR from 'swr';
 
 export interface DashboardData {
   timestamp?: string;
-  page1?: any;
-  page2?: any;
-  page3?: any;
-  page4?: any;
+  page1?: Record<string, unknown>;
+  page2?: Record<string, unknown>;
+  page3?: Record<string, unknown>;
+  page4?: Record<string, unknown>;
   alerts?: {
     status: string;
-    alerts: any[];
-    active: boolean;
-    retained: boolean;
-  };
+    alerts: { category: string; severity: string; message: string; detail?: string }[];
+  } | null;
   systemStatus?: {
     connected: boolean;
     mode: string;

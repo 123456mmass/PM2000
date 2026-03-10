@@ -1,11 +1,11 @@
 #!/bin/bash
-# PM2230 Dashboard - Raspberry Pi Build Script
+# PM2200 Dashboard - Raspberry Pi Build Script
 # Run this DIRECTLY on the Raspberry Pi
 
 set -e
 
 echo "======================================================"
-echo " PM2230 Dashboard - Raspberry Pi Build Tool"
+echo " PM2200 Dashboard - Raspberry Pi Build Tool"
 echo "======================================================"
 echo ""
 
@@ -68,7 +68,7 @@ cat > "$ROOT_DIR/backend/dist/start-pi.sh" << 'LAUNCHER_EOF'
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 echo "======================================================"
-echo " PM2230 Dashboard - Pi Launcher"
+echo " PM2200 Dashboard - Pi Launcher"
 echo "======================================================"
 echo ""
 echo " [1] Local only   (this Pi only)"

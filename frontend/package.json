@@ -6,7 +6,7 @@
     "dev": "node node_modules/next/dist/bin/next dev -H 0.0.0.0",
     "build": "node node_modules/next/dist/bin/next build",
     "start": "node node_modules/next/dist/bin/next start",
-    "lint": "node node_modules/eslint/bin/eslint.js",
+    "lint": "eslint .",
     "report:image": "node scripts/generate-report-svg.mjs",
     "test": "jest",
     "test:watch": "jest --watch",

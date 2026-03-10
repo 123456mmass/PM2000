@@ -148,10 +148,10 @@ export const ChatPanel = () => {
             }
         };
 
-        // @ts-ignore - CustomEvent listener
+        // @ts-expect-error - CustomEvent listener
         window.addEventListener('open-chat-with-context', handleOpenChat);
 
-        // @ts-ignore
+        // @ts-expect-error - CustomEvent listener return
         return () => window.removeEventListener('open-chat-with-context', handleOpenChat);
     }, []);  // Empty dependency array - use ref instead
 

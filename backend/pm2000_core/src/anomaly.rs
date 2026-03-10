@@ -144,7 +144,7 @@ pub fn detect_anomalies<'py>(
             alerts.push(AnomalyAlert {
                 category: "voltage".into(),
                 severity: "warning".into(),
-                message: format!("Overvoltage detected ({:.1}V)", v_avg),
+                message: format!("แรงดันไฟฟ้าเกินมาตรฐาน {:.1}V (กฟภ./กฟน. สูงสุด {:.1}V) เสี่ยงฉนวนเสื่อม", v_avg, max_v),
                 value: v_avg,
                 threshold: max_v,
                 trend: v_trend.clone(),
@@ -153,7 +153,7 @@ pub fn detect_anomalies<'py>(
             alerts.push(AnomalyAlert {
                 category: "voltage".into(),
                 severity: "warning".into(),
-                message: format!("Undervoltage detected ({:.1}V)", v_avg),
+                message: format!("แรงดันไฟฟ้าตก {:.1}V (กฟภ./กฟน. ต่ำสุด {:.1}V) เสี่ยงมอเตอร์ไหม้", v_avg, min_v),
                 value: v_avg,
                 threshold: min_v,
                 trend: v_trend,
@@ -175,7 +175,7 @@ pub fn detect_anomalies<'py>(
             alerts.push(AnomalyAlert {
                 category: "voltage_unbalance".into(),
                 severity: "warning".into(),
-                message: format!("Voltage unbalance exceeds limit ({:.1}%)", v_unb),
+                message: format!("แรงดันไม่สมดุล {:.1}% เกินมาตรฐาน วสท. {:.1}% มอเตอร์ 3 เฟสกินกระแสเกินและเสี่ยงไหม้", v_unb, v_unb_limit),
                 value: v_unb,
                 threshold: v_unb_limit,
                 trend: analyze_trend(&unb_hist),
@@ -193,7 +193,7 @@ pub fn detect_anomalies<'py>(
             alerts.push(AnomalyAlert {
                 category: "current_unbalance".into(),
                 severity: "critical".into(),
-                message: format!("Critical Current unbalance ({:.1}%)", i_unb),
+                message: format!("กระแสไม่สมดุลวิกฤต {:.1}% (เกิน {:.1}%) มอเตอร์เสี่ยงร้อนจัด", i_unb, i_unb_crit),
                 value: i_unb,
                 threshold: i_unb_crit,
                 trend: "none".into(), // Critical usually implies immediate action
@@ -202,7 +202,7 @@ pub fn detect_anomalies<'py>(
             alerts.push(AnomalyAlert {
                 category: "current_unbalance".into(),
                 severity: "warning".into(),
-                message: format!("Current unbalance exceeds warning limit ({:.1}%)", i_unb),
+                message: format!("กระแสไม่สมดุล {:.1}% เกินเกณฑ์เตือน {:.1}% วสท./IEC", i_unb, i_unb_warn),
                 value: i_unb,
                 threshold: i_unb_warn,
                 trend: "none".into(),
@@ -217,7 +217,7 @@ pub fn detect_anomalies<'py>(
         alerts.push(AnomalyAlert {
             category: "thdv".into(),
             severity: severity.into(),
-            message: format!("Voltage Harmonics High ({:.1}%)", thdv_max),
+            message: format!("ฮาร์มอนิกแรงดัน (THDv) สูง {:.1}% เกินมาตรฐาน วสท./IEEE519 หม้อแปลงเสี่ยงร้อนจัด", thdv_max),
             value: thdv_max,
             threshold: thdv_warn,
             trend: analyze_trend(&thdv_hist),
@@ -229,7 +229,7 @@ pub fn detect_anomalies<'py>(
         alerts.push(AnomalyAlert {
             category: "thdi".into(),
             severity: severity.into(),
-            message: format!("Current Harmonics High ({:.1}%)", thdi_max),
+            message: format!("ฮาร์มอนิกกระแส (THDi) สูง {:.1}% Neutral รับกระแสเกิน เสี่ยงสายไหม้", thdi_max),
             value: thdi_max,
             threshold: thdi_warn,
             trend: "none".into(),
@@ -243,7 +243,7 @@ pub fn detect_anomalies<'py>(
         alerts.push(AnomalyAlert {
             category: "power_factor".into(),
             severity: severity.into(),
-            message: format!("Low Power Factor Detected ({:.2})", pf_min),
+            message: format!("Power Factor ต่ำ {:.2} เสี่ยงถูกปรับเงิน กฟน./กฟภ. (เกณฑ์: {:.2})", pf_min, pf_warn),
             value: pf_min,
             threshold: pf_warn,
             trend: analyze_trend(&pf_hist),
@@ -255,7 +255,7 @@ pub fn detect_anomalies<'py>(
         alerts.push(AnomalyAlert {
             category: "frequency".into(),
             severity: "critical".into(),
-            message: format!("Grid frequency out of bounds ({:.2} Hz)", freq),
+            message: format!("ความถี่ผิดปกติ {:.2} Hz (เกณฑ์มาตรฐาน {:.1} Hz ±{:.1}%)", freq, f_nom, f_tol),
             value: freq,
             threshold: f_nom,
             trend: "none".into(),

@@ -91,7 +91,7 @@ class TestChatStreamUnit:
         from main import app
         with (
             patch("services.modbus_service.auto_connect", return_value=(None, [])),
-            patch("asyncio.create_task", return_value=MagicMock()),
+            patch("asyncio.create_task", side_effect=lambda c: (c.close(), MagicMock())[1]),
             patch("threading.Thread"),
             patch("main.EnergyManagement", return_value=MagicMock(close=AsyncMock())),
             patch("main.ExternalPredictiveMaintenance", return_value=MagicMock(close=AsyncMock())),
@@ -110,7 +110,7 @@ class TestChatStreamUnit:
         from main import app
         with (
             patch("services.modbus_service.auto_connect", return_value=(None, [])),
-            patch("asyncio.create_task", return_value=MagicMock()),
+            patch("asyncio.create_task", side_effect=lambda c: (c.close(), MagicMock())[1]),
             patch("threading.Thread"),
             patch("main.EnergyManagement", return_value=MagicMock(close=AsyncMock())),
             patch("main.ExternalPredictiveMaintenance", return_value=MagicMock(close=AsyncMock())),
@@ -128,7 +128,7 @@ class TestChatStreamUnit:
         from main import app
         with (
             patch("services.modbus_service.auto_connect", return_value=(None, [])),
-            patch("asyncio.create_task", return_value=MagicMock()),
+            patch("asyncio.create_task", side_effect=lambda c: (c.close(), MagicMock())[1]),
             patch("threading.Thread"),
             patch("main.EnergyManagement", return_value=MagicMock(close=AsyncMock())),
             patch("main.ExternalPredictiveMaintenance", return_value=MagicMock(close=AsyncMock())),
@@ -152,7 +152,7 @@ class TestChatStreamUnit:
         from main import app
         with (
             patch("services.modbus_service.auto_connect", return_value=(None, [])),
-            patch("asyncio.create_task", return_value=MagicMock()),
+            patch("asyncio.create_task", side_effect=lambda c: (c.close(), MagicMock())[1]),
             patch("threading.Thread"),
             patch("main.EnergyManagement", return_value=MagicMock(close=AsyncMock())),
             patch("main.ExternalPredictiveMaintenance", return_value=MagicMock(close=AsyncMock())),
@@ -173,7 +173,7 @@ class TestChatStreamUnit:
         from main import app
         with (
             patch("services.modbus_service.auto_connect", return_value=(None, [])),
-            patch("asyncio.create_task", return_value=MagicMock()),
+            patch("asyncio.create_task", side_effect=lambda c: (c.close(), MagicMock())[1]),
             patch("threading.Thread"),
             patch("main.EnergyManagement", return_value=MagicMock(close=AsyncMock())),
             patch("main.ExternalPredictiveMaintenance", return_value=MagicMock(close=AsyncMock())),

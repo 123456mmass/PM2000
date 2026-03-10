@@ -1,6 +1,9 @@
 'use client';
 
 import { useEffect, useState, useCallback, useRef } from 'react';
+import { AlertToaster } from '@/components/common/AlertToaster';
+import { FaultDetailsModal } from '@/components/common/FaultDetailsModal';
+import { FaultAlert } from '@/components/common/types';
 import { Page1 } from '@/components/pages/Page1';
 import { Page2 } from '@/components/pages/Page2';
 import { Page3 } from '@/components/pages/Page3';
@@ -157,6 +160,11 @@ export default function Home() {
   const [logSizeKb, setLogSizeKb] = useState(0);
   const [faultRecordCount, setFaultRecordCount] = useState(0);
   const [isClearMenuOpen, setIsClearMenuOpen] = useState(false);
+  const [persistentAlerts, setPersistentAlerts] = useState<FaultAlert[]>([]);
+  const [isAlertDismissed, setIsAlertDismissed] = useState(false);
+  const [isFaultDetailsOpen, setIsFaultDetailsOpen] = useState(false);
+  const [acknowledgedAlertCategories, setAcknowledgedAlertCategories] = useState<Set<string>>(new Set());
+
 
   // Automatic API Base URL:
   // - In development (npm run dev): Use absolute URL to the host (supports mobile on same Wi-Fi)
@@ -178,6 +186,35 @@ export default function Home() {
     stopPolling,
     isPolling,
   } = useDashboardData(API_BASE_URL);
+
+  useEffect(() => {
+    if (data?.alerts && Array.isArray((data.alerts as any).alerts)) {
+      const currentActive = (data.alerts as any).alerts as FaultAlert[];
+
+      // If no active system faults, clear our acknowledgment cache so future faults can trigger
+      if (currentActive.length === 0) {
+        if (acknowledgedAlertCategories.size > 0) {
+          setAcknowledgedAlertCategories(new Set());
+        }
+        if (persistentAlerts.length > 0) {
+          setPersistentAlerts([]);
+        }
+        return;
+      }
+
+      // Check if there are any totally NEW fault categories that we haven't acknowledged
+      const unacknowledged = currentActive.filter(a => !acknowledgedAlertCategories.has(a.category));
+
+      if (unacknowledged.length > 0 && isAlertDismissed) {
+        // A new fault occurred that wasn't acknowledged yet. Show the banner again.
+        setPersistentAlerts(currentActive);
+        setIsAlertDismissed(false);
+      } else if (!isAlertDismissed) {
+        // Keep the UI sync'd with the active ones
+        setPersistentAlerts(currentActive);
+      }
+    }
+  }, [data?.alerts, acknowledgedAlertCategories, isAlertDismissed, persistentAlerts.length]);
 
   // Update history when data changes
   useEffect(() => {
@@ -294,7 +331,7 @@ export default function Home() {
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = 'PM2230_Data_Log.csv';
+      a.download = 'PM2200_Data_Log.csv';
       document.body.appendChild(a);
       a.click();
       window.URL.revokeObjectURL(url);
@@ -462,7 +499,7 @@ export default function Home() {
           <div className="flex flex-col xl:flex-row xl:items-start justify-between gap-4 w-full">
             {/* Title */}
             <div className="flex-shrink-0">
-              <h1 className="text-2xl font-bold text-white">PM2230 Dashboard</h1>
+              <h1 className="text-2xl font-bold text-white">PM2200 Dashboard</h1>
               <p className="text-gray-400 text-sm">ระบบแสดงผลค่าพารามิเตอร์ไฟฟ้า</p>
             </div>
 
@@ -507,7 +544,7 @@ export default function Home() {
                       const url = window.URL.createObjectURL(blob);
                       const a = document.createElement('a');
                       a.href = url;
-                      a.download = 'PM2230_Fault_Log.csv';
+                      a.download = 'PM2200_Fault_Log.csv';
                       document.body.appendChild(a);
                       a.click();
                       window.URL.revokeObjectURL(url);
@@ -692,6 +729,58 @@ export default function Home() {
       <div className="max-w-7xl mx-auto px-4 py-6">
         {activeTab === 1 && page1 && (
           <div className="space-y-6">
+            {/* ── Live Fault Alert Banner ── */}
+            {!isAlertDismissed && persistentAlerts.length > 0 && (
+              <div className="bg-[#151114] border border-red-500/20 rounded-xl py-4 flex flex-col sm:flex-row items-center justify-between shadow-[0_4px_20px_rgba(239,68,68,0.15)] relative overflow-hidden transition-all duration-300 mx-1 mt-6 mb-6">
+                {/* Red Left Strip */}
+                <div className="absolute top-0 left-0 w-1 h-full bg-gradient-to-b from-red-500 to-red-600 shadow-[2px_0_10px_rgba(239,68,68,0.8)]"></div>
+
+                {/* Left Side: Icon & Text */}
+                <div className="flex items-center gap-4 pl-6 pr-4 w-full sm:w-auto mb-3 sm:mb-0">
+                  <div className="bg-red-500/10 p-2.5 rounded-full flex items-center justify-center animate-pulse-once shadow-[inset_0_0_10px_rgba(239,68,68,0.2)]">
+                    <span className="text-xl drop-shadow-[0_0_8px_rgba(239,68,68,0.6)] animate-pulse">🚨</span>
+                  </div>
+                  <div>
+                    <h3 className="text-red-100 font-bold text-[17px] tracking-wide flex items-center gap-2">
+                      ระบบพบความผิดปกติ — <span className="text-red-400">{persistentAlerts.length} รายการ</span>
+                    </h3>
+                    <p className="text-red-200/50 text-[13px] mt-0.5 tracking-wide font-medium">
+                      กรุณาคลิกเพื่อดูรายละเอียดสาเหตุและคำแนะนำ
+                    </p>
+                  </div>
+                </div>
+
+                {/* Right Side: Action Button */}
+                <div className="pr-4 pl-6 sm:pl-0 w-full sm:w-auto">
+                  <button
+                    onClick={() => setIsFaultDetailsOpen(true)}
+                    className="w-full sm:w-auto px-5 py-2 bg-[#1e2330] hover:bg-[#283145] text-[#b0c4de] hover:text-white text-sm font-medium rounded-lg transition-all flex items-center justify-center gap-2 border border-[#3b4766] shadow-sm tracking-wide"
+                  >
+                    <svg className="w-4 h-4 text-[#60a5fa] opacity-80" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <circle cx="12" cy="12" r="9" strokeWidth="2" />
+                      <line x1="12" y1="16" x2="12" y2="12" strokeWidth="2" strokeLinecap="round" />
+                      <line x1="12" y1="8" x2="12" y2="8.01" strokeWidth="3" strokeLinecap="round" />
+                    </svg>
+                    ดูรายละเอียด
+                  </button>
+                </div>
+              </div>
+            )}
+
+            <FaultDetailsModal
+              isOpen={isFaultDetailsOpen}
+              onClose={() => setIsFaultDetailsOpen(false)}
+              alerts={persistentAlerts}
+              onAcknowledgeAll={() => {
+                const categories = new Set(acknowledgedAlertCategories);
+                persistentAlerts.forEach(a => categories.add(a.category));
+                setAcknowledgedAlertCategories(categories);
+                setPersistentAlerts([]);
+                setIsAlertDismissed(true);
+                setIsFaultDetailsOpen(false);
+              }}
+            />
+
             <AiInsightsPanel faultRecordCount={faultRecordCount} aiAdvisor={aiAdvisor} panelType="power" />
             <AiInsightsPanel faultRecordCount={faultRecordCount} aiAdvisor={aiAdvisor} panelType="predictive" />
 
@@ -734,12 +823,12 @@ export default function Home() {
       {/* Footer */}
       <footer className="border-t border-gray-700 mt-8 py-4">
         <div className="max-w-7xl mx-auto px-4 text-center text-gray-500 text-sm">
-          PM2230 Dashboard
+          PM2200 Dashboard
           <br />
           COPYRIGHT© 2026 โดย กลุ่ม 2 เฉลียว
         </div>
       </footer>
 
-    </main>
+    </main >
   );
 }

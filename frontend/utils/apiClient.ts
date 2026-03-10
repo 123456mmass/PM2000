@@ -420,8 +420,8 @@ export async function fetchSimulatorStatus(): Promise<SimulatorStatusResponse> {
 /**
  * Inject fault in simulator
  */
-export async function injectFault(type: string, value?: boolean): Promise<{ status: string; state: any }> {
-  return fetchWithHandling<{ status: string; state: any }>(`${API_BASE_URL}/simulator/inject`, {
+export async function injectFault(type: string, value?: boolean): Promise<{ status: string; state: Record<string, unknown> }> {
+  return fetchWithHandling<{ status: string; state: Record<string, unknown> }>(`${API_BASE_URL}/simulator/inject`, {
     method: 'POST',
     body: JSON.stringify({ type, value }),
   });
@@ -430,12 +430,32 @@ export async function injectFault(type: string, value?: boolean): Promise<{ stat
 /**
  * Reset simulator faults
  */
-export async function resetSimulator(): Promise<{ status: string; state: any }> {
-  return fetchWithHandling<{ status: string; state: any }>(`${API_BASE_URL}/simulator/reset`, {
+export async function resetSimulator(): Promise<{ status: string; state: Record<string, unknown> }> {
+  return fetchWithHandling<{ status: string; state: Record<string, unknown> }>(`${API_BASE_URL}/simulator/reset`, {
     method: 'POST',
   });
 }
 
+
+/**
+ * Fetch anomaly thresholds config
+ */
+export async function getThresholdConfig(): Promise<Record<string, number>> {
+  return fetchWithHandling<Record<string, number>>(`${API_BASE_URL}/config/thresholds`);
+}
+
+/**
+ * Update anomaly thresholds config
+ */
+export async function updateThresholdConfig(thresholds: Record<string, number>): Promise<{ status: string; message: string; anomaly_thresholds: Record<string, number> }> {
+  return fetchWithHandling<{ status: string; message: string; anomaly_thresholds: Record<string, number> }>(
+    `${API_BASE_URL}/config/thresholds`,
+    {
+      method: 'POST',
+      body: JSON.stringify(thresholds),
+    }
+  );
+}
 
 /**
  * API client object with all methods
@@ -458,6 +478,8 @@ const apiClient = {
   fetchSimulatorStatus,
   injectFault,
   resetSimulator,
+  getThresholdConfig,
+  updateThresholdConfig,
 };
 
 export { API_BASE_URL };

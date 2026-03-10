@@ -48,7 +48,7 @@ export const ReportTemplate: React.FC<ReportTemplateProps> = ({ markdownContent 
                         Power Quality Insight
                     </div>
                     <h1 style={{ color: '#0f172a', margin: 0, fontSize: '28px', fontWeight: '800' }}>
-                        PM2230 Dashboard
+                        PM2200 Dashboard
                     </h1>
                     <p style={{ color: '#64748b', margin: '4px 0 0 0', fontSize: '14px', fontWeight: '500' }}>
                         Autonomous AI Engineering Analysis Report

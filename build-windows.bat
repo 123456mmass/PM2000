@@ -1,7 +1,7 @@
 @echo off
 setlocal enabledelayedexpansion
 echo ======================================================
-echo PM2230 Dashboard - Windows Build Automation Tool
+echo PM2200 Dashboard - Windows Build Automation Tool
 echo ======================================================
 echo.
 

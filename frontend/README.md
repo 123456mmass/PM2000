@@ -1,6 +1,6 @@
 # Frontend
 
-Next.js frontend for the PM2230 dashboard.
+Next.js frontend for the PM2200 dashboard.
 
 ## Development
 

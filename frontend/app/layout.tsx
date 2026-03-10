@@ -14,8 +14,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "PM2230 Dashboard",
-  description: "ระบบแสดงผลค่าพารามิเตอร์ไฟฟ้า PM2230 Digital Meter",
+  title: "PM2200 Dashboard",
+  description: "ระบบแสดงผลค่าพารามิเตอร์ไฟฟ้า PM2200 Digital Meter",
 };
 
 export default function RootLayout({

@@ -28,7 +28,7 @@ from ai_analyzer import (
 from predictive_maintenance_external import create_data_hash
 
 router = APIRouter(prefix="/api/v1")
-logger = logging.getLogger("PM2230_API")
+logger = logging.getLogger("PM2200_API")
 AI_SUMMARY_SAMPLES = max(1, int(os.getenv("AI_SUMMARY_SAMPLES", "2")))
 AI_SUMMARY_INTERVAL_SECONDS = max(0.0, float(os.getenv("AI_SUMMARY_INTERVAL_SECONDS", "0.15")))
 AI_PARALLEL_DEFAULT_STRATEGY = os.getenv("AI_PARALLEL_DEFAULT_STRATEGY", "race").lower()
@@ -234,13 +234,13 @@ async def get_ai_fault_summary(request: Request):
         
         logger.info(f"Cache MISS: {cache_key}... - calling PARALLEL AI API for fault summary")
         
-        prompt = f"""คุณคือผู้เชี่ยวชาญด้านวิศวกรรมไฟฟ้าที่คอยวิเคราะห์สาเหตุการเกิด Fault จาก Power Meter (รุ่น PM2230)
+        prompt = f"""คุณคือผู้เชี่ยวชาญด้านวิศวกรรมไฟฟ้าที่คอยวิเคราะห์สาเหตุการเกิด Fault จาก Power Meter (รุ่น PM2200)
 
 ด้านล่างนี้คือข้อมูลประวัติการเกิดความผิดปกติทางไฟฟ้า (Fault Records) จำนวน {len(fault_records)} รายการล่าสุด
 โปรดวิเคราะห์ข้อมูลเหล่านี้และเขียนสรุปสาเหตุ/รูปแบบของการเกิด Fault โดยอ้างอิงตามมาตรฐานสากล (เช่น IEEE 1159 สำหรับ Power Quality) เพื่อให้วิศวกรซ่อมบำรุงเข้าใจง่าย เป็นภาษาไทย
 
 ## หัวข้อรายงาน:
-รายงานฉบับนี้วิเคราะห์จากข้อมูลประวัติการเกิด Fault ของ Power Meter รุ่น PM2230
+รายงานฉบับนี้วิเคราะห์จากข้อมูลประวัติการเกิด Fault ของ Power Meter รุ่น PM2200
 วันที่-เวลา: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')} (เวลาปัจจุบันที่วิเคราะห์)
 
 ---
@@ -395,12 +395,12 @@ async def get_external_predictive_maintenance(request: Request):
         
         anomaly_text = "\n".join(anomalies) if anomalies else "✅ ปกติ (ไม่มี Anomaly Alert)"
         
-        prompt = f"""คุณคือผู้เชี่ยวชาญด้านวิศวกรรมไฟฟ้าที่คอยวิเคราะห์ข้อมูลจาก Power Meter (รุ่น PM2230)
+        prompt = f"""คุณคือผู้เชี่ยวชาญด้านวิศวกรรมไฟฟ้าที่คอยวิเคราะห์ข้อมูลจาก Power Meter (รุ่น PM2200)
 
 โปรดวิเคราะห์ข้อมูลด้านล่างและทำนายความต้องการในการบำรุงรักษา (Predictive Maintenance) โดยอ้างอิงตามมาตรฐานสากล (เช่น IEEE 519 สำหรับ Harmonics และ IEEE 1159 สำหรับ Power Quality) ให้มีโครงสร้างชัดเจนและกระชับ เป็นภาษาไทย
 
 ## หัวข้อรายงาน:
-รายงานฉบับนี้วิเคราะห์จากข้อมูลค่าเฉลี่ยของ Power Meter รุ่น PM2230
+รายงานฉบับนี้วิเคราะห์จากข้อมูลค่าเฉลี่ยของ Power Meter รุ่น PM2200
 วันที่-เวลา: {datetime.now().strftime('%d/%m/%Y เวลา %H:%M:%S น.')}
 
 ---
@@ -560,12 +560,12 @@ async def get_energy_efficiency_ai(request: Request):
         v_unb = data.get("V_unb", 0)
         i_unb = data.get("I_unb", 0)
         
-        prompt = f"""คุณคือผู้เชี่ยวชาญด้านวิศวกรรมไฟฟ้าที่คอยวิเคราะห์ประสิทธิภาพพลังงานจาก Power Meter (รุ่น PM2230)
+        prompt = f"""คุณคือผู้เชี่ยวชาญด้านวิศวกรรมไฟฟ้าที่คอยวิเคราะห์ประสิทธิภาพพลังงานจาก Power Meter (รุ่น PM2200)
 
 โปรดวิเคราะห์ข้อมูลด้านล่างและให้คำแนะนำในการประหยัดพลังงาน โดยอ้างอิงตามมาตรฐานสากล (เช่น IEEE 519 สำหรับ Harmonics และ IEEE 1159 สำหรับ Power Quality) ให้มีโครงสร้างชัดเจนและกระชับ เป็นภาษาไทย
 
 ## หัวข้อรายงาน:
-รายงานฉบับนี้วิเคราะห์ประสิทธิภาพพลังงานจากข้อมูลค่าเฉลี่ยของ Power Meter รุ่น PM2230
+รายงานฉบับนี้วิเคราะห์ประสิทธิภาพพลังงานจากข้อมูลค่าเฉลี่ยของ Power Meter รุ่น PM2200
 วันที่-เวลา: {datetime.now().strftime('%d/%m/%Y เวลา %H:%M:%S น.')}
 
 ---

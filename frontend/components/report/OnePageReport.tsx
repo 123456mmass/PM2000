@@ -486,7 +486,7 @@ export function OnePageReport({
           {isExportingPdf ? (
             <><div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div> สร้าง PDF...</>
           ) : (
-            <>📄 PM2230 - One Page Performance Report</>
+            <>📄 PM2200 - One Page Performance Report</>
           )}
         </button>
       </div>
@@ -495,7 +495,7 @@ export function OnePageReport({
         <header className="border-b border-slate-200 pb-4">
           <div className="flex flex-wrap items-start justify-between gap-3">
             <div>
-              <h2 className="text-2xl font-bold text-slate-900">PM2230 - One Page Performance Report</h2>
+              <h2 className="text-2xl font-bold text-slate-900">PM2200 - One Page Performance Report</h2>
               <p className="text-sm text-slate-600 mt-1">สรุปวิเคราะห์สถานะระบบไฟฟ้าแบบจัดหมวดหมู่</p>
             </div>
             <div className="text-right">

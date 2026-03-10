@@ -1,11 +1,11 @@
 #!/bin/bash
-# PM2230 Dashboard - Raspberry Pi Launcher
+# PM2200 Dashboard - Raspberry Pi Launcher
 # Place this file next to backend-server binary
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 echo "======================================================"
-echo " PM2230 Dashboard - Pi Launcher"
+echo " PM2200 Dashboard - Pi Launcher"
 echo "======================================================"
 echo ""
 echo " [1] Local only   (this Pi only)"

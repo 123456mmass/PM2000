@@ -42,7 +42,7 @@ export const AiInsightsPanel: React.FC<AiInsightsPanelProps> = ({ faultRecordCou
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = `PM2230_Analysis_${new Date().toISOString().split('T')[0]}.txt`;
+        a.download = `PM2200_Analysis_${new Date().toISOString().split('T')[0]}.txt`;
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
@@ -64,7 +64,7 @@ export const AiInsightsPanel: React.FC<AiInsightsPanelProps> = ({ faultRecordCou
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = `PM2230_Predictive_${new Date().toISOString().split('T')[0]}.txt`;
+        a.download = `PM2200_Predictive_${new Date().toISOString().split('T')[0]}.txt`;
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
@@ -84,7 +84,7 @@ export const AiInsightsPanel: React.FC<AiInsightsPanelProps> = ({ faultRecordCou
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = `PM2230_Energy_${new Date().toISOString().split('T')[0]}.txt`;
+        a.download = `PM2200_Energy_${new Date().toISOString().split('T')[0]}.txt`;
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);

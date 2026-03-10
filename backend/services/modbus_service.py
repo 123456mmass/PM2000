@@ -17,12 +17,12 @@ from datetime import datetime
 import httpx
 
 from core import state
-from pm2230_client import PM2230Client
+from pm2200_client import PM2200Client
 from fault_engine import diagnose_faults
 
 from ai_analyzer import generate_line_fault_analysis
 
-logger = logging.getLogger("PM2230_API")
+logger = logging.getLogger("PM2200_API")
 
 # ============================================================================
 # Global State for Anomaly Detection History
@@ -83,8 +83,8 @@ def connect_client(
     slave_id: int,
     parity: str,
     validate_reading: bool,
-) -> Tuple[Optional[PM2230Client], str]:
-    client = PM2230Client(port=port, baudrate=baudrate, slave_id=slave_id, parity=parity.upper())
+) -> Tuple[Optional[PM2200Client], str]:
+    client = PM2200Client(port=port, baudrate=baudrate, slave_id=slave_id, parity=parity.upper())
     if not client.connect():
         err = getattr(client._scanner, "last_error", None)
         logger.error(f"Connection failed: {err or 'serial_open_failed'}")
@@ -118,7 +118,7 @@ def auto_connect(
     baudrate: int = state.DEFAULT_BAUDRATE,
     slave_id: int = state.DEFAULT_SLAVE_ID,
     parity: str = state.DEFAULT_PARITY,
-) -> Tuple[Optional[PM2230Client], List[Dict[str, str]]]:
+) -> Tuple[Optional[PM2200Client], List[Dict[str, str]]]:
     attempts: List[Dict[str, str]] = []
     for port in discover_serial_ports():
         client, reason = connect_client(port, baudrate, slave_id, parity, validate_reading)
@@ -416,10 +416,16 @@ def _read_fast_block(client) -> dict:
     Called in a worker thread via asyncio.to_thread.
     Returns a partial flat dict (fast params + status/timestamp).
     """
-    from pm2230_client import PM2230Scanner
+    from pm2200_client import PM2200Scanner
     import struct, math
 
+    if state.SIMULATE_MODE:
+        return {"status": "NOT_CONNECTED", "timestamp": datetime.now().isoformat()}
+
     scanner = client._scanner
+    if not scanner.connected:
+        return {"status": "NOT_CONNECTED", "timestamp": datetime.now().isoformat()}
+
     try:
         r1 = scanner.client.read_holding_registers(
             address=2999, count=125, slave=scanner.slave_id
@@ -443,7 +449,7 @@ def _read_fast_block(client) -> dict:
         val = struct.unpack(">f", raw)[0]
         return 0.0 if (math.isnan(val) or math.isinf(val)) else round(val, 4)
 
-    for param_name, (address, quantity, scale, unit, _) in PM2230Scanner.REGISTER_MAP.items():
+    for param_name, (address, quantity, scale, unit, _) in PM2200Scanner.REGISTER_MAP.items():
         if param_name not in _FAST_PARAMS:
             continue
         if not (2999 <= address < 2999 + 125):
@@ -451,9 +457,9 @@ def _read_fast_block(client) -> dict:
         offset = address - 2999
         if quantity == 2 and offset + 2 <= len(r1.registers):
             val = _decode_f32(r1.registers[offset:offset + 2])
-            # PM2230 4-Quadrant PF conversion
+            # PM2200 4-Quadrant PF conversion
             if param_name.startswith("PF_"):
-                val, pf_type = PM2230Scanner._decode_pf_quadrant(val)
+                val, pf_type = PM2200Scanner._decode_pf_quadrant(val)
                 result[f"{param_name}_type"] = pf_type
             result[param_name] = val
 
@@ -465,15 +471,15 @@ async def _send_smart_line(alerts: List[Dict], data: Dict, base_msg: str):
     Helper to fetch AI analysis and append to LINE message without blocking.
     """
     try:
-        # Prompt AI for analysis with an 8s timeout to ensure prompt delivery
+        # Prompt AI for analysis with a 20s timeout to ensure prompt delivery
         ai_advice = await asyncio.wait_for(
             generate_line_fault_analysis(alerts, data),
-            timeout=8.0
+            timeout=20.0
         )
         if ai_advice:
             base_msg += f"\n\n🤖 AI วิเคราะห์:\n{ai_advice}"
     except asyncio.TimeoutError:
-        logger.warning("LINE AI analysis timed out (8s)")
+        logger.warning("LINE AI analysis timed out (20s). Falling back to base message.")
     except Exception as e:
         logger.error(f"Error in _send_smart_line AI call: {e}")
 
@@ -553,6 +559,14 @@ async def poll_modbus_data():
                 }
                 async with state.alerts_lock:
                     update_current_alerts(None)
+                    
+                # Auto-reconnect on transient disconnect (EMI/Cable wiggle)
+                logger.info("Connection lost. Attempting auto-reconnect...")
+                # We do this in a thread so it doesn't block the async loop
+                recon_client, _ = await asyncio.to_thread(auto_connect, True)
+                if recon_client:
+                    state.real_client = recon_client
+                    logger.info("Auto-reconnect successful.")
 
             elif not state.cached_data:
                 state.cached_data = {
@@ -580,6 +594,15 @@ async def poll_modbus_data():
                 except Exception as e:
                     logger.warning(f"Could not load anomaly_thresholds from energy_config.json: {e}")
                 
+                # Merge with DEFAULT_THRESHOLDS to prevent Rust/Python dict KeyErrors
+                from fault_engine import DEFAULT_THRESHOLDS
+                merged_config = DEFAULT_THRESHOLDS.copy()
+                for k, v in config.items():
+                    try:
+                        merged_config[k] = float(v)
+                    except (ValueError, TypeError):
+                        pass
+
                 # 2. Add current flat_data to history
                 ANOMALY_HISTORY.append({k: float(v) for k, v in flat_data.items() if isinstance(v, (int, float))})
                 
@@ -590,22 +613,31 @@ async def poll_modbus_data():
                         rust_alerts = pm2000_core.detect_anomalies(
                             flat_data, 
                             list(ANOMALY_HISTORY), 
-                            config
+                            merged_config
                         )
                         if len(rust_alerts) > 0:
                             has_alert = True
                             _alerts["alerts"] = rust_alerts
+                            _alerts["status"] = "ALERT"  # Required for update_current_alerts()
+                        else:
+                            # Rust returned no anomalies — fallback to Python check_limits
+                            _alerts = diagnose_faults(flat_data, config=merged_config)
+                            has_alert = _alerts.get("status") == "ALERT"
                     except Exception as e:
                         logger.error(f"Rust detect_anomalies error: {e}")
                         # Fallback to python check_limits if Rust fails
-                        _alerts = check_limits(flat_data)
+                        _alerts = diagnose_faults(flat_data, config=merged_config)
                         has_alert = _alerts.get("status") == "ALERT"
                 else:
-                    _alerts = check_limits(flat_data)
+                    _alerts = diagnose_faults(flat_data, config=merged_config)
                     has_alert = _alerts.get("status") == "ALERT"
 
             async with state.alerts_lock:
                 update_current_alerts(_alerts if has_alert else None)
+            if has_alert:
+                logger.info(f"[ALERT SET] {len(_alerts.get('alerts',[]))} faults → state.current_alerts updated")
+            else:
+                logger.debug("[ALERT CLEAR] No faults → current_alerts cleared")
 
             # ── CSV logging (every fast cycle if enabled) ─────────────────────
             if state.is_logging:
@@ -648,22 +680,123 @@ async def poll_modbus_data():
                         row.append(fault_details)
                         writer.writerow(row)
 
+                        # --- ALERT DEBOUNCE AND COOLDOWN LOGIC ---
                         now = time.time()
+                        
+                        # 1. Define Severity Timings
+                        DEBOUNCE_SECS = {
+                            "critical": 2,
+                            "high": 15,
+                            "medium": 60,
+                            "warning": 15, # Rust engine maps to warning
+                            "low": 60 
+                        }
+                        COOLDOWN_SECS = {
+                            "critical": 900,   # 15 mins (Standard Nagging for Emergency)
+                            "high": 3600,      # 60 mins (Action required within shift)
+                            "medium": 14400,   # 4 hours (Half shift review)
+                            "warning": 86400,  # 24 hours (Daily review)
+                            "low": 86400       # 24 hours
+                        }
+
+                        # Define global tracking dicts if not exists
+                        # (We store these on the module level or in state, using module globals here for simplicity)
+                        global active_fault_start_times, last_notified_times
+                        if 'active_fault_start_times' not in globals():
+                            global active_fault_start_times
+                            active_fault_start_times = {}
+                        if 'last_notified_times' not in globals():
+                            global last_notified_times
+                            last_notified_times = {}
+
                         current_fault_categories = set(a['category'] for a in _alerts.get("alerts", []))
-                        if current_fault_categories != last_sent_fault_categories or \
-                                now - last_line_notify_time > LINE_NOTIFY_COOLDOWN:
-                            alert_msgs = [
-                                f"⚠️ {a['category'].upper()}: {a['message']}\n💡 {a.get('detail', '')}"
-                                for a in _alerts.get("alerts", [])
-                            ]
-                            full_msg = "\n🚨 [FAULT DETECTED] PM2000\n" + "\n".join(alert_msgs)
+                        
+                        # Cleanup old faults that are no longer active
+                        for cat in list(active_fault_start_times.keys()):
+                            if cat not in current_fault_categories:
+                                del active_fault_start_times[cat]
+
+                        alerts_to_send = []
+
+                        # Evaluate each fault
+                        for alert in _alerts.get("alerts", []):
+                            cat = alert['category']
+                            sev = alert.get('severity', 'medium').lower()
+                            
+                            # 1. Update Start Time
+                            if cat not in active_fault_start_times:
+                                active_fault_start_times[cat] = now
+                                
+                            elapsed = now - active_fault_start_times[cat]
+                            
+                            # 2. Check Debounce
+                            debounce_needed = DEBOUNCE_SECS.get(sev, 60)
+                            if elapsed >= debounce_needed:
+                                # 3. Check Cooldown
+                                cooldown_needed = COOLDOWN_SECS.get(sev, 3600)
+                                last_sent = last_notified_times.get(cat, 0)
+                                if now - last_sent >= cooldown_needed:
+                                    alerts_to_send.append(alert)
+                                    last_notified_times[cat] = now
+
+                        # Define Thai Translation Maps
+                        CATEGORY_MAP = {
+                            'VOLTAGE': 'ตัวแปรแรงดันไฟฟ้า',
+                            'CURRENT': 'ตัวแปรกระแสไฟฟ้า',
+                            'FREQUENCY': 'ตัวแปรความถี่',
+                            'POWER': 'ตัวแปรกำลังไฟฟ้า',
+                            'VOLTAGE UNBALANCE': 'แรงดันไฟฟ้าไม่สมดุล',
+                            'CURRENT UNBALANCE': 'กระแสไฟฟ้าไม่สมดุล',
+                            'HARMONICS': 'ฮาร์มอนิก',
+                            'SYSTEM': 'ระบบทั่วไป',
+                            'VOLTAGE_UNBALANCE': 'แรงดันไฟฟ้าไม่สมดุล',
+                            'CURRENT_UNBALANCE': 'กระแสไฟฟ้าไม่สมดุล'
+                        }
+                        SEVERITY_MAP = {
+                            'critical': 'วิกฤต',
+                            'high': 'รุนแรง',
+                            'medium': 'ปานกลาง',
+                            'warning': 'แจ้งเตือน',
+                            'info': 'ทั่วไป'
+                        }
+
+                        def _translate_msg(msg: str) -> str:
+                            m = msg.lower()
+                            if 'undervoltage detected' in m: return msg.replace('Undervoltage detected', 'ตรวจพบแรงดันตก')
+                            if 'overvoltage detected' in m: return msg.replace('Overvoltage detected', 'ตรวจพบแรงดันเกิน')
+                            if 'high current detected' in m: return msg.replace('High current detected', 'ตรวจพบกระแสเกิน')
+                            if 'voltage unbalance exceeds limit' in m: return msg.replace('Voltage unbalance exceeds limit', 'แรงดันไม่สมดุลเกินค่ามาตรฐาน')
+                            if 'current unbalance exceeds limit' in m: return msg.replace('Current unbalance exceeds limit', 'กระแสไม่สมดุลเกินค่ามาตรฐาน')
+                            if 'frequency out of normal range' in m: return msg.replace('Frequency out of normal range', 'ความถี่อยู่นอกย่านปกติ')
+                            if 'low power factor' in m: return msg.replace('Low power factor detected', 'ค่าตัวประกอบกำลังต่ำกว่าเกณฑ์')
+                            return msg
+
+                        # Send if we have valid debounced/cooled down alerts
+                        if alerts_to_send:
+                            alert_msgs = []
+                            for a in alerts_to_send:
+                                raw_cat = a['category'].replace('_', ' ')
+                                th_cat = CATEGORY_MAP.get(raw_cat.upper(), CATEGORY_MAP.get(a['category'].upper(), raw_cat.upper()))
+                                raw_sev = a.get('severity', 'WARNING').lower()
+                                th_sev = SEVERITY_MAP.get(raw_sev, a.get('severity', 'WARNING').upper())
+                                th_msg = _translate_msg(a['message'])
+                                detail = a.get('detail', '')
+                                
+                                msg_str = f"⚠️ [{th_sev}] {th_cat}: {th_msg}"
+                                if detail:
+                                    msg_str += f"\n💡 {detail}"
+                                alert_msgs.append(msg_str)
+
+                            full_msg = "\n🚨 [แจ้งเตือนระบบไฟฟ้าผิดปกติ] PM2000\n" + "\n".join(alert_msgs)
                             full_msg += f"\n⏰ เวลา: {datetime.now().strftime('%H:%M:%S')}"
                             
                             # Use smart helper to add AI analysis before sending
-                            asyncio.create_task(_send_smart_line(_alerts.get("alerts", []), flat_data, full_msg))
-                            
-                            last_line_notify_time = now
-                            last_sent_fault_categories = current_fault_categories
+                            # Keep a strong reference so the task is not garbage collected before LINE is sent
+                            if not hasattr(state, '_active_bg_tasks'):
+                                state._active_bg_tasks = set()
+                            bg_task = asyncio.create_task(_send_smart_line(alerts_to_send, flat_data, full_msg))
+                            state._active_bg_tasks.add(bg_task)
+                            bg_task.add_done_callback(state._active_bg_tasks.discard)
 
                 except Exception as log_err:
                     logger.error(f"Error writing to Fault log file: {log_err}")

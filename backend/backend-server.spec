@@ -15,13 +15,26 @@ if pycloudflared_path is None:
 
 a = Analysis(
     ['main.py'],
-    pathex=[],
+    pathex=['.'],
     binaries=[],
     datas=[
         ('.env', '.'),
         (pycloudflared_path, 'pycloudflared'),
+        ('routes', 'routes'),
+        ('services', 'services'),
+        ('core', 'core'),
     ],
-    hiddenimports=['pycloudflared'],
+    hiddenimports=[
+        'pycloudflared',
+        'routes', 'routes.meter', 'routes.system', 'routes.ai', 'routes.line_webhook',
+        'services', 'services.modbus_service',
+        'core', 'core.state', 'core.models', 'core.security',
+        'pm2200_client',
+        'predictive_maintenance',
+        'predictive_maintenance_external',
+        'energy_management',
+        'ai_analyzer',
+    ],
     hookspath=[],
     hooksconfig={},
     runtime_hooks=[],

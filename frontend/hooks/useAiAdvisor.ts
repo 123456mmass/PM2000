@@ -11,11 +11,11 @@ export function useAiAdvisor(API_BASE_URL: string) {
 
     // Predictive Maintenance & Energy Management states
     const [predictiveLoading, setPredictiveLoading] = useState(false);
-    const [predictiveResult, setPredictiveResult] = useState<any>(null);
+    const [predictiveResult, setPredictiveResult] = useState<Record<string, unknown> | null>(null);
     const [isPredictiveExpanded, setIsPredictiveExpanded] = useState(false);
 
     const [energyLoading, setEnergyLoading] = useState(false);
-    const [energyResult, setEnergyResult] = useState<any>(null);
+    const [energyResult, setEnergyResult] = useState<Record<string, unknown> | null>(null);
     const [isEnergyExpanded, setIsEnergyExpanded] = useState(false);
 
     const [isInitialMount, setIsInitialMount] = useState(true);
@@ -162,12 +162,12 @@ export function useAiAdvisor(API_BASE_URL: string) {
 
     const handleAskAiAboutPredictive = useCallback(() => {
         if (!predictiveResult?.message) return;
-        askAiAdvisor(predictiveResult.message, 'Predictive Maintenance');
+        askAiAdvisor(predictiveResult.message as string, 'Predictive Maintenance');
     }, [predictiveResult, askAiAdvisor]);
 
     const handleAskAiAboutEnergy = useCallback(() => {
         if (!energyResult?.analysis) return;
-        askAiAdvisor(energyResult.analysis, 'Energy Management');
+        askAiAdvisor(energyResult.analysis as string, 'Energy Management');
     }, [energyResult, askAiAdvisor]);
 
     return {

@@ -1,5 +1,5 @@
 #!/bin/bash
-# Start PM2230 Dashboard (Backend + Frontend)
+# Start PM2200 Dashboard (Backend + Frontend)
 
 set -euo pipefail
 
@@ -7,7 +7,7 @@ ROOT_DIR="$(cd "$(dirname "$0")" && pwd)"
 BACKEND_DIR="$ROOT_DIR/backend"
 FRONTEND_DIR="$ROOT_DIR/frontend"
 
-echo "Starting PM2230 Dashboard..."
+echo "Starting PM2200 Dashboard..."
 echo ""
 
 echo "Backend: preparing environment"

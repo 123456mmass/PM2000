@@ -1,8 +1,8 @@
 @echo off
 setlocal enabledelayedexpansion
-title PM2230 Dashboard
+title PM2200 Dashboard
 echo ======================================================
-echo  PM2230 Dashboard - Windows Launcher
+echo  PM2200 Dashboard - Windows Launcher
 echo ======================================================
 echo.
 

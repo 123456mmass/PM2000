@@ -1,4 +1,4 @@
-# 📊 PM2230 Dashboard
+# 📊 PM2200 Dashboard
 
 **วิชา:** 01026325 - ระบบควบคุมอัตโนมัติในอาคารและอุตสาหกรรม  
 **อาจารย์:** รศ.ดร.เชาว์ ชมภูอินไหว
@@ -9,7 +9,7 @@
 
 | รายการ | รายละเอียด |
 |--------|-----------|
-| **Meter** | Schneider PM2230 |
+| **Meter** | Schneider PM2200 |
 | **Communication** | Modbus RTU over RS485 |
 | **Parameters** | 42 ค่า |
 | **Dashboard** | 4 หน้า |
@@ -26,7 +26,7 @@
 ### ขั้นตอนสั้นๆ:
 1. **ดับเบิ้ลคลิก** `start-web.bat`
 2. **รอ 3 วินาที** → Browser เปิดอัตโนมัติ
-# 📊 PM2230 Dashboard
+# 📊 PM2200 Dashboard
 
 **วิชา:** 01026325 - ระบบควบคุมอัตโนมัติในอาคารและอุตสาหกรรม  
 **อาจารย์:** รศ.ดร.เชาว์ ชมภูอินไหว
@@ -37,7 +37,7 @@
 
 | รายการ | รายละเอียด |
 |--------|-----------|
-| **Meter** | Schneider PM2230 |
+| **Meter** | Schneider PM2200 |
 | **Communication** | Modbus RTU over RS485 |
 | **Parameters** | 36 ค่า |
 | **Dashboard** | 4 หน้า |
@@ -98,7 +98,7 @@ backend-server.exe (FastAPI + Uvicorn)
 
 ---
 
-## 🔌 การตั้งค่า Modbus (PM2230)
+## 🔌 การตั้งค่า Modbus (PM2200)
 
 | Parameter | ค่า Default |
 |-----------|------------|
@@ -188,7 +188,7 @@ python build.py
 ## 📝 Requirements
 
 - Windows 10/11 (64-bit)
-- USB-to-RS485 Adapter (สำหรับเชื่อมต่อ PM2230)
+- USB-to-RS485 Adapter (สำหรับเชื่อมต่อ PM2200)
 - Python 3.12 (สำหรับ development)
 - Node.js 18+ (สำหรับ development)
 
@@ -206,7 +206,7 @@ python build.py
 - The web alert polling interval is 1 second.
 - Active faults repeat by category every approximately 2 seconds while the same fault remains active.
 - LINE notifications are independent from the web toast flow.
-- Simulator faults and real PM2230 faults use the same /api/v1/alerts category-based web alert logic.
+- Simulator faults and real PM2200 faults use the same /api/v1/alerts category-based web alert logic.
 
 **Last Updated Note:** Web alert timing adjusted on 2026-03-06.
 #   P M 2 0 0 0 - B A C K U P 

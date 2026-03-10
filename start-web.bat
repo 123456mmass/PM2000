@@ -1,8 +1,8 @@
 @echo off
 setlocal enabledelayedexpansion
-title PM2230 Dashboard
+title PM2200 Dashboard
 echo ======================================================
-echo  PM2230 Dashboard - Web Mode Launcher
+echo  PM2200 Dashboard - Web Mode Launcher
 echo ======================================================
 echo.
 echo  --- Step 1: Engine ---
@@ -11,10 +11,10 @@ echo  [2] Python Only     (no Rust core needed)
 echo.
 set /p ENGINE="Select Engine [1/2]: "
 if "%ENGINE%"=="2" (
-    set PM2230_NO_RUST=1
+    set PM2200_NO_RUST=1
     echo  ^> Engine: Python Only
 ) else (
-    set PM2230_NO_RUST=0
+    set PM2200_NO_RUST=0
     echo  ^> Engine: Python + Rust
 )
 echo.

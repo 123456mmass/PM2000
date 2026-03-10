@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1240" height="1754" viewBox="0 0 1240 1754" role="img" aria-label="PM2230 Advanced One-Page Report Template">
+<svg xmlns="http://www.w3.org/2000/svg" width="1240" height="1754" viewBox="0 0 1240 1754" role="img" aria-label="PM2200 Advanced One-Page Report Template">
   <defs>
     <linearGradient id="pageBg" x1="0" y1="0" x2="1" y2="1">
       <stop offset="0%" stop-color="#0b1220"/>
@@ -60,7 +60,7 @@
     <circle cx="1030" cy="42" r="50" fill="#ffffff" fill-opacity="0.12"/>
     <circle cx="1082" cy="136" r="36" fill="#ffffff" fill-opacity="0.10"/>
 
-    <text class="h1" x="30" y="66">PM2230 Advanced Report Template</text>
+    <text class="h1" x="30" y="66">PM2200 Advanced Report Template</text>
     <text class="whiteSoft" style="font:500 20px 'Segoe UI', Arial, sans-serif" x="30" y="102">
       วิเคราะห์เชิงลึก • กราฟแนวโน้ม • จัดหมวดหมู่ความเสี่ยง • Action Plan พร้อมใช้งาน
     </text>
@@ -247,7 +247,7 @@
     <text class="small" x="1080" y="246" text-anchor="end">91%</text>
 
     <text class="small" x="744" y="286">Template ready for A4 print and dashboard embedding</text>
-    <text class="mono" x="744" y="312">Template: PM2230-A4-PRO-v2</text>
+    <text class="mono" x="744" y="312">Template: PM2200-A4-PRO-v2</text>
     <text class="mono" x="744" y="334">Sections: KPI, Trends, Quality, Risks, Actions</text>
   </g>
 </svg>

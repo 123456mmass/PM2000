@@ -2,6 +2,13 @@
 
 import React from 'react';
 
+export interface FaultAlert {
+  category: string;
+  severity: string;
+  message: string;
+  detail?: string;
+}
+
 interface VoltageRowProps {
   label: string;
   value: number;
@@ -51,7 +58,7 @@ export function PowerRow({ label, value, unit, bold = false }: PowerRowProps) {
     <div className="flex justify-between items-center">
       <span className="text-gray-300">{label}</span>
       <span className={`font-bold ${bold ? 'text-blue-400 text-xl' : 'text-white'}`}>
-        {value.toFixed(3)} {unit}
+        {value.toFixed(2)} {unit}
       </span>
     </div>
   );
@@ -71,7 +78,7 @@ export function THDRow({ label, value }: THDRowProps) {
     <div className="flex justify-between items-center">
       <span className="text-gray-300">{label}</span>
       <span className={`text-lg font-bold ${color}`}>
-        {value.toFixed(2)} %
+        {value.toFixed(1)} %
       </span>
     </div>
   );
@@ -98,7 +105,7 @@ export function UnbalanceRow({ label, value }: UnbalanceRowProps) {
     <div className="flex justify-between items-center">
       <span className="text-gray-300">{label}</span>
       <span className={`text-lg font-bold ${color}`}>
-        {value.toFixed(2)} %
+        {value.toFixed(1)} %
       </span>
     </div>
   );
@@ -161,7 +168,7 @@ export function EnergyStat({ label, value, unit }: EnergyStatProps) {
   return (
     <div className="bg-gray-700 rounded-lg p-4 text-center">
       <p className="text-gray-400 text-xs mb-2">{label}</p>
-      <p className="text-white font-bold text-lg">{value.toFixed(3)} {unit}</p>
+      <p className="text-white font-bold text-lg">{value.toFixed(1)} {unit}</p>
     </div>
   );
 }
